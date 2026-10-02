@@ -14,35 +14,39 @@ flowchart TD
   F --> C{Explicit pattern consent}
   C --> API[Local fingerprint API]
   API --> DB[SQLite with 24-hour expiry]
-  DB --> CL[Tactic similarity candidates]
+  DB --> CL[Ordered campaign candidates and shift cues]
   CL --> H[Token-gated human review]
   H --> D[Reviewed or dismissed candidate]
 ```
 
-All arrows above are implemented. Browser content stays local. No raw text is sent to a server; no text, URLs, VPAs or exact amounts are retained in the session. Events retain tactics, local model scores, channel, timestamp, and coarse payment bucket. Model inference uses presence word/bigram features and exported logistic coefficients; no network inference exists. The classifier is synthetic-trained and uncalibrated. Its corroboration contributes up to three points only after a deterministic workflow matches.
+All arrows above are implemented. Browser content stays local. No raw text is sent to a server; no text, URLs, VPAs or exact amounts are retained in the derived session. Before analysis, user input remains in the field; a PWA share handoff temporarily holds raw text in worker memory for up to 60 seconds, then deletes it. No share text is placed in URLs, disk storage or CacheStorage. QR frames/images decode on the device and camera tracks stop on scan success, close, channel/view change, or backgrounding. Events retain tactics, local model scores, channel, timestamp, and coarse payment bucket. Model inference uses presence word/bigram features and exported logistic coefficients; no network inference exists. The classifier is synthetic-trained and uncalibrated. Its corroboration contributes up to three points only after a deterministic workflow matches.
 
 ## Detection logic
 
 1. NFKC, case and invisible-control normalization; sentence-aware negation suppression for credential and remote-control advice.
-2. Extract eleven behavior tactics and optional local model corroboration. URLs are inspected as text and never fetched. This is not URL reputation or APK malware analysis.
+2. Extract thirteen behavior tactics and optional local model corroboration. URLs are inspected as text and never fetched. This is not URL reputation or APK malware analysis.
 3. One explicit local session, at most 64 events; reset after a 20-minute gap. Timestamp order is enforced. User-selected sessions avoid hidden cross-app association. Different conversations need a manual reset; automated session association is not implemented.
-4. Ordered pretext-to-payment matching for refund, authority and investment workflows; additional task-fee, remote-access, credential and pressure patterns. A QR is an outgoing intent, not a completed payment.
+4. Ordered pretext-to-payment matching for refund, authority and investment workflows; additional KYC/unusual-link, task-fee, remote-access, credential and pressure patterns. Link cues are lexical evidence, not reputation or malware analysis. A QR is an outgoing intent, not a completed payment.
 5. Evidence and action indices are heuristic 0-99 scores. Quiet when no immediate risky action; warn only at a supported action with sufficient independent signal families or a direct secret-credential request.
-6. Sixty-second repeat suppression; severity increases, a newly requested sensitive action, or a two-bucket financial increase can re-warn. Suppression does not lower the assessed risk. Passive evidence stays visible.
+6. Sixty-second repeat suppression; a different matched workflow, severity increases, a newly requested sensitive action, or a two-bucket financial increase can re-warn. Suppression does not lower the assessed risk. Passive evidence stays visible.
 7. Warning offers cancellation and an explicit continuation confirmation. Both act only on the simulator. Users remain in control; real verification requires an independent official channel.
 
 ## Data flow and review
 
 Fingerprint schema: version, random session ID, enum tactic set, ordered tactic sequence, enum channel set, amount bucket and event count. Reject all unexpected fields. No hashing of low-entropy personal identifiers is necessary because no personal identifiers are uploaded. Fingerprints remain potentially sensitive; consent and 24-hour expiry are mandatory.
 
-Jaccard similarity >=0.70 groups tactic sets. At least three distinct session IDs are required for a candidate. A five-minute count threshold labels a possible burst. This is a simple prototype heuristic, not ADWIN, statistical concept drift, identity verification or HDBSCAN. A malicious party can create multiple IDs; deduplication is not Sybil resistance. Candidates never change local warnings automatically. Analyst review is authenticated with an operator token; review changes status only, does not publish policies or label a bank account as fraudulent.
+Campaign grouping requires tactic Jaccard >=0.70 and normalized ordered longest-common-subsequence >=0.70, against a fixed anchor. Within-event tactic order comes from extractor order; sequence evidence describes event progression, not word order inside an utterance. Three distinct random session IDs form a candidate. Signature hashes contain only enums, not personal identifiers.
+
+At 40 total reports, compare the last two fixed 20-report windows. For each candidate, calculate its membership-rate increase and the threshold `sqrt(0.5 * log(2 / delta) * (1/n0 + 1/n1))`, with `delta = 0.01 / number_of_groups`. This is a two-window Hoeffding cue, not ADWIN. Its assumptions require independent observations; grouping and repeated snapshots are data dependent, so this implementation does not claim a calibrated global false-alarm guarantee. A synthetic 20 ordinary -> 20 new-composition replay exposes the shift; a stationary alternating mix stays quiet.
+
+Reporter identities remain unverified. A malicious actor can create many session IDs; deduplication and the 1,000-report local cap are not Sybil resistance. Candidates never change local warnings. Analyst authentication only changes reviewed/dismissed status. No policy is published and no payment account is blacklisted.
 
 ## Security and privacy mitigations
 
 - Localhost binding by default. No public deployment claimed; production requires authenticated reporters, per-actor quotas, TLS, encrypted durable storage, access/audit controls, abuse resistance and a signed, versioned policy pipeline.
 - Static route allowlist, resolved-path containment, no directory listings or backend file downloads. JSON-only bounded requests, rate limits, schema allowlists, same-origin rejection, CSP, permissions policy and no content logs.
 - Opaque random ID grants deletion of the corresponding report; it must remain private. Retention is enforced on ingestion and reads. SQLite physical page erasure and forensic browser-memory erasure are not guaranteed.
-- Pattern sharing and anonymous usage analytics have separate visit-only opt-ins. Analytics has fixed events, enum properties, no profiles, geolocation enrichment disabled, no replay, no exact latency, and random in-memory IDs. Operator token stays server-side.
+- Pattern sharing and anonymous usage analytics have separate visit-only opt-ins. Analytics has fixed events, enum properties, no profiles, geolocation enrichment disabled, no replay, no exact latency, and secure random in-memory IDs. Fixed source enums distinguish synthetic labelled checks from unlabelled user checks. Operator token stays server-side.
 - Offline cache contains only fixed public app assets, fixtures, model and evaluation; API results and user content are excluded.
 
 ## Deployment pathway

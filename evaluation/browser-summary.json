@@ -13,7 +13,12 @@
     "input clearing",
     "invalid UPI",
     "mobile overflow",
-    "offline reload"
+    "offline reload",
+    "fallback QR image decode",
+    "private POST share target and no cache leakage",
+    "camera close",
+    "ordered campaign shift and analyst review",
+    "320-1440px layout"
   ],
   "errors": []
 }

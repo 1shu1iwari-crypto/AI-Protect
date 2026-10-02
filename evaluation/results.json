@@ -1,30 +1,313 @@
 {
-  "generated_at": "2026-10-02T13:37:30.318Z",
+  "generated_at": "2026-10-02T15:23:30.460Z",
   "environment": "Node v24.19.0, linux/x64; container CPU, not a phone",
-  "dataset": "20 AI-authored synthetic workflows; 157 synthetic model-training texts; no population performance claim",
-  "scam_sessions": 10,
-  "legitimate_sessions": 10,
-  "true_positive": 10,
+  "dataset": "52 AI-authored synthetic workflows; frozen 157-text training model; 32 later challenge fixtures; not an independent population benchmark",
+  "scam_sessions": 26,
+  "legitimate_sessions": 26,
+  "true_positive": 24,
   "false_positive": 0,
-  "false_negative": 0,
-  "true_negative": 10,
+  "false_negative": 2,
+  "true_negative": 26,
   "precision": 1,
-  "recall": 1,
+  "recall": 0.9230769230769231,
   "legitimate_alert_burden_per_100": 0,
-  "prepayment_rate": 1,
+  "prepayment_rate": 0.8823529411764706,
   "latency_ms": {
-    "p50": 0.013379999999997949,
-    "p95": 0.037475999999998066,
-    "max": 5.089115000000007,
-    "events_measured": 5454
+    "p50": 0.015262999999947624,
+    "p95": 0.035733000000007564,
+    "max": 6.832225000000001,
+    "events_measured": 11110
   },
   "model_bytes": 151350,
+  "suites": [
+    {
+      "suite": "smoke",
+      "total": 20,
+      "scams": 10,
+      "missed": [],
+      "benign_interruptions": 0
+    },
+    {
+      "suite": "challenge",
+      "total": 32,
+      "scams": 16,
+      "missed": [
+        "soft-coercion",
+        "implicit-yield"
+      ],
+      "benign_interruptions": 0
+    }
+  ],
+  "ablation": [
+    {
+      "id": "refund-qr",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "digital-arrest",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "investment",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "job-task",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "remote-support",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "kyc",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "courier",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "family-emergency",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hinglish",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hindi-refund",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "otp-advice",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "restaurant",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "family",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "salary",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "official-support",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "market-risk",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "school",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-urgent",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "refund-complete",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "police-training",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "mixed-negation",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "newline-request",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hindi-otp",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hinglish-otp",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "kyc-link",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "kyc-inline",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "refund-paraphrase",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "refund-no-amount",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "authority-remote",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "fee-escalation",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "investment-large",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "pressure-secret",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "zero-width-otp",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "upper-case-refund",
+      "rules_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "soft-coercion",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "implicit-yield",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "negated-install",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "negated-refund",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "refund-credited-merchant",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "normal-registration",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "bank-pin-in-app",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "hindi-safety",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "hinglish-safety",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "work-remote",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "kyc-official",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "normal-high-value",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "normal-new-payee",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "normal-urgent",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "honest-investing",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "return-processed",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "normal-salary",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "normal-official",
+      "rules_only_warned": false,
+      "hybrid_warned": false
+    }
+  ],
   "scenarios": [
     {
       "id": "refund-qr",
       "name": "The refund that sends money",
       "scam": true,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 1,
       "first_warning_stage": "Payment intent",
@@ -37,6 +320,8 @@
       "name": "An officer. A threat. A transfer.",
       "scam": true,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 1,
       "first_warning_stage": "Transfer prepared",
@@ -49,6 +334,8 @@
       "name": "Small deposit, larger promise",
       "scam": true,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 2,
       "first_warning_stage": "Transfer prepared",
@@ -61,6 +348,8 @@
       "name": "Pay to unlock your earnings",
       "scam": true,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 1,
       "first_warning_stage": "Transfer prepared",
@@ -73,8 +362,10 @@
       "name": "Support wants your screen",
       "scam": true,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
-      "warning_count": 1,
+      "warning_count": 2,
       "first_warning_stage": "Sensitive action",
       "first_warning_index": 1,
       "payment_scam": true,
@@ -85,6 +376,8 @@
       "name": "A KYC request for a secret",
       "scam": true,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 1,
       "first_warning_stage": "Sensitive action",
@@ -97,6 +390,8 @@
       "name": "Courier customs pressure",
       "scam": true,
       "holdout": true,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 1,
       "first_warning_stage": "Transfer prepared",
@@ -109,6 +404,8 @@
       "name": "An emergency with secrecy",
       "scam": true,
       "holdout": true,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 1,
       "first_warning_stage": "Transfer prepared",
@@ -121,6 +418,8 @@
       "name": "Hinglish payment pressure",
       "scam": true,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 1,
       "first_warning_stage": "Transfer prepared",
@@ -133,6 +432,8 @@
       "name": "Hindi refund reversal",
       "scam": true,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": true,
       "warning_count": 1,
       "first_warning_stage": "Payment intent",
@@ -145,6 +446,8 @@
       "name": "A real security reminder",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -157,6 +460,8 @@
       "name": "Paying for lunch",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -169,6 +474,8 @@
       "name": "Groceries for home",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -181,6 +488,8 @@
       "name": "Salary and rent",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -193,6 +502,8 @@
       "name": "Support keeps secrets private",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -205,6 +516,8 @@
       "name": "An honest market disclaimer",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -217,6 +530,8 @@
       "name": "School invoice",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -229,6 +544,8 @@
       "name": "Urgent, but ordinary",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -241,6 +558,8 @@
       "name": "A refund already credited",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -253,6 +572,456 @@
       "name": "Authority in a classroom",
       "scam": false,
       "holdout": false,
+      "suite": "smoke",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "mixed-negation",
+      "name": "Secrecy beside a credential request",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "newline-request",
+      "name": "Safety advice followed by a new request",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "hindi-otp",
+      "name": "Hindi request for a secret",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "hinglish-otp",
+      "name": "Hinglish credential request",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "kyc-link",
+      "name": "Verification pressure then an unusual link",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 1,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "kyc-inline",
+      "name": "An unusual link inside the message",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "refund-paraphrase",
+      "name": "Cashback followed by an outgoing QR",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Payment intent",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "refund-no-amount",
+      "name": "Refund QR without a fixed amount",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Payment intent",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "authority-remote",
+      "name": "An official claim with remote control",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "fee-escalation",
+      "name": "A withdrawal fee before release",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "investment-large",
+      "name": "Guarantee followed by a larger request",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 2,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 2,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "pressure-secret",
+      "name": "Urgent transfer with secrecy",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "zero-width-otp",
+      "name": "Invisible character credential evasion",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "upper-case-refund",
+      "name": "Case and whitespace variation",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Payment intent",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "soft-coercion",
+      "name": "Soft coercion without supported tactic wording",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": false,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": true,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "implicit-yield",
+      "name": "Implicit yield without an explicit guarantee",
+      "scam": true,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": false,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": true,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "negated-install",
+      "name": "Advice against an app installation",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "negated-refund",
+      "name": "Advice against refund QR scams",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "refund-credited-merchant",
+      "name": "A credited refund then a restaurant bill",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "normal-registration",
+      "name": "A normal registration invoice",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "bank-pin-in-app",
+      "name": "An official app PIN instruction",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "hindi-safety",
+      "name": "Hindi advice to keep an OTP private",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "hinglish-safety",
+      "name": "Hinglish advice to keep an OTP private",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "work-remote",
+      "name": "Ordinary remote collaboration",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "kyc-official",
+      "name": "Unpressured verification reminder",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "normal-high-value",
+      "name": "A high value known beneficiary",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "normal-new-payee",
+      "name": "A small new beneficiary",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "normal-urgent",
+      "name": "An urgent ordinary bill",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "honest-investing",
+      "name": "Explicit risk and no promise",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "return-processed",
+      "name": "A refund already processed",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "normal-salary",
+      "name": "Salary followed by rent",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "normal-official",
+      "name": "Official support preserves credentials",
+      "scam": false,
+      "holdout": false,
+      "suite": "challenge",
+      "supported": true,
       "warned": false,
       "warning_count": 0,
       "first_warning_stage": null,
@@ -265,7 +1034,8 @@
     "Tiny curated synthetic test suite; not an independent real-world benchmark",
     "Holdouts reuse known tactics and do not establish unseen-scam generalization",
     "Pre-payment means before a simulated authorization; no payment integration",
-    "Campaign count bursts do not constitute concept-drift detection",
+    "Campaign shift bound assumes independent reports; this prototype does not authenticate reporter identities",
+    "Indirect coercion and implicit-yield fixtures are known false negatives",
     "No ASR, native Android, battery or actual voice-clone detection tested"
   ]
 }

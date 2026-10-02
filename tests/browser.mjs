@@ -1,11 +1,15 @@
 // Development-only QA. Install Playwright and its browser, or set CHROMIUM_PATH.
-import {createRequire} from 'node:module';import assert from 'node:assert/strict';import {mkdir,writeFile} from 'node:fs/promises';
-const {chromium}=createRequire(import.meta.url)('playwright');
+import {createRequire} from 'node:module';import assert from 'node:assert/strict';import {mkdir,writeFile,rm} from 'node:fs/promises';import {spawn} from 'node:child_process';
+let playwright;try{playwright=createRequire(import.meta.url)('playwright');}catch{if(!process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES)throw Error('Install Playwright for browser QA.');playwright=createRequire(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright/package.json')('playwright');}const {chromium}=playwright;
 await mkdir('test-results',{recursive:true});
-const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
+await rm('test-results/browser.sqlite',{force:true});
+const server=spawn('python3',['backend/server.py','--port','8765','--db','test-results/browser.sqlite'],{stdio:['ignore','pipe','inherit'],env:{...process.env,SCAMGUARD_REVIEW_TOKEN:'qa-local-only-review-token'}});
+await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(Error('QA server exited: '+code)));});
+process.on('exit',()=>server.kill());
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']});
 const context=await browser.newContext({viewport:{width:1440,height:1100}});const page=await context.newPage();const errors=[];
 page.on('pageerror',e=>errors.push(e.message));
-await page.goto('http://127.0.0.1:8000');await page.waitForSelector('#try-demo');
+await page.goto('http://127.0.0.1:8765');await page.waitForSelector('#try-demo');
 await page.screenshot({path:'test-results/protection-desktop.png',fullPage:true});
 await page.click('#try-demo');await page.click('#next-event');assert.equal(await page.locator('#alert-card').isVisible(),false);
 await page.click('#next-event');await page.click('#open-desk');assert.equal(await page.locator('#alert-card').isVisible(),true);
@@ -17,10 +21,27 @@ await page.check('#sharing-consent');await page.click('#share-pattern');await pa
 await page.click('#delete-pattern');await page.waitForFunction(()=>document.querySelector('#sharing-status').textContent.includes('deleted'));
 await page.check('#analytics-consent');await page.waitForFunction(()=>!document.querySelector('#analytics-consent').checked);
 await page.click('[data-view=campaigns]');await page.click('#seed-campaigns');await page.waitForSelector('.campaign-card');assert.match(await page.locator('#campaign-list').textContent(),/UNVERIFIED/);
-await page.click('[data-view=evaluation]');await page.waitForSelector('table');assert.equal(await page.locator('tbody tr').count(),20);
+await page.click('[data-view=evaluation]');await page.waitForSelector('table');assert.equal(await page.locator('tbody tr').count(),52);
 await page.click('[data-view=lab]');await page.click('[data-scenario=restaurant]');await page.click('#run-all');await page.click('#open-desk');assert.equal(await page.locator('#alert-card').isVisible(),false);
 await page.fill('#content','Never share your OTP.');await page.click('#check-form button[type=submit]');assert.equal(await page.locator('#content').inputValue(),'');assert.equal(await page.locator('#alert-card').isVisible(),false);
 await page.click('[data-channel=qr]');await page.fill('#content','upi://pay?pa=test@demo&am=NaN');await page.click('#check-form button[type=submit]');assert.match(await page.locator('#form-error').textContent(),/Amount/);
 await page.setViewportSize({width:390,height:844});await page.click('#clear-session');await page.screenshot({path:'test-results/protection-mobile.png',fullPage:true});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
 await page.evaluate(async()=>{await navigator.serviceWorker.ready;});await page.waitForTimeout(500);await context.setOffline(true);await page.reload();await page.waitForSelector('#check-form');await page.fill('#content','Receive your refund');await page.click('#check-form button[type=submit]');assert.equal(await page.locator('#event-count').textContent(),'1 event');
-assert.deepEqual(errors,[]);await writeFile('test-results/browser-summary.json',JSON.stringify({passed:true,checks:['desktop/mobile screenshots','pre-action passive behavior','QR warning','cancel and continuation','consent and deletion','analytics default off','campaign candidates','evaluation table','benign workflow','input clearing','invalid UPI','mobile overflow','offline reload'],errors},null,2));console.log('Browser QA passed: desktop, mobile, consent, warnings, campaign, and offline reload.');await browser.close();
+await context.setOffline(false);
+await page.click('#clear-session');await page.click('[data-channel=qr]');
+await page.setInputFiles('#qr-file','simulator/fixtures/refund-qr.png');await page.waitForFunction(()=>document.querySelector('#content').value.startsWith('upi://pay'));
+assert.match(await page.locator('#content').inputValue(),/fixture@demo/);
+// POST share target is intercepted locally; only a random fragment reaches navigation.
+await page.evaluate(async()=>{await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(resolve=>navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));const f=document.createElement('form');f.method='POST';f.action='/share';f.enctype='multipart/form-data';const i=document.createElement('input');i.name='text';i.value='Private shared fixture 9876543210';f.append(i);document.body.append(f);f.submit();});
+await page.waitForFunction(()=>document.querySelector('#content')?.value==='Private shared fixture 9876543210');
+assert.equal(await page.locator('#event-count').textContent(),'0 events');assert(!page.url().includes('Private'));
+assert(!page.url().includes('shared='));
+const leakedCache=await page.evaluate(async()=>{for(const name of await caches.keys()){const c=await caches.open(name);for(const req of await c.keys()){const response=await c.match(req);if((await response.text()).includes('Private shared fixture'))return true;}}return false;});assert.equal(leakedCache,false);
+await page.click('#check-form button[type=submit]');assert.equal(await page.locator('#content').inputValue(),'');
+await page.click('[data-channel=qr]');await page.click('#scan-camera');await page.waitForTimeout(250);await page.click('#stop-camera');assert.equal(await page.locator('#camera-dialog').isVisible(),false);
+await page.click('[data-view=campaigns]');await page.click('#seed-emergence');await page.waitForFunction(()=>document.querySelector('#campaign-status').textContent.includes('40/40'),{timeout:30000});await page.waitForSelector('.shift-note');
+await page.fill('#review-token','qa-local-only-review-token');await page.locator('[data-review=reviewed]').first().click();await page.waitForFunction(()=>document.querySelector('#campaign-list').textContent.includes('REVIEWED'));assert.equal(await page.locator('#review-token').inputValue(),'');
+await page.screenshot({path:'test-results/campaign-review.png',fullPage:true});
+for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});await page.click('[data-view=protect]');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),String(width));}
+await page.setViewportSize({width:390,height:844});await page.click('#clear-session');await page.click('[data-channel=message]');await page.waitForSelector('#toast',{state:'hidden'});await page.screenshot({path:'test-results/protection-mobile.png',fullPage:true});
+assert.deepEqual(errors,[]);await writeFile('test-results/browser-summary.json',JSON.stringify({passed:true,checks:['desktop/mobile screenshots','pre-action passive behavior','QR warning','cancel and continuation','consent and deletion','analytics default off','campaign candidates','evaluation table','benign workflow','input clearing','invalid UPI','mobile overflow','offline reload','fallback QR image decode','private POST share target and no cache leakage','camera close','ordered campaign shift and analyst review','320-1440px layout'],errors},null,2));console.log('Browser QA passed: desktop, mobile, consent, warnings, campaign, and offline reload.');await browser.close();server.kill();
