@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.sqlite*
+.env
+node_modules/
+tmp/
+test-results/

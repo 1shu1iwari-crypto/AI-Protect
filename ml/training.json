@@ -1,0 +1,1051 @@
+[
+  {
+    "text": "I am a police officer",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. I am a police officer. Please respond.",
+    "labels": [
+      "authority"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "This is the RBI department",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. This is the RBI department. Please respond.",
+    "labels": [
+      "authority"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "CBI investigation unit speaking",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. CBI investigation unit speaking. Please respond.",
+    "labels": [
+      "authority"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Your bank official is calling",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Your bank official is calling. Please respond.",
+    "labels": [
+      "authority"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Customs officer calling about your parcel",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Customs officer calling about your parcel. Please respond.",
+    "labels": [
+      "authority"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "SBI officer speaking",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. SBI officer speaking. Please respond.",
+    "labels": [
+      "authority"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Act immediately",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Act immediately. Please respond.",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Do this right now",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Do this right now. Please respond.",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "This is urgent",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. This is urgent. Please respond.",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Your last chance is today only",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Your last chance is today only. Please respond.",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Jaldi karo abhi",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Jaldi karo abhi. Please respond.",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Complete this within 10 minutes",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Complete this within 10 minutes. Please respond.",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "You will be arrested",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. You will be arrested. Please respond.",
+    "labels": [
+      "threat"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Your account will be blocked",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Your account will be blocked. Please respond.",
+    "labels": [
+      "threat"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "A criminal warrant has been issued",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. A criminal warrant has been issued. Please respond.",
+    "labels": [
+      "threat"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "We will freeze your funds",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. We will freeze your funds. Please respond.",
+    "labels": [
+      "threat"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "You face money laundering charges",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. You face money laundering charges. Please respond.",
+    "labels": [
+      "threat"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Account band ho jayega",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Account band ho jayega. Please respond.",
+    "labels": [
+      "threat"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Do not disconnect",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Do not disconnect. Please respond.",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Keep this secret",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Keep this secret. Please respond.",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Do not tell your family",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Do not tell your family. Please respond.",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Stay on the call",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Stay on the call. Please respond.",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Kisi ko mat batana",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Kisi ko mat batana. Please respond.",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Do not speak with anyone",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Do not speak with anyone. Please respond.",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Tell me your OTP",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Tell me your OTP. Please respond.",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Share your PIN",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Share your PIN. Please respond.",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Send your password",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Send your password. Please respond.",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Enter your CVV here",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Enter your CVV here. Please respond.",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "OTP batao",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. OTP batao. Please respond.",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "PIN bhejo",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. PIN bhejo. Please respond.",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Install AnyDesk",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Install AnyDesk. Please respond.",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Enable remote access",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Enable remote access. Please respond.",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Turn on screen sharing",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Turn on screen sharing. Please respond.",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Open TeamViewer",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Open TeamViewer. Please respond.",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Give me remote control",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Give me remote control. Please respond.",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Share the screen with support",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Share the screen with support. Please respond.",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Guaranteed return on investment",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Guaranteed return on investment. Please respond.",
+    "labels": [
+      "investment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Double your money",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Double your money. Please respond.",
+    "labels": [
+      "investment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Sure profit in this group",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Sure profit in this group. Please respond.",
+    "labels": [
+      "investment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Institutional IPO with 30% return",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Institutional IPO with 30% return. Please respond.",
+    "labels": [
+      "investment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Pakka profit milega",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Pakka profit milega. Please respond.",
+    "labels": [
+      "investment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Paisa double investment plan",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Paisa double investment plan. Please respond.",
+    "labels": [
+      "investment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Receive your refund",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Receive your refund. Please respond.",
+    "labels": [
+      "refund"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Scan to receive money",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Scan to receive money. Please respond.",
+    "labels": [
+      "refund"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Cashback is waiting",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Cashback is waiting. Please respond.",
+    "labels": [
+      "refund"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Paise wapas milenge",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Paise wapas milenge. Please respond.",
+    "labels": [
+      "refund"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Receive your pending refund today",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Receive your pending refund today. Please respond.",
+    "labels": [
+      "refund"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Paisa milega QR scan karo",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Paisa milega QR scan karo. Please respond.",
+    "labels": [
+      "refund"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Pay the registration fee",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Pay the registration fee. Please respond.",
+    "labels": [
+      "fee"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Task deposit required",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Task deposit required. Please respond.",
+    "labels": [
+      "fee"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Unlock withdrawal with a deposit",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Unlock withdrawal with a deposit. Please respond.",
+    "labels": [
+      "fee"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Send a withdrawal fee",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Send a withdrawal fee. Please respond.",
+    "labels": [
+      "fee"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Pay the release fee",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Pay the release fee. Please respond.",
+    "labels": [
+      "fee"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Processing fee before earnings",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Processing fee before earnings. Please respond.",
+    "labels": [
+      "fee"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Transfer money to this account",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Transfer money to this account. Please respond.",
+    "labels": [
+      "payment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Deposit to the safe account",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Deposit to the safe account. Please respond.",
+    "labels": [
+      "payment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Pay via UPI",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Pay via UPI. Please respond.",
+    "labels": [
+      "payment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Send money now",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Send money now. Please respond.",
+    "labels": [
+      "payment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Payment is required",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Payment is required. Please respond.",
+    "labels": [
+      "payment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Paise bhejo",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Paise bhejo. Please respond.",
+    "labels": [
+      "payment"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Install our app",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Install our app. Please respond.",
+    "labels": [
+      "apk"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Download the app",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Download the app. Please respond.",
+    "labels": [
+      "apk"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Install this app",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Install this app. Please respond.",
+    "labels": [
+      "apk"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Open support.apk",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Open support.apk. Please respond.",
+    "labels": [
+      "apk"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Download trading.apk",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Download trading.apk. Please respond.",
+    "labels": [
+      "apk"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Please install our app package",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored synthetic seed"
+  },
+  {
+    "text": "Hello. Please install our app package. Please respond.",
+    "labels": [
+      "apk"
+    ],
+    "origin": "synthetic seed wrapper"
+  },
+  {
+    "text": "Never share your OTP",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Do not tell anyone your PIN",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Your bank will never ask for your password",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Avoid remote access software",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "The police do not ask for bank transfers",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Dinner at seven tonight",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Please send the class notes",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Your salary has been credited",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Your order has shipped",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Meeting moved to tomorrow",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Pay the school invoice through the official portal",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Mum please send 2000 for groceries",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Lunch payment to our usual restaurant",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Market returns are not guaranteed",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Contact your bank using its official number",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Do not scan a QR to receive money",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Keep your UPI PIN private",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "The training covers police and customs procedures",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Refund credited to your original payment method",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "This investment involves market risk",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "No need to make a payment",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "The account was blocked by your own request",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Reminder to pay rent",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Your electricity bill is available",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  },
+  {
+    "text": "Never install apps from unknown links",
+    "labels": [],
+    "origin": "AI-authored benign seed"
+  }
+]
