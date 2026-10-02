@@ -34,6 +34,11 @@ class API(unittest.TestCase):
     def test_invalid_schema_values_and_analytics(self):
         p=fingerprint();p['sequence']=['unstructured private text'];self.assertRaises(ValueError,validate,p)
         q={'consent':True,'distinct_id':'12345678-uuid','event':'warning_shown','properties':{'severity':'high'}};self.assertFalse(validate_analytics(q)['properties']['$process_person_profile']);q['properties']['raw_text']='secret';self.assertRaises(ValueError,validate_analytics,q)
+    def test_head_cannot_bypass_the_static_allowlist(self):
+        for path in ['/backend/server.py','/backend/fingerprints.sqlite','/.env']:
+            r=urllib.request.Request(self.url+path,method='HEAD')
+            with self.assertRaises(urllib.error.HTTPError) as response:urllib.request.urlopen(r)
+            self.assertEqual(response.exception.code,404)
     def test_retention_expiry(self):
         with self.server.store.db() as c:c.execute('UPDATE fingerprints SET created=0')
         self.assertEqual(self.request('/api/campaigns')[1]['campaigns'],[])
