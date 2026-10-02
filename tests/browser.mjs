@@ -3,7 +3,7 @@ import {createRequire} from 'node:module';import assert from 'node:assert/strict
 let playwright;try{playwright=createRequire(import.meta.url)('playwright');}catch{if(!process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES)throw Error('Install Playwright for browser QA.');playwright=createRequire(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright/package.json')('playwright');}const {chromium}=playwright;
 await mkdir('test-results',{recursive:true});
 await rm('test-results/browser.sqlite',{force:true});
-const server=spawn('python3',['backend/server.py','--port','8765','--db','test-results/browser.sqlite'],{stdio:['ignore','pipe','inherit'],env:{...process.env,SCAMGUARD_REVIEW_TOKEN:'qa-local-only-review-token'}});
+const server=spawn('python3',['backend/server.py','--port','8765','--db','test-results/browser.sqlite'],{stdio:['ignore','pipe','inherit'],env:{...process.env,POSTHOG_PROJECT_TOKEN:'',SCAMGUARD_REVIEW_TOKEN:'qa-local-only-review-token'}});
 await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(Error('QA server exited: '+code)));});
 process.on('exit',()=>server.kill());
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']});
