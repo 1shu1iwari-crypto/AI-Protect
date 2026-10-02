@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "desktop/mobile screenshots",
+    "pre-action passive behavior",
+    "QR warning",
+    "cancel and continuation",
+    "consent and deletion",
+    "analytics default off",
+    "campaign candidates",
+    "evaluation table",
+    "benign workflow",
+    "input clearing",
+    "invalid UPI",
+    "mobile overflow",
+    "offline reload"
+  ],
+  "errors": []
+}
