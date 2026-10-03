@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-02T15:23:30.460Z",
+  "generated_at": "2026-10-03T18:50:49.122Z",
   "environment": "Node v24.19.0, linux/x64; container CPU, not a phone",
   "dataset": "52 AI-authored synthetic workflows; frozen 157-text training model; 32 later challenge fixtures; not an independent population benchmark",
   "scam_sessions": 26,
@@ -13,9 +13,9 @@
   "legitimate_alert_burden_per_100": 0,
   "prepayment_rate": 0.8823529411764706,
   "latency_ms": {
-    "p50": 0.015262999999947624,
-    "p95": 0.035733000000007564,
-    "max": 6.832225000000001,
+    "p50": 0.015413000000009447,
+    "p95": 0.03871700000000544,
+    "max": 5.695855999999999,
     "events_measured": 11110
   },
   "model_bytes": 151350,

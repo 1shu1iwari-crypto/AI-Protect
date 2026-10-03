@@ -1,0 +1,20 @@
+{
+  "build": "assembleDebug passed",
+  "native_tests": 7,
+  "failures": 0,
+  "lint_errors": 0,
+  "lint_warnings": 6,
+  "sdk": 35,
+  "min_sdk": 29,
+  "physical_device_tested": false,
+  "test_framework": "Robolectric API 34; real engine tested separately in browser",
+  "checks": [
+    "roleRequestUsesPlatformScreeningRole",
+    "callbackPolicyNeverAnalyzesAndNeverBlocks",
+    "manifestExposesShareTargetAndProtectedScreeningService",
+    "notificationHasReviewActionAndNoStoredReviewBeforeTap",
+    "shareAndDeepLinkDoNotPersistOrAnalyzeBeforeUserCheck",
+    "incomingCallbackRespondsAllowBeforeOfferingNotification",
+    "outgoingCallbackDoesNotSendAnIncomingResponse"
+  ]
+}

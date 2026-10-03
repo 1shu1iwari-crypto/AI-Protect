@@ -24,3 +24,14 @@ Browser QA starts and shuts down its own disposable server/database. Set CHROMIU
 ## Open evidence gaps
 
 Licensed/consented independently labelled traffic, family/template/time splits, indirect paraphrases, regional language coverage, real-device power/memory/cold start, physical camera/OS share matrix, reporter authentication/poisoning/Sybil controls, native Android/consented ASR and bank/PSP pre-authorization integration. No voice-clone or deepfake detection accuracy is claimed.
+
+
+## v0.3 review sessions and native companion (2026-10-03)
+
+- `npm test`: **26 Node + 11 Python tests pass**. Eight added review tests cover explicit user-action gating, cross-channel session identity, verification mismatch, paid/not-paid routes, normal call/payment, redacted restore, consent, and expiry. Existing engine outcomes remain unchanged.
+- `npm run qa` and `npm run qa:reviews`: both pass. The new browser suite covers the KYC hero, call consent gate, timeline, session switching/deletion, paid/no-paid guidance, mobile layout, actual QR fixture decoding, native bridge association and no automatic risk analysis. Browser screenshots are real rendered web UI; they are not presented as native-device screenshots.
+- Android `assembleDebug`, `testDebugUnitTest`, `lintDebug`: **build successful, 7 native tests pass, 0 lint errors / 6 warnings**. Warnings concern deliberately pinned WebKit, required local JavaScript, backup-rule advice (review file is in noBackupFilesDir), and localization. Robolectric API 34 verifies role request, callback allow policy, outgoing handling, notification action, manifest/share route and no state persistence before action.
+- No physical handset/carrier or hardware emulator was connected. Notification delivery under OEM power management, real incoming/outgoing callbacks, Android share chooser and WebView rendering must be checked using `android/README.md`. No real-device latency, power or carrier support claim.
+- Synthetic evaluation remains **24/26 scams detected; 0/26 ordinary interrupted; 15/17 before simulated payment**. No new accuracy or ML uplift claim. The demo registry is two institutions, not a comprehensive bank identity service.
+
+Next validation priorities: (1) API 29/33/35 physical-device role, notification and share testing; (2) consented Hindi/regional-language conversations and independent false-warning review; (3) authenticated campaign contributions with poisoning resistance.

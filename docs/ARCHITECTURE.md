@@ -52,3 +52,14 @@ Reporter identities remain unverified. A malicious actor can create many session
 ## Deployment pathway
 
 Phase 1 is this web reference MVP. Phase 2 adds a native Android Sharesheet/QR adapter and consented controlled VoIP audio with sherpa streaming ASR. Android CallScreeningService provides call details and screening decisions, not unrestricted ordinary call audio. No accessibility scraping or SIM recording workaround is planned. Phase 3 integrates a pre-authorization partner SDK with a bank/PSP/wallet in an authorised sandbox. Phase 4 adds authenticated campaign reporters, validated clustering/drift, analyst-approved signed snapshots and model updates. Financial network analysis requires authorised or synthetic network data and is not needed for the phone hot path.
+
+
+## v0.3 additive review / Android flow
+
+`ReviewSession extends Session` reuses the original warning policy and fingerprint schema. Each explicit Check adds a bounded derived timeline entry: channel, timestamp, verification category, tactic enums, stage, severity and fixed explanation. Raw sender contacts, domains, messages, VPA and exact amounts are discarded. Direction and user flag are metadata, never sufficient risk evidence. Verification runs lexically before assessment; a registry match does not suppress behavioral risk. Registry scope is intentionally two institutions, HDFC and ICICI; other claims remain unknown.
+
+Android Telecom → allow incoming call immediately → private notification → user tap → quick signals → explicit review check → existing engine. Native ACTION_SEND stages content in memory; a separate Check associates it with the chosen review. Kotlin does not duplicate the detector. WebViewAssetLoader serves packaged assets over a local synthetic HTTPS origin; arbitrary requests/navigation are denied and INTERNET is absent. Only fixed official reporting routes can be opened by a bridge call following a user click. Backup-excluded snapshots contain derived fields, are capped at 10, and expire on read after 24 hours. No screenshot or call identifier is stored by the native callback.
+
+Web reviews are in memory. A service-worker memory slot preserves the current redacted review for a POST share handoff (up to 20 minutes); it is never put into Cache Storage. Android persists only redacted snapshots. Consent is never restored. Paid/not-paid response state and actions are local; the only optional server report remains the existing fingerprint. Analyst cards add per-tactic report frequency alongside existing ordered sequence, report count, shift cue and manual review status.
+
+Official response sources checked 2026-10-03: https://www.sancharsaathi.gov.in/ (Chakshu for suspected communications); https://cybercrime.gov.in/ and 1930 for financial cybercrime. Institution registry sources: https://www.hdfc.bank.in/ and https://www.icici.bank.in/. Routes and the deliberately small registry require periodic human maintenance.

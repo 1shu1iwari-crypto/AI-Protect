@@ -19,3 +19,8 @@ The attachments inform design direction. Earlier pasted paper statistics and 202
 ## Submission review
 
 Verify eligibility, registration, actual team identity, dependency licences, organiser requirements and all safety claims before upload. The software cannot prove whether a voice or message was AI-generated; behavior recognition targets financial scams irrespective of content origin.
+
+
+## v0.3 additions
+
+Review state, registry matching, UI, Kotlin companion, tests and docs are AI-generated under user instruction. Hero KYC/call/QR inputs are synthetic `.invalid`/`@demo` fixtures. No new model or real conversation dataset was added. Android uses Kotlin 2.0.21, Android Gradle Plugin 8.9.1, Gradle 8.11.1 and AndroidX WebKit 1.12.1 (Apache-2.0); JVM tests use JUnit 4.13.2 (EPL-1.0), Robolectric 4.14.1 (MIT) and Mockito 5.15.2 (MIT). Official SDK/JDK tooling is build-only. No borrowed product branding or UI was copied. The existing submission PDF describes v0.2 and has not been regenerated for this Android increment.

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "explicit call-review gate",
+    "KYC hero mismatch and cross-channel escalation",
+    "paid and not-paid routes",
+    "review switching and deletion",
+    "normal call and payment",
+    "320–1440 layout",
+    "native bridge share and QR association without auto analysis",
+    "redacted snapshot",
+    "post-call response",
+    "report consent"
+  ]
+}
