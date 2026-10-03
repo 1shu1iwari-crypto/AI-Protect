@@ -12,7 +12,7 @@ Python 3.10+ is enough to serve the application. Node 20+ runs tests and evaluat
 python3 backend/server.py
 ```
 
-Open **http://127.0.0.1:8000**. Choose **Open the guided demo**, then **Check next event**. The refund message stays passive; the outgoing QR triggers a warning before simulated authorization. Try the restaurant scenario to see an ordinary payment remain uninterrupted.
+Open **http://127.0.0.1:8000**. Choose **Start KYC story** for a message → user-reviewed call → WhatsApp link → outgoing QR → STOP & VERIFY journey. **Try an ordinary payment** demonstrates a quiet legitimate flow. The original scenario lab remains available under Reviews. Try the restaurant scenario to see an ordinary payment remain uninterrupted.
 
 ```bash
 npm test
@@ -20,6 +20,12 @@ npm run evaluate
 ```
 
 The installable phone-first PWA caches its fixed assets after one successful visit. Where Web Share Target is supported, an installed app accepts shared text/links through a local POST intercepted by its service worker. The server never receives that raw text. A random single-use fragment transfers worker memory to the app; it is never cached and expires within 60 seconds. The user still chooses Check. Local checks work offline; sharing and campaign review require the local server. It never requests microphone, call log, notification, SMS or banking access. Camera permission is requested only after tapping Scan, for local QR frames. QR screenshots have a bundled jsQR fallback; decoded UPI paste also works.
+
+## Review sessions and Android
+
+The primary flow is **Check → Reviews → explain identity and manipulation → STOP & VERIFY → optional report**. Review timelines show why the warning level changed across channels. A small local registry distinguishes verified domain matches, mismatches, unverified claims and unknown institutions. Domain matching never authenticates a caller. Paid/not-paid paths guide independent bank contact, evidence preservation, cybercrime reporting or Chakshu without submitting anything automatically.
+
+The isolated [Android companion](android/README.md) adds CallScreeningService, platform role request, a user-triggered review notification, native share intents, offline sessions and demo mode. Build with `cd android && ./gradlew :app:assembleDebug`; Windows uses `gradlew.bat`. The web app needs no Android tooling. Android has no Internet or microphone permission; local web campaign reporting remains separate.
 
 ## What is built
 
@@ -40,7 +46,7 @@ The installable phone-first PWA caches its fixed assets after one successful vis
 
 On Chrome for Android, serve the PWA over HTTPS (or localhost through your development setup), open it once, and install it using the browser menu. Share-target availability depends on platform/browser; paste remains available everywhere. Camera scanning also needs a secure context. This repository ships a local development server, not a public production deployment.
 
-For development QA: install Playwright with `npm install --no-save playwright`, then `npx playwright install chromium` and `npm run qa`. The QA runner starts its own disposable server/database. `CHROMIUM_PATH` can select an existing browser. It checks QR decoding, local POST sharing, cache privacy, consent/deletion, campaign shift/review, offline analysis and 320-1440px layouts.
+For development QA: install Playwright with `npm install --no-save playwright`, then `npx playwright install chromium`, `npm run qa` and `npm run qa:reviews`. The QA runner starts its own disposable server/database. `CHROMIUM_PATH` can select an existing browser. It checks QR decoding, local POST sharing, cache privacy, consent/deletion, campaign shift/review, offline analysis and 320-1440px layouts.
 
 ## Optional local configuration
 
@@ -55,13 +61,14 @@ For anonymous analytics, configure `POSTHOG_PROJECT_TOKEN` and `POSTHOG_HOST` (`
 
 ## Honest prototype boundary
 
-This is a working **web/PWA reference implementation**, not a completed Android or banking product. Call input is text, payments are simulated, and QR scanning uses an optional browser image decoder. It cannot read ordinary cellular-call audio or other payment apps. Native Android share adapters, consented LiveKit/sherpa ASR, partner payment hooks, HDBSCAN/ADWIN comparisons, robust reporter authentication, transaction graphs, real datasets and device measurements remain roadmap work. PWA sharing and QR input are implemented; they are not unrestricted cross-app monitoring. Never deploy this local server publicly without authentication, TLS, durable consent controls and a security review.
+This is a working **web/PWA and isolated Android PoC**, not a banking integration. Calls are reviewed using user-selected signals or supplied text; payments are simulated. Android call screening offers a review shortcut and never blocks or records calls. Carrier/device delivery has not been validated on a physical phone. ASR, partner payment hooks, robust reporter authentication, transaction graphs, real datasets and device measurements remain roadmap work. PWA sharing and QR input are implemented; they are not unrestricted cross-app monitoring. Never deploy this local server publicly without authentication, TLS, durable consent controls and a security review.
 
 ## Project files
 
 | Path | Purpose |
 |---|---|
-| `core/` | Local extraction, model inference, workflow state and UPI parser |
+| `core/` | Existing risk engine plus review lifecycle, verification registry and response plans |
+| `android/` | Optional native call-role/share shell, Gradle build and device instructions |
 | `web/` | Responsive application, optional analytics and offline cache |
 | `backend/` | Local-only strict fingerprint API and candidate review |
 | `ml/` | Reproducible synthetic model training and training data |

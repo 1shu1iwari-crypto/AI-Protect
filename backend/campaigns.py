@@ -78,9 +78,11 @@ def discover(rows, reviews, now):
             signature = hashlib.sha256(json.dumps([sorted(tactics), sequence]).encode()).hexdigest()[:24]
             match = {'signature': signature, 'tactics': tactics, 'sequence': sequence,
                      'reports': 0, 'first_seen': created, 'last_seen': created,
-                     'recent': 0, 'channels': set(), 'members': [], 'discovered_at': None}
+                     'recent': 0, 'tactic_frequency': {}, 'channels': set(), 'members': [], 'discovered_at': None}
             groups.append(match)
         match['reports'] += 1
+        for tactic in tactics:
+            match['tactic_frequency'][tactic] = match['tactic_frequency'].get(tactic, 0) + 1
         match['members'].append(index)
         match['channels'].update(p['channels'])
         match['last_seen'] = created

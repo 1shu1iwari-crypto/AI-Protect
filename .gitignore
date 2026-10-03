@@ -5,3 +5,8 @@ __pycache__/
 node_modules/
 tmp/
 test-results/
+# Android is optional; build outputs and device-local configuration stay local.
+android/.gradle/
+android/local.properties
+android/**/build/
+*.apk
