@@ -5,8 +5,9 @@
 ```mermaid
 flowchart TD
   U[User selects content] --> N[Normalize local event]
-  N --> R[Rules and local logistic model]
-  R --> S[Bounded temporal session]
+  N --> R[Rules and two local classifiers]
+  R --> E[Privacy-safe structured evidence]
+  E --> S[Ordered workflow states]
   S --> A[Action-aware warning policy]
   A --> Q[Quiet or passive context]
   A --> W[Explain and pause risky request]
@@ -19,19 +20,27 @@ flowchart TD
   H --> D[Reviewed or dismissed candidate]
 ```
 
-All arrows above are implemented. Browser content stays local. No raw text is sent to a server; no text, URLs, VPAs or exact amounts are retained in the derived session. Before analysis, user input remains in the field; a PWA share handoff temporarily holds raw text in worker memory for up to 60 seconds, then deletes it. No share text is placed in URLs, disk storage or CacheStorage. QR frames/images decode on the device and camera tracks stop on scan success, close, channel/view change, or backgrounding. Events retain tactics, local model scores, channel, timestamp, and coarse payment bucket. Model inference uses presence word/bigram features and exported logistic coefficients; no network inference exists. The classifier is synthetic-trained and uncalibrated. Its corroboration contributes up to three points only after a deterministic workflow matches.
+All arrows above are implemented. Browser content stays local. No raw text is sent to a server; no text, URLs, VPAs or exact amounts are retained in the derived session. Before analysis, user input remains in the field; a PWA share handoff temporarily holds raw text in worker memory for up to 60 seconds, then deletes it. No share text is placed in URLs, disk storage or CacheStorage. QR frames/images decode on the device and camera tracks stop on scan success, close, channel/view change, or backgrounding. Events retain derived action/identity/persuasion/verification enums, tactic evidence, channel, timestamp and coarse payment metadata. Sessions keep only allowlisted numeric scores; snapshots discard legacy model scores. The frozen word/bigram classifier supplies optional corroboration. The additional concept-feature classifier can add semantic evidence to ordered workflows. Both are synthetic-trained and uncalibrated; no network inference exists.
 
 ## Detection logic
 
 1. NFKC, case and invisible-control normalization; sentence-aware negation suppression for credential and remote-control advice.
-2. Extract thirteen behavior tactics and optional local model corroboration. URLs are inspected as text and never fetched. This is not URL reputation or APK malware analysis.
+2. Extract thirteen behavior tactics with deterministic protections and optional semantic evidence. URLs are normalized and inspected as text, never fetched. This is not URL reputation or APK malware analysis. The synchronous classifier adapter accepts `{scores:{tactic:0..1}}`; passing `semanticClassifier:null` disables it for the deterministic-only ablation. Adapter failures preserve deterministic checks; unknown model fields are discarded.
 3. One explicit local session, at most 64 events; reset after a 20-minute gap. Timestamp order is enforced. User-selected sessions avoid hidden cross-app association. Different conversations need a manual reset; automated session association is not implemented.
-4. Ordered pretext-to-payment matching for refund, authority and investment workflows; additional KYC/unusual-link, task-fee, remote-access, credential and pressure patterns. Link cues are lexical evidence, not reputation or malware analysis. A QR is an outgoing intent, not a completed payment.
-5. Evidence and action indices are heuristic 0-99 scores. Quiet when no immediate risky action; warn only at a supported action with sufficient independent signal families or a direct secret-credential request.
+4. Explicit ordered states cover refund/outgoing QR, authority/pressure/transfer, investment/payment/escalation, task/deposit/withdrawal, KYC/pressure/sensitive request, support/remote access/financial action and coercive trust/reward requests. The most recent ordered completion wins, with stable family precedence for ties. A QR is an outgoing intent, not a completed payment.
+5. Evidence strength counts distinct derived signals; workflow confidence describes path completion; action risk adds current action and coarse stakes. All are heuristic 0-99 indices. Suspicious context remains passive/watch; strong ordered evidence plus a sensitive action warns. A direct secret request may warn immediately. High amount/new beneficiary alone never warns. Timeline explanations name new evidence, state transitions and intervention changes without quoting source content.
 6. Sixty-second repeat suppression; a different matched workflow, severity increases, a newly requested sensitive action, or a two-bucket financial increase can re-warn. Suppression does not lower the assessed risk. Passive evidence stays visible.
 7. Warning offers cancellation and an explicit continuation confirmation. Both act only on the simulator. Users remain in control; real verification requires an independent official channel.
 
-## Data flow and review
+## v0.4 shared modules
+
+`engine.mjs` preserves historical imports. `input.mjs` owns normalization and strict UPI/link parsing; `rules.mjs` preserves deterministic evidence; `semantic.mjs` exposes a replaceable classifier; `evidence.mjs` reconstructs privacy-safe events; `workflow.mjs` follows ordered states; `policy.mjs` controls interventions; `fingerprint.mjs` and `explanations.mjs` produce enum-only reports and fixed explanations. The frozen word/bigram model remains compatible and adds at most three corroboration points. The new multi-label logistic model maps inspectable multilingual concepts to evidence before workflow reasoning. Both are synthetic-trained and uncalibrated; the concept model has finite lexical coverage. Reproduce its 97-seed coefficients with `npm run train:semantic`.
+
+`package.json` is the release version authority. Test/evaluation commands generate `core/version.mjs`; backend configuration and Android build/version assets read the same package version directly. The versioned institution data and registry interface live in `institution-registry.mjs`, so domains/institutions can be extended without changing workflow code. A domain match never authenticates a caller or reduces behavioral risk.
+
+Android uses exact-origin, main-frame `WebViewCompat` messages and asynchronous request/reply handling. Older WebViews without messaging support retain manual checks and require an update for native storage/sharing. Native storage reconstructs snapshots from bounded derived fields; persisted prose and unknown fields are dropped, and shared JavaScript regenerates explanations on restore. No new permission or Kotlin detector is introduced. Local classifiers/modules are packaged in the APK and offline PWA asset cache.
+
+## Fingerprints and campaigns
 
 Fingerprint schema: version, random session ID, enum tactic set, ordered tactic sequence, enum channel set, amount bucket and event count. Reject all unexpected fields. No hashing of low-entropy personal identifiers is necessary because no personal identifiers are uploaded. Fingerprints remain potentially sensitive; consent and 24-hour expiry are mandatory.
 

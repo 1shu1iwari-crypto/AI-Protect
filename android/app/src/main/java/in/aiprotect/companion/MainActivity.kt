@@ -12,6 +12,9 @@ import android.util.Base64
 import android.webkit.*
 import android.widget.*
 import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
+import androidx.webkit.JavaScriptReplyProxy
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 
@@ -21,6 +24,8 @@ class MainActivity : Activity() {
     private lateinit var status: TextView
     private lateinit var store: ReviewStore
     private var ready = false
+    private var nativeReply: JavaScriptReplyProxy? = null
+    private var messageBridge = false
     private var pending: JSONObject? = null
     private var report: String? = null
     private var filePicker: ValueCallback<Array<Uri>>? = null
@@ -50,11 +55,26 @@ class MainActivity : Activity() {
             saveFormData=false
         }
         CookieManager.getInstance().setAcceptCookie(false)
-        web.addJavascriptInterface(Bridge(), "NativeReview")
+        val supportsMessages = try { WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER) }
+            catch (_: RuntimeException) { false }
+        if (supportsMessages) {
+            messageBridge = true
+            WebViewCompat.addWebMessageListener(web, BridgePolicy.OBJECT_NAME, setOf(BridgePolicy.ORIGIN)) { _, message, origin, isMainFrame, reply ->
+                if (BridgePolicy.trustedSource(origin, isMainFrame)) {
+                    try { handleBridgeMessage(message.data ?: "", reply) }
+                    catch (_: Exception) { /* Reject unsupported message types. */ }
+                }
+            }
+        } else {
+            message("Update Android System WebView to enable native review storage and sharing. Local manual checks remain available.")
+        }
         web.webViewClient = object : WebViewClient() {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                ready=false;nativeReply=null
+            }
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse {
                 val u=request.url
-                if(u.scheme=="https" && u.host=="appassets.androidplatform.net") {
+                if(BridgePolicy.trustedSource(u, true)) {
                     loader.shouldInterceptRequest(u)?.let { return it }
                 }
                 return WebResourceResponse("text/plain","UTF-8",403,"Offline only",emptyMap(),ByteArrayInputStream("Network disabled in Android PoC".toByteArray()))
@@ -124,24 +144,51 @@ class MainActivity : Activity() {
         setIntent(Intent(this,MainActivity::class.java))
     }
     private fun deliver(payload: JSONObject){
+        if(!messageBridge){pending=null;return}
         if(!ready){pending=payload;return}
-        web.evaluateJavascript("window.receiveNative(${payload});",null)
+        nativeReply?.postMessage(JSONObject().put("type","native").put("payload",payload).toString())
     }
     private fun message(text: String){Toast.makeText(this,text,Toast.LENGTH_LONG).show()}
-    inner class Bridge {
-        @JavascriptInterface fun ready(){main.post { ready=true;pending?.let { deliver(it) };pending=null }}
-        @JavascriptInterface fun loadReviews():String=store.read()
-        @JavascriptInterface fun saveReviews(raw:String){try{store.write(raw)}catch(_:Exception){main.post{message("Could not save this redacted review.")}}}
-        @JavascriptInterface fun exportReport(raw:String){if(raw.length>512000)return;main.post {report=raw;startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply{type="application/json";addCategory(Intent.CATEGORY_OPENABLE);putExtra(Intent.EXTRA_TITLE,"AI-Protect-redacted-review.json")},103)}}
-        @JavascriptInterface fun openRoute(id:String){main.post {
-            val route=when(id){"cybercrime"->"https://cybercrime.gov.in/";"chakshu"->"https://www.sancharsaathi.gov.in/";"helpline"->"tel:1930";else->return@post}
-            try{startActivity(Intent(if(id=="helpline")Intent.ACTION_DIAL else Intent.ACTION_VIEW,Uri.parse(route)))}catch(_:ActivityNotFoundException){message("Open this official route independently: $route")}
-        }}
+    private fun handleBridgeMessage(raw: String, reply: JavaScriptReplyProxy) {
+        var id: String? = null
+        try {
+            val request = BridgePolicy.parse(raw)
+            id = request.id
+            val result: Any = when (request.method) {
+                "ready" -> { nativeReply=reply;ready=true;true }
+                "loadReviews" -> store.read()
+                "saveReviews" -> { store.write(request.payload!!);true }
+                "exportReport" -> {
+                    report=request.payload
+                    try {
+                        startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                            type="application/json";addCategory(Intent.CATEGORY_OPENABLE)
+                            putExtra(Intent.EXTRA_TITLE,"AI-Protect-redacted-review.json")
+                        },103)
+                    } catch (_: ActivityNotFoundException) {
+                        report=null;throw IllegalStateException("No document picker available")
+                    }
+                    true
+                }
+                "openRoute" -> {
+                    val route=when(request.payload){"cybercrime"->"https://cybercrime.gov.in/";"chakshu"->"https://www.sancharsaathi.gov.in/";else->"tel:1930"}
+                    try { startActivity(Intent(if(request.payload=="helpline")Intent.ACTION_DIAL else Intent.ACTION_VIEW,Uri.parse(route))) }
+                    catch(_:ActivityNotFoundException) { message("Open this official route independently: $route") }
+                    true
+                }
+                else -> throw IllegalArgumentException()
+            }
+            reply.postMessage(JSONObject().put("id",id).put("result",result).toString())
+            if(request.method=="ready"){pending?.let { deliver(it) };pending=null}
+        } catch (_: Exception) {
+            if(id==null&&raw.length<=600_000)id=try { JSONObject(raw).optString("id").takeIf { it.matches(Regex("[a-zA-Z0-9-]{1,64}")) } }catch(_:Exception){null}
+            if(id!=null)reply.postMessage(JSONObject().put("id",id).put("error","Invalid native request.").toString())
+        }
     }
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){super.onActivityResult(requestCode,resultCode,data)
         if(requestCode==103){val value=report;report=null;if(resultCode==RESULT_OK&&data?.data!=null&&value!=null){try{contentResolver.openOutputStream(data.data!!)?.use{it.write(value.toByteArray())}}catch(_:Exception){message("Export failed. Choose a writable location.")}}}
         if(requestCode==104){filePicker?.onReceiveValue(if(resultCode==RESULT_OK&&data?.data!=null) arrayOf(data.data!!) else null);filePicker=null}
         updateStatus()
     }
-    override fun onDestroy(){shareGeneration++;pending=null;report=null;filePicker?.onReceiveValue(null);web.removeJavascriptInterface("NativeReview");web.destroy();super.onDestroy()}
+    override fun onDestroy(){shareGeneration++;pending=null;report=null;nativeReply=null;ready=false;filePicker?.onReceiveValue(null);if(messageBridge)WebViewCompat.removeWebMessageListener(web,BridgePolicy.OBJECT_NAME);web.destroy();super.onDestroy()}
 }

@@ -20,5 +20,8 @@
     "ordered campaign shift and analyst review",
     "320-1440px layout"
   ],
-  "errors": []
+  "errors": [],
+  "version": "0.4.0",
+  "generated_at": "2026-10-04T18:31:26.724902+00:00",
+  "environment": "Windows x64; installed Google Chrome; headless browser QA, not an Android device"
 }

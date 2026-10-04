@@ -1,28 +1,78 @@
 {
-  "generated_at": "2026-10-03T18:50:49.122Z",
-  "environment": "Node v24.19.0, linux/x64; container CPU, not a phone",
-  "dataset": "52 AI-authored synthetic workflows; frozen 157-text training model; 32 later challenge fixtures; not an independent population benchmark",
-  "scam_sessions": 26,
-  "legitimate_sessions": 26,
-  "true_positive": 24,
+  "generated_at": "2026-10-04T18:29:44.038Z",
+  "version": "0.4.0",
+  "environment": "Node v24.12.0, win32/x64; development machine CPU, not a phone",
+  "dataset": "84 AI-authored synthetic workflows: original 20 smoke + 32 challenge + 32 additive adversarial; frozen 157-text logistic model plus 97 semantic seeds; not an independent population benchmark",
+  "total": 84,
+  "scam_sessions": 42,
+  "legitimate_sessions": 42,
+  "true_positive": 42,
   "false_positive": 0,
-  "false_negative": 2,
-  "true_negative": 26,
+  "false_negative": 0,
+  "true_negative": 42,
   "precision": 1,
-  "recall": 0.9230769230769231,
+  "recall": 1,
   "legitimate_alert_burden_per_100": 0,
-  "prepayment_rate": 0.8823529411764706,
-  "latency_ms": {
-    "p50": 0.015413000000009447,
-    "p95": 0.03871700000000544,
-    "max": 5.695855999999999,
-    "events_measured": 11110
+  "payment_scam_sessions": 29,
+  "prepayment_interventions": 29,
+  "prepayment_rate": 1,
+  "original_suites": {
+    "total": 52,
+    "scam_sessions": 26,
+    "legitimate_sessions": 26,
+    "true_positive": 26,
+    "false_positive": 0,
+    "false_negative": 0,
+    "true_negative": 26,
+    "precision": 1,
+    "recall": 1,
+    "legitimate_alert_burden_per_100": 0,
+    "payment_scam_sessions": 17,
+    "prepayment_interventions": 17,
+    "prepayment_rate": 1
   },
-  "model_bytes": 151350,
+  "original_baseline": {
+    "version": "0.3.0",
+    "total": 52,
+    "scam_sessions": 26,
+    "legitimate_sessions": 26,
+    "true_positive": 24,
+    "false_positive": 0,
+    "false_negative": 2,
+    "true_negative": 26,
+    "payment_scam_sessions": 17,
+    "prepayment_interventions": 15,
+    "known_misses": [
+      "soft-coercion",
+      "implicit-yield"
+    ]
+  },
+  "latency_ms": {
+    "p50": 0.07560000000000855,
+    "p95": 0.19880000000000564,
+    "max": 21.166399999999996,
+    "events_measured": 18079
+  },
+  "model_bytes": 151351,
+  "semantic_model_bytes": 4085,
+  "total_model_bytes": 155436,
+  "semantic_training_samples": 97,
   "suites": [
     {
       "suite": "smoke",
       "total": 20,
+      "scam_sessions": 10,
+      "legitimate_sessions": 10,
+      "true_positive": 10,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 10,
+      "precision": 1,
+      "recall": 1,
+      "legitimate_alert_burden_per_100": 0,
+      "payment_scam_sessions": 9,
+      "prepayment_interventions": 9,
+      "prepayment_rate": 1,
       "scams": 10,
       "missed": [],
       "benign_interruptions": 0
@@ -30,11 +80,39 @@
     {
       "suite": "challenge",
       "total": 32,
+      "scam_sessions": 16,
+      "legitimate_sessions": 16,
+      "true_positive": 16,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 16,
+      "precision": 1,
+      "recall": 1,
+      "legitimate_alert_burden_per_100": 0,
+      "payment_scam_sessions": 8,
+      "prepayment_interventions": 8,
+      "prepayment_rate": 1,
       "scams": 16,
-      "missed": [
-        "soft-coercion",
-        "implicit-yield"
-      ],
+      "missed": [],
+      "benign_interruptions": 0
+    },
+    {
+      "suite": "adversarial",
+      "total": 32,
+      "scam_sessions": 16,
+      "legitimate_sessions": 16,
+      "true_positive": 16,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 16,
+      "precision": 1,
+      "recall": 1,
+      "legitimate_alert_burden_per_100": 0,
+      "payment_scam_sessions": 12,
+      "prepayment_interventions": 12,
+      "prepayment_rate": 1,
+      "scams": 16,
+      "missed": [],
       "benign_interruptions": 0
     }
   ],
@@ -42,264 +120,512 @@
     {
       "id": "refund-qr",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "digital-arrest",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "investment",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "job-task",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "remote-support",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "kyc",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "courier",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "family-emergency",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "hinglish",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "hindi-refund",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "otp-advice",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "restaurant",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "family",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "salary",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "official-support",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "market-risk",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "school",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "benign-urgent",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "refund-complete",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "police-training",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "mixed-negation",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "newline-request",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "hindi-otp",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "hinglish-otp",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "kyc-link",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "kyc-inline",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "refund-paraphrase",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "refund-no-amount",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "authority-remote",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "fee-escalation",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "investment-large",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "pressure-secret",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "zero-width-otp",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "upper-case-refund",
       "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
       "id": "soft-coercion",
       "rules_only_warned": false,
-      "hybrid_warned": false
+      "deterministic_only_warned": false,
+      "hybrid_warned": true
     },
     {
       "id": "implicit-yield",
       "rules_only_warned": false,
-      "hybrid_warned": false
+      "deterministic_only_warned": false,
+      "hybrid_warned": true
     },
     {
       "id": "negated-install",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "negated-refund",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "refund-credited-merchant",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "normal-registration",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "bank-pin-in-app",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "hindi-safety",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "hinglish-safety",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "work-remote",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "kyc-official",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "normal-high-value",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "normal-new-payee",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "normal-urgent",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "honest-investing",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "return-processed",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "normal-salary",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     },
     {
       "id": "normal-official",
       "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "soft-reserve-paraphrase",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": true
+    },
+    {
+      "id": "soft-coercion-isolation",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": true
+    },
+    {
+      "id": "implicit-units-paraphrase",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": true
+    },
+    {
+      "id": "implicit-yield-escalation",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hindi-refund-unicode",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hindi-credential-unicode",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hindi-pressure-unicode",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hinglish-coercion",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "hinglish-implicit-yield",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": true
+    },
+    {
+      "id": "fullwidth-secret",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "zero-width-yield",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": true
+    },
+    {
+      "id": "negation-then-secret",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "delayed-authority",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "delayed-task-recovery",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "support-financial-action",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "delayed-kyc-apk",
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
+      "hybrid_warned": true
+    },
+    {
+      "id": "benign-urgent-bank-reminder",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-bank-outage",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-high-new-payee",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-high-only",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-hindi-safety-unicode",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-hinglish-safety",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-negated-yield",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-negated-reserve",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-safety-refund-qr",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-invoice-urgency",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-classroom-multiplication",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-risk-disclaimer",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-order-reversed",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-expired-pretext",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-delay-rent",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
+      "hybrid_warned": false
+    },
+    {
+      "id": "benign-official-domain-risk-advice",
+      "rules_only_warned": false,
+      "deterministic_only_warned": false,
       "hybrid_warned": false
     }
   ],
+  "ablation_summary": {
+    "semantic_added_scam_detections": 8,
+    "semantic_added_benign_interruptions": 0
+  },
   "scenarios": [
     {
       "id": "refund-qr",
@@ -379,9 +705,9 @@
       "suite": "smoke",
       "supported": true,
       "warned": true,
-      "warning_count": 1,
+      "warning_count": 2,
       "first_warning_stage": "Sensitive action",
-      "first_warning_index": 2,
+      "first_warning_index": 1,
       "payment_scam": false,
       "prepayment_intervention": false
     },
@@ -783,13 +1109,13 @@
       "scam": true,
       "holdout": false,
       "suite": "challenge",
-      "supported": false,
-      "warned": false,
-      "warning_count": 0,
-      "first_warning_stage": null,
-      "first_warning_index": null,
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
       "payment_scam": true,
-      "prepayment_intervention": false
+      "prepayment_intervention": true
     },
     {
       "id": "implicit-yield",
@@ -797,13 +1123,13 @@
       "scam": true,
       "holdout": false,
       "suite": "challenge",
-      "supported": false,
-      "warned": false,
-      "warning_count": 0,
-      "first_warning_stage": null,
-      "first_warning_index": null,
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
       "payment_scam": true,
-      "prepayment_intervention": false
+      "prepayment_intervention": true
     },
     {
       "id": "negated-install",
@@ -1028,14 +1354,463 @@
       "first_warning_index": null,
       "payment_scam": false,
       "prepayment_intervention": false
+    },
+    {
+      "id": "soft-reserve-paraphrase",
+      "name": "Indirect reserve transfer pressure",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "soft-coercion-isolation",
+      "name": "Indirect compliance pressure with isolation",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "implicit-units-paraphrase",
+      "name": "An implied multiplication of invested units",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "implicit-yield-escalation",
+      "name": "Implied yield followed by increasing payments",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 2,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "hindi-refund-unicode",
+      "name": "Hindi refund leads to outgoing QR",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Payment intent",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "hindi-credential-unicode",
+      "name": "Hindi secret credential request",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "hindi-pressure-unicode",
+      "name": "Hindi threat and secrecy before a transfer",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "hinglish-coercion",
+      "name": "Hinglish pressure precedes a transfer",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 2,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "hinglish-implicit-yield",
+      "name": "Hinglish implied investment multiplication",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "fullwidth-secret",
+      "name": "Fullwidth secret request with an invisible character",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "zero-width-yield",
+      "name": "Invisible-character evasion in an implied yield",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "negation-then-secret",
+      "name": "Safety advice followed by a separate secret request",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 0,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "delayed-authority",
+      "name": "Authority pressure assembled over 27 minutes",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 3,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "delayed-task-recovery",
+      "name": "Task deposit followed by withdrawal payment",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 2,
+      "first_warning_stage": "Transfer prepared",
+      "first_warning_index": 2,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "support-financial-action",
+      "name": "Remote support ends with a financial action",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 2,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 1,
+      "payment_scam": true,
+      "prepayment_intervention": true
+    },
+    {
+      "id": "delayed-kyc-apk",
+      "name": "KYC pressure leads to an app installation",
+      "scam": true,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": true,
+      "warning_count": 1,
+      "first_warning_stage": "Sensitive action",
+      "first_warning_index": 1,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-urgent-bank-reminder",
+      "name": "Ordinary urgent banking reminder",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-bank-outage",
+      "name": "Urgent banking outage notice requests no action",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-high-new-payee",
+      "name": "High value new beneficiary without suspicious context",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-high-only",
+      "name": "High payment alone",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-hindi-safety-unicode",
+      "name": "Hindi advice keeps credentials private",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-hinglish-safety",
+      "name": "Hinglish advice rejects credential and remote access requests",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-negated-yield",
+      "name": "Safety advice rejects an implied-yield offer",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-negated-reserve",
+      "name": "Safety advice rejects an indirect reserve transfer",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-safety-refund-qr",
+      "name": "Negated Hindi refund QR advice",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-invoice-urgency",
+      "name": "Ordinary urgent invoice to a new payee",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-classroom-multiplication",
+      "name": "Mathematical multiplication is not an investment promise",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-risk-disclaimer",
+      "name": "Investment warning without promised yield",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-order-reversed",
+      "name": "A completed ordinary payment precedes later passive suspicious text",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-expired-pretext",
+      "name": "An expired suspicious pretext cannot affect a later payment",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-delay-rent",
+      "name": "Ordinary reminder and rent across several channels",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
+    },
+    {
+      "id": "benign-official-domain-risk-advice",
+      "name": "Matching institution domain with safety advice",
+      "scam": false,
+      "holdout": false,
+      "suite": "adversarial",
+      "supported": true,
+      "warned": false,
+      "warning_count": 0,
+      "first_warning_stage": null,
+      "first_warning_index": null,
+      "payment_scam": false,
+      "prepayment_intervention": false
     }
   ],
   "limitations": [
-    "Tiny curated synthetic test suite; not an independent real-world benchmark",
+    "Tiny curated AI-authored synthetic suite; not an independent real-world benchmark or calibrated scam probability",
+    "Original smoke and challenge contents remain separately comparable; new adversarial fixtures were added while implementing the semantic adapter",
+    "Local multilingual concept-feature classifier and frozen synthetic-trained logistic model require independent validation",
     "Holdouts reuse known tactics and do not establish unseen-scam generalization",
     "Pre-payment means before a simulated authorization; no payment integration",
     "Campaign shift bound assumes independent reports; this prototype does not authenticate reporter identities",
-    "Indirect coercion and implicit-yield fixtures are known false negatives",
-    "No ASR, native Android, battery or actual voice-clone detection tested"
+    "No ASR, physical Android hardware, battery or actual voice-clone detection tested"
   ]
 }

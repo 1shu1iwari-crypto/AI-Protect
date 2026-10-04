@@ -1,0 +1,631 @@
+[
+  {
+    "text": "A regulator needs a clearance check",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "The customs investigation officer is speaking",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Police adhikari compliance check",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "बैंक अधिकारी जांच कर रहा है",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "The compliance team has an account inquiry",
+    "labels": [
+      "authority"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "The deadline is close",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "The approval window closes in minutes",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Jaldi action lo abhi",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "जल्दी करो अभी",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "This must be done right now",
+    "labels": [
+      "urgency"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "There is a criminal warrant",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Your account will be frozen",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Account band ho jayega",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "गिरफ्तार करने का आदेश है",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "The clearance process requires a holding account before the compliance window closes",
+    "labels": [
+      "threat"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Keep it between us",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Remain on this call and keep this secret",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Kisi ko mat batana",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "किसी को मत बताना",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Do not disconnect from this call",
+    "labels": [
+      "isolation"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Read out the one time passcode",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Forward your OTP for this check",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "PIN batao",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "अपना पासवर्ड भेजो",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Share the password with this helper",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Enable remote control for support",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Let the helpdesk control your device",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Screen sharing chalu karo support ke liye",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "रिमोट चालू करो",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Turn on AnyDesk to fix this",
+    "labels": [
+      "remote_access"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "A private trading allocation becomes four times larger",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Every investment unit grows into three units",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Private group ka paisa chaar guna",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "निवेश का पैसा चार गुना होगा",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Selected members receive assured returns",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Guaranteed profit from trading",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Your refund is ready to receive",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "The pending cashback will arrive through our QR",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Paise wapas aayenge",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "आपके पैसे वापस मिलेंगे",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "रिफंड पाने के लिए आगे बढ़ो",
+    "labels": [
+      "refund"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Release the task earnings with a fee",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Deposit more to unlock the payout",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Recovery payment unlocks lost funds",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "निकासी के लिए शुल्क जमा करो",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Task deposit required for the reward",
+    "labels": [
+      "fee"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Place funds in the custody account",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Transfer to the reserve account",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "UPI payment jama karo",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "पैसे भेजो अभी",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Send money to the safe account",
+    "labels": [
+      "payment"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Enable our app package",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Install this app to proceed",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Download support.apk",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "यह ऐप डाउनलोड करो",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Our app must be installed",
+    "labels": [
+      "apk"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Renew the bank verification",
+    "labels": [
+      "verification"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Update account KYC",
+    "labels": [
+      "verification"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Bank account verify karo",
+    "labels": [
+      "verification"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "केवाईसी अपडेट करो",
+    "labels": [
+      "verification"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Confirm your bank details",
+    "labels": [
+      "verification"
+    ],
+    "origin": "AI-authored multilingual semantic seed"
+  },
+  {
+    "text": "Our compliance officer requires funds in the holding account before the deadline",
+    "labels": [
+      "authority",
+      "urgency",
+      "threat",
+      "payment"
+    ],
+    "origin": "AI-authored compositional seed"
+  },
+  {
+    "text": "The task reward requires a deposit to release withdrawal",
+    "labels": [
+      "fee",
+      "payment"
+    ],
+    "origin": "AI-authored compositional seed"
+  },
+  {
+    "text": "Bank officer asks you to enable remote control",
+    "labels": [
+      "authority",
+      "remote_access"
+    ],
+    "origin": "AI-authored compositional seed"
+  },
+  {
+    "text": "Private investment members get guaranteed profit",
+    "labels": [
+      "investment"
+    ],
+    "origin": "AI-authored compositional seed"
+  },
+  {
+    "text": "Verify your bank KYC right now",
+    "labels": [
+      "verification",
+      "urgency"
+    ],
+    "origin": "AI-authored compositional seed"
+  },
+  {
+    "text": "Never share a PIN. Forward your OTP to our agent",
+    "labels": [
+      "credentials"
+    ],
+    "origin": "AI-authored compositional seed"
+  },
+  {
+    "text": "आपका खाता बंद होगा जल्दी पैसे भेजो",
+    "labels": [
+      "threat",
+      "urgency",
+      "payment"
+    ],
+    "origin": "AI-authored compositional seed"
+  },
+  {
+    "text": "Never provide your OTP",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Do not reveal a passcode",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "अपना ओटीपी मत भेजो",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "OTP mat batao",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Avoid remote control",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Remote access mat karo",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Do not place funds in a holding account",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Ignore the clearance process asking for money",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Never invest in schemes promising four units from one",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Returns are not guaranteed and can lose value",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "निवेश में जोखिम है",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Investment allocation has market risk",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Classroom units become four squares on graph paper",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Refund already credited to your original payment",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "आपके पैसे मिल चुके हैं",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "No need to transfer money",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Pay the college sports event registration fee",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Enter your PIN in your official UPI app",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Update KYC in your existing official banking app",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Send the meeting notes",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Groceries will arrive this evening",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "The account inquiry is informational",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Urgent electricity invoice is due today",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Bank service notice: transfers unavailable",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Your salary is credited",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Workshop screen sharing for code review",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Never install our app from strangers",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "Do not scan to receive money",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  },
+  {
+    "text": "The task is a school assignment",
+    "labels": [],
+    "origin": "AI-authored safety/ordinary seed"
+  }
+]

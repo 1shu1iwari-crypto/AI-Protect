@@ -6,10 +6,13 @@
     "paid and not-paid routes",
     "review switching and deletion",
     "normal call and payment",
-    "320–1440 layout",
+    "320\u20131440 layout",
     "native bridge share and QR association without auto analysis",
     "redacted snapshot",
     "post-call response",
     "report consent"
-  ]
+  ],
+  "version": "0.4.0",
+  "generated_at": "2026-10-04T18:31:26.725919+00:00",
+  "environment": "Windows x64; installed Google Chrome; headless browser QA, not an Android device"
 }

@@ -1,0 +1,3 @@
+export const TACTICS = ['authority','urgency','threat','isolation','credentials','remote_access','investment','refund','fee','payment','apk','verification','link_risk'];
+export const CHANNELS = ['message','call','link','qr','payment'];
+export const LABELS = {authority:'Claim of official authority',urgency:'Pressure to act quickly',threat:'Threat or account restriction',isolation:'Asked to stay isolated',credentials:'Request for secret credentials',remote_access:'Remote access request',investment:'Guaranteed investment return',refund:'Claim of receiving a refund',fee:'Fee to unlock earnings',payment:'Payment requested',apk:'App installation requested',verification:'Account verification request',link_risk:'Unusual verification link'};

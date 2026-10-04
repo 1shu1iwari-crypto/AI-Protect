@@ -1,5 +1,6 @@
-const CACHE='scamguard-v3';
-const ASSETS=['/','/web/index.html','/web/styles.css','/web/fonts.css','/web/app.mjs','/web/qr.mjs','/web/vendor/jsQR.js','/web/analytics.mjs','/web/icon.svg','/web/icon-192.png','/web/icon-512.png','/web/manifest.json','/core/engine.mjs','/core/review.mjs','/core/verification.mjs','/core/model.json','/simulator/scenarios.mjs','/simulator/challenges.mjs','/evaluation/results.json'];
+const CACHE='scamguard-v4';
+const ASSETS=['/','/web/index.html','/web/styles.css','/web/fonts.css','/web/app.mjs','/web/native-review.mjs','/web/qr.mjs','/web/vendor/jsQR.js','/web/analytics.mjs','/web/icon.svg','/web/icon-192.png','/web/icon-512.png','/web/manifest.json',
+ '/core/engine.mjs','/core/constants.mjs','/core/input.mjs','/core/rules.mjs','/core/legacy-model.mjs','/core/evidence.mjs','/core/semantic.mjs','/core/semantic-features.mjs','/core/semantic-model.mjs','/core/workflow.mjs','/core/policy.mjs','/core/fingerprint.mjs','/core/explanations.mjs','/core/version.mjs','/core/review.mjs','/core/verification.mjs','/core/institution-registry.mjs','/core/model.json','/simulator/scenarios.mjs','/simulator/challenges.mjs','/evaluation/results.json'];
 // Share Target POST never reaches the server or a persistent cache. The
 // single-use fragment token carries no content; worker memory expires in 60s.
 const shares=new Map();let reviewContext=null;

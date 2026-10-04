@@ -1,4 +1,10 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
+// package.json is the release-version authority for both web and Android.
+val packageVersionFile = rootProject.projectDir.parentFile.resolve("package.json")
+val releaseVersion = groovy.json.JsonSlurper().parse(packageVersionFile)
+    .let { (it as Map<*, *>)["version"] as String }
+require(Regex("\\d+\\.\\d+\\.\\d+").matches(releaseVersion)) { "Expected a semantic package version" }
+val versionParts = releaseVersion.split('.').map(String::toInt)
 android {
     namespace = "in.aiprotect.companion"
     compileSdk = 35
@@ -6,8 +12,8 @@ android {
         applicationId = "in.aiprotect.companion"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.3.0-poc"
+        versionCode = versionParts[0] * 1000000 + versionParts[1] * 1000 + versionParts[2]
+        versionName = releaseVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
@@ -20,10 +26,19 @@ android {
 }
 // Copy the working web/core at build time. No duplicate risk-engine implementation.
 val syncReviewAssets by tasks.registering(Sync::class) {
+    inputs.file(packageVersionFile)
+    inputs.property("releaseVersion", releaseVersion)
     from(rootProject.projectDir.parentFile) {
         include("core/*.mjs", "core/model.json", "web/*.mjs", "web/*.css", "web/*.html", "web/*.svg", "web/*.png", "web/manifest.json", "web/vendor/**", "simulator/*.mjs", "evaluation/results.json")
+        exclude("core/version.mjs")
     }
     into(layout.buildDirectory.dir("generated/reviewAssets"))
+    doLast {
+        // Android builds do not require Node or a pre-generated web version file.
+        val versionAsset = layout.buildDirectory.file("generated/reviewAssets/core/version.mjs").get().asFile
+        versionAsset.parentFile.mkdirs()
+        versionAsset.writeText("// Generated from package.json by Android asset sync.\nexport const VERSION = '$releaseVersion';\n")
+    }
 }
 tasks.named("preBuild").configure { dependsOn(syncReviewAssets) }
 dependencies {

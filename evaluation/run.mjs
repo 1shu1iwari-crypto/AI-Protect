@@ -1,14 +1,73 @@
 import {readFile,writeFile} from 'node:fs/promises';
-import {Session} from '../core/engine.mjs';
+import {Session,VERSION} from '../core/engine.mjs';
 import {scenarios as smokeScenarios} from '../simulator/scenarios.mjs';
 import {challenges} from '../simulator/challenges.mjs';
-const scenarios=[...smokeScenarios,...challenges];
-const model=JSON.parse(await readFile(new URL('../core/model.json',import.meta.url),'utf8'));
+import {adversarial} from '../simulator/adversarial.mjs';
+import semanticModel from '../core/semantic-model.mjs';
+
+const scenarios=[...smokeScenarios,...challenges,...adversarial];
+const modelFile=await readFile(new URL('../core/model.json',import.meta.url));
+const semanticModelFile=await readFile(new URL('../core/semantic-model.mjs',import.meta.url));
+const model=JSON.parse(modelFile.toString('utf8'));
 const durations=[],rows=[];
-for(const s of scenarios){const session=new Session(model);let first=null,warnings=0,paymentWarnings=0;for(const [i,e] of s.events.entries()){const start=performance.now();const r=session.add({...e,timestamp:session.started+i*20000});durations.push(performance.now()-start);if(r.showWarning){warnings++;if(!first)first={stage:r.stage,index:i};}if(r.severity==='warning'||r.severity==='high'){if(e.channel==='payment'||e.channel==='qr')paymentWarnings++;}}const paymentScam=s.scam&&s.events.some(e=>e.channel==='payment'||e.channel==='qr');rows.push({id:s.id,name:s.name,scam:s.scam,holdout:!!s.holdout,suite:s.suite||'smoke',supported:s.supported!==false,warned:warnings>0,warning_count:warnings,first_warning_stage:first?.stage??null,first_warning_index:first?.index??null,payment_scam:paymentScam,prepayment_intervention:paymentScam&&paymentWarnings>0});}
+
+function evaluateFixture(fixture,{timed=false,deterministicOnly=false}={}){
+ const session=deterministicOnly?new Session(null,{semanticClassifier:null}):new Session(model);
+ // Keep the fixture's clock fixed even if a deliberate inactivity gap resets it.
+ const startTime=session.started;
+ let first=null,warnings=0,paymentWarnings=0;
+ for(const [i,event] of fixture.events.entries()){
+  const start=performance.now();
+  const result=session.add({...event,timestamp:startTime+(event.offset_ms??i*20000)});
+  if(timed)durations.push(performance.now()-start);
+  if(result.showWarning){warnings++;first??={stage:result.stage,index:i};}
+  if(['warning','high'].includes(result.severity)&&['payment','qr'].includes(event.channel))paymentWarnings++;
+ }
+ const paymentScam=fixture.scam&&fixture.events.some(event=>['payment','qr'].includes(event.channel));
+ return {id:fixture.id,name:fixture.name,scam:fixture.scam,holdout:!!fixture.holdout,suite:fixture.suite||'smoke',supported:fixture.supported!==false,warned:warnings>0,warning_count:warnings,first_warning_stage:first?.stage??null,first_warning_index:first?.index??null,payment_scam:paymentScam,prepayment_intervention:paymentScam&&paymentWarnings>0};
+}
+
+function metrics(subset){
+ const scams=subset.filter(row=>row.scam).length,benign=subset.length-scams;
+ const tp=subset.filter(row=>row.scam&&row.warned).length,fp=subset.filter(row=>!row.scam&&row.warned).length;
+ const paymentScams=subset.filter(row=>row.payment_scam).length;
+ return {total:subset.length,scam_sessions:scams,legitimate_sessions:benign,true_positive:tp,false_positive:fp,false_negative:scams-tp,true_negative:benign-fp,precision:tp/Math.max(1,tp+fp),recall:tp/Math.max(1,scams),legitimate_alert_burden_per_100:subset.filter(row=>!row.scam).reduce((n,row)=>n+row.warning_count,0)/Math.max(1,benign)*100,payment_scam_sessions:paymentScams,prepayment_interventions:subset.filter(row=>row.prepayment_intervention).length,prepayment_rate:subset.filter(row=>row.prepayment_intervention).length/Math.max(1,paymentScams)};
+}
+
+for(const fixture of scenarios)rows.push(evaluateFixture(fixture,{timed:true}));
 // Warm repeated complete sessions measure the engine, not UI, ASR or network.
-for(let n=0;n<100;n++)for(const s of scenarios){const ss=new Session(model);for(const [i,e] of s.events.entries()){const a=performance.now();ss.add({...e,timestamp:ss.started+i*20000});durations.push(performance.now()-a);}}
-durations.sort((a,b)=>a-b);const tp=rows.filter(s=>s.scam&&s.warned).length,fp=rows.filter(s=>!s.scam&&s.warned).length,scams=rows.filter(s=>s.scam).length,benign=rows.length-scams;
-const out={generated_at:new Date().toISOString(),environment:`Node ${process.version}, ${process.platform}/${process.arch}; container CPU, not a phone`,dataset:'52 AI-authored synthetic workflows; frozen 157-text training model; 32 later challenge fixtures; not an independent population benchmark',scam_sessions:scams,legitimate_sessions:benign,true_positive:tp,false_positive:fp,false_negative:scams-tp,true_negative:benign-fp,precision:tp/Math.max(1,tp+fp),recall:tp/scams,legitimate_alert_burden_per_100:rows.filter(s=>!s.scam).reduce((n,s)=>n+s.warning_count,0)/benign*100,prepayment_rate:rows.filter(s=>s.prepayment_intervention).length/rows.filter(s=>s.payment_scam).length,latency_ms:{p50:durations[Math.floor(durations.length*.5)],p95:durations[Math.floor(durations.length*.95)],max:durations.at(-1),events_measured:durations.length},model_bytes:(await readFile(new URL('../core/model.json',import.meta.url))).length,suites:['smoke','challenge'].map(suite=>({suite,total:rows.filter(s=>s.suite===suite).length,scams:rows.filter(s=>s.suite===suite&&s.scam).length,missed:rows.filter(s=>s.suite===suite&&s.scam&&!s.warned).map(s=>s.id),benign_interruptions:rows.filter(s=>s.suite===suite&&!s.scam&&s.warned).length})),ablation:scenarios.map(s=>{const ss=new Session();let warned=false;for(const [i,e] of s.events.entries())warned=ss.add({...e,timestamp:ss.started+i*20000}).showWarning||warned;return {id:s.id,rules_only_warned:warned,hybrid_warned:rows.find(r=>r.id===s.id).warned};}),scenarios:rows,limitations:['Tiny curated synthetic test suite; not an independent real-world benchmark','Holdouts reuse known tactics and do not establish unseen-scam generalization','Pre-payment means before a simulated authorization; no payment integration','Campaign shift bound assumes independent reports; this prototype does not authenticate reporter identities','Indirect coercion and implicit-yield fixtures are known false negatives','No ASR, native Android, battery or actual voice-clone detection tested']};
+for(let n=0;n<100;n++)for(const fixture of scenarios)evaluateFixture(fixture,{timed:true});
+durations.sort((a,b)=>a-b);
+const combined=metrics(rows);
+const original=metrics(rows.filter(row=>row.suite!=='adversarial'));
+const suites=['smoke','challenge','adversarial'].map(suite=>{
+ const subset=rows.filter(row=>row.suite===suite);
+ return {suite,...metrics(subset),scams:subset.filter(row=>row.scam).length,missed:subset.filter(row=>row.scam&&!row.warned).map(row=>row.id),benign_interruptions:subset.filter(row=>!row.scam&&row.warned).length};
+});
+const ablation=scenarios.map(fixture=>{
+ const rules=evaluateFixture(fixture,{deterministicOnly:true});
+ return {id:fixture.id,rules_only_warned:rules.warned,deterministic_only_warned:rules.warned,hybrid_warned:rows.find(row=>row.id===fixture.id).warned};
+});
+const out={
+ generated_at:new Date().toISOString(),version:VERSION,
+ environment:`Node ${process.version}, ${process.platform}/${process.arch}; development machine CPU, not a phone`,
+ dataset:`${rows.length} AI-authored synthetic workflows: original 20 smoke + 32 challenge + ${adversarial.length} additive adversarial; frozen 157-text logistic model plus ${semanticModel.training_samples} semantic seeds; not an independent population benchmark`,
+ ...combined,
+ original_suites:original,
+ original_baseline:{version:'0.3.0',total:52,scam_sessions:26,legitimate_sessions:26,true_positive:24,false_positive:0,false_negative:2,true_negative:26,payment_scam_sessions:17,prepayment_interventions:15,known_misses:['soft-coercion','implicit-yield']},
+ latency_ms:{p50:durations[Math.floor(durations.length*.5)],p95:durations[Math.floor(durations.length*.95)],max:durations.at(-1),events_measured:durations.length},
+ model_bytes:modelFile.length,semantic_model_bytes:semanticModelFile.length,total_model_bytes:modelFile.length+semanticModelFile.length,semantic_training_samples:semanticModel.training_samples,suites,ablation,
+ ablation_summary:{semantic_added_scam_detections:ablation.filter(row=>!row.deterministic_only_warned&&row.hybrid_warned&&rows.find(fixture=>fixture.id===row.id).scam).length,semantic_added_benign_interruptions:ablation.filter(row=>!row.deterministic_only_warned&&row.hybrid_warned&&!rows.find(fixture=>fixture.id===row.id).scam).length},
+ scenarios:rows,
+ limitations:[
+  'Tiny curated AI-authored synthetic suite; not an independent real-world benchmark or calibrated scam probability',
+  'Original smoke and challenge contents remain separately comparable; new adversarial fixtures were added while implementing the semantic adapter',
+  'Local multilingual concept-feature classifier and frozen synthetic-trained logistic model require independent validation',
+  'Holdouts reuse known tactics and do not establish unseen-scam generalization',
+  'Pre-payment means before a simulated authorization; no payment integration',
+  'Campaign shift bound assumes independent reports; this prototype does not authenticate reporter identities',
+  'No ASR, physical Android hardware, battery or actual voice-clone detection tested',
+ ],
+};
 await writeFile(new URL('results.json',import.meta.url),JSON.stringify(out,null,2)+'\n');
-console.log(JSON.stringify({tp,fp,scams,benign,prepayment_rate:out.prepayment_rate,p95_ms:out.latency_ms.p95},null,2));
+console.log(JSON.stringify({version:VERSION,tp:combined.true_positive,fp:combined.false_positive,scams:combined.scam_sessions,benign:combined.legitimate_sessions,original_suites:original,suites:suites.map(({suite,total,true_positive,false_negative,false_positive,missed})=>({suite,total,true_positive,false_negative,false_positive,missed})),prepayment_rate:out.prepayment_rate,p95_ms:out.latency_ms.p95},null,2));

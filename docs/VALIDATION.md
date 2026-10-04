@@ -1,6 +1,16 @@
-# Validation record - v0.2.0
+# Validation record
 
-## Completed
+## v0.4 current results (2026-10-05)
+
+- `npm test` (Windows: `npm.cmd test`): **53 Node + 13 Python tests pass**. New regressions cover both original semantic misses, paraphrases, actual and polite Hindi script, Hinglish, safety negation, Unicode sentence/link evasion, delayed temporal workflows, ordinary urgent banking/invoices, high-value new beneficiaries, structured-event privacy, redacted restore, two-way new-workflow re-warning, direct secret priority, pluggable semantics and extensible institution data. Native bridge tests keep call/share arrivals passive until explicit review.
+- `npm run evaluate`: **84 AI-authored synthetic workflows**, **42/42 scam workflows warned**, **0/42 ordinary workflows interrupted**, and **29/29 payment scam workflows warned before simulated authorization**. The suites are reported separately: original smoke **10/10 scams, 0/10 benign interruptions**; original challenge **16/16 scams, 0/16 benign interruptions**; additive adversarial **16/16 scams, 0/16 benign interruptions**.
+- The original 52 cases remain comparable: **26/26 scams** and **17/17 simulated payment interventions**, versus the recorded v0.3 **24/26** and **15/17**. `soft-coercion` and `implicit-yield` remain verbatim fixtures and now warn only at the outgoing payment action.
+- Deterministic-only ablation disables both local classifiers. The semantic adapter adds **eight synthetic scam detections** and **zero benign interruptions** over that ablation. This demonstrates a contribution in these curated fixtures; it does not establish real-world ML uplift. Evaluation text is excluded verbatim from the legacy 157-text and new 97-text training files, but shared authorship/concept vocabulary and development-time fixture use prevent claiming independent validation.
+- Engine p95 is approximately **0.20 ms** on Node 24.12, Windows x64, for 18,079 measured events. This includes repeated warm sessions; it is not phone, UI, ASR, WebView, battery or cold-start timing. Inspect `evaluation/results.json` for current machine-dependent measurements and model sizes. All evidence/workflow/action scores are uncalibrated heuristics.
+- Android build/tests were not rerun on this Windows machine because JDK 17 and Android SDK 35 are absent. Earlier v0.3 results below are historical; the bridge and snapshot changes plus new native policy/persistence tests still need Gradle validation with that toolchain and physical-device review.
+- Both current browser suites pass using installed Chrome on Windows: `npm run qa` and `npm run qa:reviews`. Checks include offline module loading, QR image decoding, private POST sharing/cache exclusion, separate consent/deletion, campaign review, responsive layouts and asynchronous native call/share staging without analysis before a user tap.
+
+## Historical v0.2 results
 
 - 18 Node tests plus 11 Python API/campaign tests pass (29 total).
 - 52 disclosed AI-authored workflows: 24/26 scam workflows warned, 0/26 ordinary workflows interrupted, 15/17 payment scams warned before simulated authorization. Two known misses: indirect coercion and implicit investment yield. Rules-only and guarded-hybrid warning outcomes match. No ML recall improvement or real-world accuracy claim.

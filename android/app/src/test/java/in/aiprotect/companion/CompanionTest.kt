@@ -82,4 +82,69 @@ class CompanionTest {
         val service=context.packageManager.getServiceInfo(android.content.ComponentName(context,ReviewCallScreeningService::class.java),0)
         assertEquals("android.permission.BIND_SCREENING_SERVICE",service.permission)
     }
+    @Test fun bridgeAcceptsOnlyTheBundledTopLevelHttpsOrigin(){
+        assertTrue(BridgePolicy.trustedSource(Uri.parse(BridgePolicy.ORIGIN),true))
+        assertTrue(BridgePolicy.trustedSource(Uri.parse(BridgePolicy.ORIGIN+":443"),true))
+        for(origin in listOf("http://appassets.androidplatform.net","https://appassets.androidplatform.net.evil.invalid","https://appassets.androidplatform.net:8443","https://user@appassets.androidplatform.net","file:///android_asset/web/index.html")) {
+            assertFalse(BridgePolicy.trustedSource(Uri.parse(origin),true))
+        }
+        assertFalse(BridgePolicy.trustedSource(Uri.parse(BridgePolicy.ORIGIN),false))
+    }
+    @Test fun bridgeMessageSchemaRejectsUnknownActionsAndArbitraryRoutes(){
+        val valid=BridgePolicy.parse("""{"id":"request-1","method":"loadReviews","payload":null}""")
+        assertEquals("loadReviews",valid.method);assertNull(valid.payload)
+        assertEquals("helpline",BridgePolicy.parse("""{"id":"request-2","method":"openRoute","payload":"helpline"}""").payload)
+        for(raw in listOf(
+            """{"id":"request-1","method":"listen","payload":null}""",
+            """{"id":"request-1","method":"openRoute","payload":"https://evil.invalid"}""",
+            """{"id":"request-1","method":"loadReviews","payload":"raw text"}""",
+            """{"id":"request-1","method":"saveReviews","payload":{"raw_text":"secret"}}""",
+            """{"id":"request-1","method":"ready","payload":null,"extra":"private"}"""
+        )) {
+            try { BridgePolicy.parse(raw);fail("Should reject invalid native request") }
+            catch(_: IllegalArgumentException) {} catch(_: org.json.JSONException) {}
+        }
+    }
+    @Test fun nativeStoragePreservesSemanticEvidenceAndDiscardsSourceData(){
+        val now=System.currentTimeMillis()
+        val state="""{"active":"review-12345678","raw_text":"secret source","reviews":[{
+            "schema":1,"session_id":"review-12345678","started":$now,"updated":$now,
+            "direction":"incoming","user_flagged":true,"claimed_org":"hdfc","consent":true,
+            "events":[{"channel":"message","timestamp":$now,"tactics":["authority","payment"],
+                "requested_action":"transfer","claimed_identity":"authority","persuasion_signals":["trust","coercion"],
+                "verification_status":"mismatch","semantic_confidence":0.91,"semantic_tactics":["authority","payment"],
+                "evidence_sources":["semantic"],"amount_bucket":"10k_50k","beneficiary_novelty":"new",
+                "payment":{"amountBucket":"10k_50k","newPayee":true,"payee":"secret@bank","amount":12345},
+                "raw_text":"secret source","model_corroboration":true,"modelScores":{"private":"secret source"}}],
+            "timeline":[{"evidence_type":"screenshot","verification":"mismatch","evidence":["authority","trust","coercion"],
+                "new_evidence":["coercion"],"stage":"Payment intent","severity":"high","evidence_strength":89,
+                "workflow_confidence":89,"action_risk":94,"escalating":true,"reason":"secret source","change":"secret source"}],
+            "workflow_state":"Payment intent","payment_status":"not_sent","actions_taken":[]
+        }]}"""
+        val context=RuntimeEnvironment.getApplication();val store=ReviewStore(context)
+        store.write(state)
+        val saved=org.json.JSONObject(store.read());val review=saved.getJSONArray("reviews").getJSONObject(0)
+        val event=review.getJSONArray("events").getJSONObject(0)
+        assertEquals("coercion",event.getJSONArray("persuasion_signals").getString(1))
+        assertEquals("semantic",event.getJSONArray("evidence_sources").getString(0))
+        assertEquals(0.91,event.getDouble("semantic_confidence"),0.0001)
+        assertTrue(event.getBoolean("model_corroboration"));assertTrue(event.isNull("modelScores"))
+        assertEquals("10k_50k",event.getJSONObject("payment").getString("amountBucket"))
+        assertFalse(saved.toString().contains("secret"));assertFalse(review.has("consent"))
+        assertFalse(review.getJSONArray("timeline").getJSONObject(0).has("reason"))
+        context.noBackupFilesDir.resolve("reviews.json").delete()
+    }
+    @Test fun nativeSnapshotPolicyAcceptsLegacyEvidenceAndRejectsInvalidDerivedValues(){
+        val now=System.currentTimeMillis()
+        val legacy="""{"reviews":[{"schema":1,"session_id":"legacy-12345678","started":$now,
+            "events":[{"channel":"call","timestamp":$now,"tactics":["credentials"],"payment":null}],
+            "timeline":[{"evidence":["credentials","trust"],"verification":"mismatch","stage":"Sensitive action","severity":"warning"}]}]}"""
+        val event=ReviewSnapshotPolicy.sanitize(legacy).getJSONArray("reviews").getJSONObject(0).getJSONArray("events").getJSONObject(0)
+        assertEquals("credentials",event.getString("requested_action"));assertTrue(event.isNull("semantic_confidence"))
+        assertEquals("mismatch",event.getString("verification_status"));assertEquals("trust",event.getJSONArray("persuasion_signals").getString(0))
+        for(raw in listOf(legacy.replace("\"credentials\"","\"private message\""),legacy.replace("\"payment\":null","\"payment\":null,\"semantic_confidence\":\"private message\""),legacy.replace("\"payment\":null","\"payment\":null,\"model_corroboration\":\"private message\""))) {
+            try { ReviewSnapshotPolicy.sanitize(raw);fail("Should reject invalid derived snapshot") }
+            catch(_: IllegalArgumentException) {} catch(_: org.json.JSONException) {}
+        }
+    }
 }

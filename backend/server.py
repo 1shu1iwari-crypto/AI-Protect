@@ -1,6 +1,7 @@
 """Local-only reference server. Static app + strict consented fingerprint store."""
 import argparse, json, os, re, secrets, sqlite3, time, urllib.request
 from collections import defaultdict, deque
+from contextlib import contextmanager
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock, Thread
@@ -8,6 +9,8 @@ from urllib.parse import urlsplit
 from campaigns import discover
 
 ROOT=Path(__file__).resolve().parents[1]
+VERSION=json.loads((ROOT/'package.json').read_text(encoding='utf-8'))['version']
+SUPPORTED_VERSIONS={'0.1.0','0.2.0','0.3.0',VERSION}
 TACTICS={'authority','urgency','threat','isolation','credentials','remote_access','investment','refund','fee','payment','apk','verification','link_risk'}
 CHANNELS={'message','call','link','qr','payment'}
 BUCKETS={'unknown','under_1k','1k_10k','10k_50k','50k_plus'}
@@ -16,7 +19,7 @@ LOCK=Lock(); LIMITS=defaultdict(deque)
 def validate(p):
     keys={'version','session_id','tactics','channels','sequence','amount_bucket','event_count'}
     if not isinstance(p,dict) or set(p)!=keys: raise ValueError('Only the documented fingerprint fields are accepted')
-    if p['version'] not in {'0.1.0','0.2.0'} or not isinstance(p['session_id'],str) or not re.fullmatch(r'[a-zA-Z0-9-]{8,64}',p['session_id']): raise ValueError('Invalid version or session ID')
+    if not isinstance(p['version'],str) or p['version'] not in SUPPORTED_VERSIONS or not isinstance(p['session_id'],str) or not re.fullmatch(r'[a-zA-Z0-9-]{8,64}',p['session_id']): raise ValueError('Invalid version or session ID')
     for key,allowed,maximum in [('tactics',TACTICS,13),('channels',CHANNELS,5),('sequence',TACTICS,64)]:
         if not isinstance(p[key],list) or len(p[key])>maximum or any(not isinstance(x,str) or x not in allowed for x in p[key]): raise ValueError('Invalid enum array')
     if len(p['tactics']) != len(set(p['tactics'])) or len(p['channels']) != len(set(p['channels'])): raise ValueError('Duplicate enum entries')
@@ -30,7 +33,13 @@ class Store:
         with self.db() as c:
             c.execute('CREATE TABLE IF NOT EXISTS fingerprints(id TEXT PRIMARY KEY, created REAL, payload TEXT)')
             c.execute('CREATE TABLE IF NOT EXISTS reviews(signature TEXT PRIMARY KEY, status TEXT)')
-    def db(self): return sqlite3.connect(self.path)
+    @contextmanager
+    def db(self):
+        connection=sqlite3.connect(self.path)
+        try:
+            with connection: yield connection
+        finally:
+            connection.close()
     def put(self,p):
         with LOCK,self.db() as c:
             c.execute('DELETE FROM fingerprints WHERE created < ?', (time.time()-86400,))
@@ -65,13 +74,13 @@ class Handler(SimpleHTTPRequestHandler):
         path=urlsplit(self.path).path
         if path=='/api/health':return self.respond(200,{'status':'ok','mode':'local prototype','retention_hours':24})
         if path=='/api/campaigns':return self.respond(200,{'campaigns':self.server.store.campaigns()})
-        if path=='/api/config':return self.respond(200,{'version':'0.2.0','external_analytics':bool(os.environ.get('POSTHOG_PROJECT_TOKEN'))})
+        if path=='/api/config':return self.respond(200,{'version':VERSION,'external_analytics':bool(os.environ.get('POSTHOG_PROJECT_TOKEN'))})
         if path=='/':self.path='/web/index.html'
         elif not (path.startswith(('/web/','/core/','/simulator/','/evaluation/'))):return self.respond(404,{'error':'Not found'})
         target=(ROOT/self.path.split('?')[0].lstrip('/')).resolve()
         allowed=any(target.is_relative_to(ROOT/d) for d in ['web','core','simulator','evaluation'])
         if not allowed or not target.is_file():return self.respond(404,{'error':'Not found'})
-        self.path='/'+str(target.relative_to(ROOT));return super().do_HEAD() if self.command == 'HEAD' else super().do_GET()
+        self.path='/'+target.relative_to(ROOT).as_posix();return super().do_HEAD() if self.command == 'HEAD' else super().do_GET()
     def do_HEAD(self):return self.do_GET()
     def do_POST(self):
         if self.headers.get('Origin') and self.headers['Origin'] not in {'http://'+self.headers.get('Host',''),'https://'+self.headers.get('Host','')}:return self.respond(403,{'error':'Cross-origin requests rejected'})
