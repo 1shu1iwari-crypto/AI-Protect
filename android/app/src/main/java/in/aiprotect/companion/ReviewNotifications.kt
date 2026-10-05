@@ -12,6 +12,7 @@ object ReviewNotifications {
     const val CHANNEL = "call_review"
     fun offer(context: Context, direction: String, simulated: Boolean = false): String {
         val id = UUID.randomUUID().toString()
+        LiveReviewFeature.offer(id, direction)
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(NotificationChannel(CHANNEL, "Review a call", NotificationManager.IMPORTANCE_DEFAULT).apply {
             description = "A private review shortcut. Calls are never blocked or analyzed automatically."
@@ -19,7 +20,7 @@ object ReviewNotifications {
         })
         if (Build.VERSION.SDK_INT >= 33 && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return id
         if (!manager.areNotificationsEnabled()) return id
-        val intent = Intent(context, MainActivity::class.java).apply {
+        val intent = LiveReviewFeature.reviewIntent(context).apply {
             action = Intent.ACTION_VIEW
             data = Uri.parse("aiprotect://review/$id?direction=${CallReviewPolicy.safeDirection(direction)}")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP

@@ -18,6 +18,17 @@ android {
     }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("play") { dimension = "distribution" }
+        create("hackathon") {
+            dimension = "distribution"
+            applicationIdSuffix = ".hackathon"
+            versionNameSuffix = "-hackathon"
+            // External PCM input to the on-device recognizer requires API 33.
+            minSdk = 33
+        }
+    }
     testOptions {
         unitTests.isIncludeAndroidResources = true
         unitTests.all { it.systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2") }
@@ -43,6 +54,7 @@ val syncReviewAssets by tasks.registering(Sync::class) {
 tasks.named("preBuild").configure { dependsOn(syncReviewAssets) }
 dependencies {
     implementation("androidx.webkit:webkit:1.12.1")
+    "hackathonImplementation"("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("org.mockito:mockito-core:5.15.2")

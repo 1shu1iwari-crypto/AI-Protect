@@ -45,3 +45,12 @@ Licensed/consented independently labelled traffic, family/template/time splits, 
 - Synthetic evaluation remains **24/26 scams detected; 0/26 ordinary interrupted; 15/17 before simulated payment**. No new accuracy or ML uplift claim. The demo registry is two institutions, not a comprehensive bank identity service.
 
 Next validation priorities: (1) API 29/33/35 physical-device role, notification and share testing; (2) consented Hindi/regional-language conversations and independent false-warning review; (3) authenticated campaign contributions with poisoning resistance.
+
+## Experimental live-review change (2026-10-05)
+
+- `npm test`: **59 Node tests and 13 Python tests pass**, including six live-review regressions for explicit consent, review identity/sequence guards, redaction, live-audio provenance, ordinary speech and bounded event history. Existing detection tests remain passing.
+- Android XML files parse, and `git diff --check` passes.
+- **Android compilation, Robolectric and lint are unverified for this change.** The Gradle wrapper failed to download Gradle 8.11.1 with `java.net.SocketException: Network is unreachable`; no Android SDK was present in this execution environment. Earlier Android results above belong to the earlier revision and do not validate this feature.
+- `npm run qa:live` and `npm run qa:reviews` were attempted but **could not launch Chromium**, because the required Playwright browser binary is not installed here. The live-page test is committed and included in CI; it must pass in a browser-enabled environment.
+- No handset, call audio, installed speech provider/language pack, battery usage or real-world warning latency was tested. On-device recognizer availability and external-audio behavior remain device dependent. This is source for a sideload prototype, not a validated APK or Play-ready release.
+- CI now has separate Play and Hackathon Android jobs. Run both build/unit/lint gates and the device matrix in `android/LIVE_REVIEW.md` before using the live feature in a demonstration.

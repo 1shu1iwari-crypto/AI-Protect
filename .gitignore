@@ -10,3 +10,4 @@ android/.gradle/
 android/local.properties
 android/**/build/
 *.apk
+AI-Protect-live-review/

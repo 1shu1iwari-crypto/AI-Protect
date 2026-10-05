@@ -1,0 +1,3 @@
+<resources>
+    <string name="live_accessibility_description">Experimental sideload feature: shows a Review Call shield over other apps and supports microphone review only after you tap Start Review. Does not read screens, contacts, messages, caller numbers, or press buttons. Audio is processed on device and is not saved. Disable this service to stop live review.</string>
+</resources>
