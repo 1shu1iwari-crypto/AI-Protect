@@ -8,13 +8,13 @@ Use JDK **17**, Android SDK **35** and Build Tools **35.0.0**. Open `android/` i
 
 ```bash
 cd android
-./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+./gradlew :app:assemblePlayDebug :app:testPlayDebugUnitTest :app:lintPlayDebug
+adb install -r app/build/outputs/apk/play/debug/app-play-debug.apk
 ```
 
-Windows: use `gradlew.bat` in place of `./gradlew`. Debug APK: `android/app/build/outputs/apk/debug/app-debug.apk` from the repository root. Initial build downloads Gradle/dependencies; installed app runs offline. APK is debug-signed for testing, not a Play Store release.
+Windows: use `gradlew.bat` in place of `./gradlew`. Debug APK: `android/app/build/outputs/apk/play/debug/app-play-debug.apk` from the repository root. Initial build downloads Gradle/dependencies; installed app runs offline. APK is debug-signed for testing, not a Play Store release.
 
-## On a physical phone
+## On a physical phone (Play/manual flavor)
 
 1. Android **10 / API 29 or later**, with an up-to-date Android System WebView. Install the APK via ADB, or temporarily allow installation from the app opening the APK.
 2. Open **AI-Protect → Call setup → Choose call role**. Select AI-Protect for **caller ID / spam (call screening)**. This replaces whichever app previously held that single role. AI-Protect never blocks calls.
@@ -24,7 +24,9 @@ Windows: use `gradlew.bat` in place of `./gradlew`. Debug APK: `android/app/buil
 6. Tap **After call**, then **No / Yes** to choose the response path. This button is user-driven, not a claim to detect call end. Official reporting links open your browser; 1930 opens the dialer without placing a call.
 7. Test a real incoming call from a consenting second phone **not in contacts**. Keep normal ringing/answering behavior. Check the review notification. Test an outgoing eligible call separately; support varies by Telecom implementation.
 
-No microphone, recording, contacts, call-log, SMS, accessibility, overlay, storage-wide or Internet permission is requested. Screenshot selection uses a temporary content URI grant. Android's camera path is disabled in this PoC; share a QR screenshot instead. Web/PWA camera scanning remains available.
+The Play/manual flavor requests no microphone, recording, contacts, call-log, SMS, accessibility, overlay, storage-wide or Internet permission. The separately installed [hackathon live-review flavor](LIVE_REVIEW.md) adds only consented microphone/foreground-service access and a protected accessibility overlay service. Screenshot selection uses a temporary content URI grant. Android's camera path is disabled in this PoC; share a QR screenshot instead. Web/PWA camera scanning remains available.
+
+For the separate experimental APK, see [LIVE_REVIEW.md](LIVE_REVIEW.md). Existing manual call signals and shared text/QR reviews remain available in both flavors.
 
 ## Test deep links (no real call)
 

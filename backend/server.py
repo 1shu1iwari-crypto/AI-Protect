@@ -138,9 +138,20 @@ def send_analytics(token,payload):
     except Exception:pass # Optional best-effort transport; no sensitive logs, no retry backlog.
 
 def make_server(port=8000,db=None,host='127.0.0.1'):
-    server=ThreadingHTTPServer((host,port),Handler);server.store=Store(db or ROOT/'backend/fingerprints.sqlite');return server
+    server=None
+    if port == 0:
+        server=ThreadingHTTPServer((host,0),Handler)
+    else:
+        for p in range(port, port+100):
+            try:
+                server=ThreadingHTTPServer((host,p),Handler);break
+            except OSError:
+                continue
+        if server is None:server=ThreadingHTTPServer((host,0),Handler)
+    server.store=Store(db or ROOT/'backend/fingerprints.sqlite');return server
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=8000);parser.add_argument('--host',default='127.0.0.1');parser.add_argument('--db');args=parser.parse_args()
+    default_port=int(os.environ.get('PORT','8000'))
+    parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=default_port);parser.add_argument('--host',default=os.environ.get('HOST','127.0.0.1'));parser.add_argument('--db');args=parser.parse_args()
     s=make_server(args.port,db=args.db,host=args.host);print(f'ScamGuard: http://{args.host}:{s.server_port}',flush=True)
     try:s.serve_forever()
     except KeyboardInterrupt:s.server_close()

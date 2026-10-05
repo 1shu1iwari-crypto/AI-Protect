@@ -68,7 +68,7 @@ object ReviewSnapshotPolicy {
     }
     private fun timeline(raw: JSONObject, derived: JSONObject): JSONObject = JSONObject()
         .put("timestamp",derived.get("timestamp")).put("channel",derived.getString("channel"))
-        .put("evidence_type",enumValue(raw,"evidence_type",channels+setOf("screenshot","user_call_signals"),derived.getString("channel")))
+        .put("evidence_type",enumValue(raw,"evidence_type",channels+setOf("screenshot","user_call_signals","live_call_audio"),derived.getString("channel")))
         .put("verification",enumValue(raw,"verification",verification,derived.getString("verification_status")))
         .put("evidence",enums(raw,"evidence",tactics+persuasion,21)).put("new_evidence",enums(raw,"new_evidence",tactics+persuasion,21))
         .put("requested_action",derived.getString("requested_action"))

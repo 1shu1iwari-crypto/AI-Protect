@@ -44,6 +44,7 @@ class MainActivity : Activity() {
         button("Demo call") { demoCall() }
         button("After call") { deliver(JSONObject().put("kind","postcall")) }
         root.addView(controls)
+        LiveReviewFeature.installControls(this, root)
         web = WebView(this)
         val loader = WebViewAssetLoader.Builder().addPathHandler("/", WebViewAssetLoader.AssetsPathHandler(this)).build()
         web.settings.apply {
@@ -94,8 +95,15 @@ class MainActivity : Activity() {
         web.loadUrl("https://appassets.androidplatform.net/web/index.html")
         acceptIntent(intent)
     }
-    override fun onResume(){super.onResume();updateStatus()}
-    override fun onNewIntent(intent: Intent){super.onNewIntent(intent);setIntent(intent);acceptIntent(intent)}
+    override fun onResume(){
+        super.onResume()
+        // Opening the full review ends capture before reloading derived state.
+        // This keeps one writer per review and lets subsequent shares continue it.
+        syncLiveReview()
+        updateStatus()
+    }
+    private fun syncLiveReview() { if (LiveReviewFeature.openReview()) { ready=false;nativeReply=null;web.reload() } }
+    override fun onNewIntent(intent: Intent){super.onNewIntent(intent);syncLiveReview();setIntent(intent);acceptIntent(intent)}
     private fun updateStatus(){
         val roles=getSystemService(RoleManager::class.java)
         val role=roles.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING)&&roles.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)
@@ -157,7 +165,7 @@ class MainActivity : Activity() {
             val result: Any = when (request.method) {
                 "ready" -> { nativeReply=reply;ready=true;true }
                 "loadReviews" -> store.read()
-                "saveReviews" -> { store.write(request.payload!!);true }
+                "saveReviews" -> { check(ready && LiveReviewFeature.canSaveReviews());store.write(request.payload!!);true }
                 "exportReport" -> {
                     report=request.payload
                     try {

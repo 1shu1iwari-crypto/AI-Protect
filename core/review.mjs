@@ -29,7 +29,7 @@ function timelineEntry(event,result,previous,metadata={}){
  if(result.escalating&&!previous?.escalating)changes.push('Payment increased across coarse amount buckets');
  const prior=previous?.severity||'quiet';
  changes.push(prior===result.severity?'warning level unchanged':`risk ${prior} → ${result.severity}`);
- return {timestamp:event.timestamp,channel:event.channel,evidence_type:metadata.evidence_type==='screenshot'?'screenshot':event.channel==='call'?'user_call_signals':event.channel,verification:event.verification_status,evidence,new_evidence:added,requested_action:event.requested_action,stage:result.stage,severity:result.severity,evidence_strength:result.evidenceStrength??result.evidenceScore,workflow_confidence:result.workflowConfidence??0,action_risk:result.actionRisk,escalating:Boolean(result.escalating),reason:result.reason,change:changes.join(' → ')};
+ return {timestamp:event.timestamp,channel:event.channel,evidence_type:metadata.evidence_type==='screenshot'?'screenshot':event.channel==='call'?(metadata.evidence_type==='live_call_audio'?'live_call_audio':'user_call_signals'):event.channel,verification:event.verification_status,evidence,new_evidence:added,requested_action:event.requested_action,stage:result.stage,severity:result.severity,evidence_strength:result.evidenceStrength??result.evidenceScore,workflow_confidence:result.workflowConfidence??0,action_risk:result.actionRisk,escalating:Boolean(result.escalating),reason:result.reason,change:changes.join(' → ')};
 }
 const IDS=/^[a-zA-Z0-9-]{8,64}$/;
 export class ReviewSession extends Session {

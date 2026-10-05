@@ -12,7 +12,8 @@
     "train": "node scripts/python.mjs ml/train.py",
     "train:semantic": "node ml/train-semantic.mjs",
     "qa": "node tests/browser.mjs",
-    "qa:reviews": "node tests/review-browser.mjs"
+    "qa:reviews": "node tests/review-browser.mjs",
+    "qa:live": "node tests/live-review-browser.mjs"
   },
   "engines": {
     "node": ">=20"
