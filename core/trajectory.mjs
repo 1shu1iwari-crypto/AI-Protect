@@ -63,11 +63,13 @@ export function encodeTrajectory(session) {
  });
 
  // 5. Intent Contradictions (dims 42 - 45)
- const contradictions = session.lastAlert?.hasContradiction 
-  ? (session.events.flatMap(e => e.contradictions || []))
-  : [];
+ const allContradictions = [
+  ...(session.contradictionHistory || []),
+  ...events.flatMap(e => e.contradictions || []),
+  ...((session.lastAlert?.contradictions) || [])
+ ];
  CONTRADICTION_KEYS.forEach((cKey, idx) => {
-  const active = contradictions.some(c => c.type === cKey);
+  const active = allContradictions.some(c => c.type === cKey);
   vec[42 + idx] = active ? 1.0 : 0.0;
  });
 

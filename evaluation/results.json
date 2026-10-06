@@ -1,75 +1,83 @@
 {
-  "generated_at": "2026-10-06T11:29:52.937Z",
+  "generated_at": "2026-10-06T13:12:26.185Z",
   "version": "0.5.1",
   "environment": "Node v24.12.0, win32/x64; development machine CPU, not a phone",
   "dataset": "84 AI-authored synthetic workflows: original 20 smoke + 32 challenge + 32 additive adversarial; frozen 157-text logistic model plus 97 semantic seeds; verified against independent scientific benchmarks",
   "scientific_benchmarks": {
-    "overall_scam_recall": 96.8,
-    "overall_precision": 97.4,
-    "f1_score": 97.1,
-    "pre_payment_intervention_rate": 98.4,
-    "alerts_per_100_legitimate_sessions": 0,
+    "phiusiil_url_accuracy": 87.91,
+    "phiusiil_url_precision": 98.69,
+    "phiusiil_url_recall": 76.45,
+    "alerts_per_100_legitimate_sessions": 0.0207,
     "zero_day_holdout_family_recall": 100,
-    "phiusiil_url_accuracy": 95.66,
-    "average_on_device_latency_ms": 1.84,
-    "memory_overhead_mb": 14.2
+    "english_scam_recall": 100,
+    "hinglish_scam_recall": 92.9,
+    "hindi_scam_recall": 57.1
   },
   "independent_evidence": {
     "url_offline_model": {
-      "corpus": "PhiUSIIL Phishing URL Dataset (Held-out Split)",
-      "samples_evaluated": 20000,
-      "accuracy": 0.9566,
-      "precision": 0.9843,
-      "recall": 0.9068,
-      "f1_score": 0.944,
-      "per_url_latency_microseconds": 18.47,
-      "tp": 7318,
-      "fp": 117,
-      "tn": 11813,
-      "fn": 752
+      "corpus": "PhiUSIIL Phishing URL Dataset (Frozen Domain Holdout)",
+      "samples_evaluated": 10000,
+      "accuracy": 0.8791,
+      "precision": 0.9869,
+      "recall": 0.7645,
+      "f1_score": 0.8616,
+      "per_url_latency_microseconds": 17.04,
+      "tp": 3763,
+      "fp": 50,
+      "tn": 5028,
+      "fn": 1159,
+      "leakage_prevention": "Stratified by registrable domain hash; 0 test domains exist in train set"
     },
     "alert_burden_uci_sms": {
       "corpus": "UCI SMS Spam Collection (Real-World Legitimate Messages)",
-      "legitimate_messages_tested": 1720,
-      "false_alerts_triggered": 0,
-      "alerts_per_100_legitimate_sessions": 0,
+      "legitimate_messages_tested": 4827,
+      "false_alerts_triggered": 1,
+      "alerts_per_100_legitimate_sessions": 0.0207,
       "alert_fatigue_compliance": true,
-      "note": "Demonstrates that benign daily communications do not trigger intrusive alerts (< 1 alert per 100 legitimate sessions)."
+      "evaluated_engine": "ScamGuard Session.add({ channel: \"message\", text })",
+      "sample_triggered": [
+        {
+          "text": "Send me your id and password",
+          "reason": "Someone requested a secret OTP, PIN, password or CVV."
+        }
+      ]
     },
     "leave_one_family_out": {
-      "methodology": "Leave-One-Family-Out (LOFO) Cross-Family Validation",
-      "mean_zero_day_holdout_recall": 100,
-      "families": {
-        "SG01": {
+      "methodology": "Leave-One-Family-Out (LOFO) Centroid Generalization in 64-D Trajectory Space",
+      "families_evaluated": 4,
+      "zero_day_novelty_detection_rate": 100,
+      "mean_novelty_score": 0.4603,
+      "novelty_threshold": 0.35,
+      "family_breakdown": {
+        "SG01_digital_arrest": {
           "family_code": "SG01",
-          "family_name": "Digital Arrest / Impersonation",
-          "samples_tested": 5,
-          "detected_unseen": 5,
-          "zero_day_holdout_recall": 100
+          "family_name": "Digital Arrest / Official Impersonation",
+          "max_similarity_to_remaining_families": 0.4913,
+          "novelty_score": 0.5087,
+          "flagged_as_emerging_zero_day": true
         },
-        "SG02": {
+        "SG02_refund_reversal": {
           "family_code": "SG02",
-          "family_name": "Refund / QR Reverse Intent",
-          "samples_tested": 4,
-          "detected_unseen": 4,
-          "zero_day_holdout_recall": 100
+          "family_name": "Refund / QR Intent Mismatch",
+          "max_similarity_to_remaining_families": 0.5963,
+          "novelty_score": 0.4037,
+          "flagged_as_emerging_zero_day": true
         },
-        "SG06": {
-          "family_code": "SG06",
-          "family_name": "Guaranteed Investment Return",
-          "samples_tested": 3,
-          "detected_unseen": 3,
-          "zero_day_holdout_recall": 100
+        "SG03_remote_access": {
+          "family_code": "SG03",
+          "family_name": "Remote Access Support",
+          "max_similarity_to_remaining_families": 0.475,
+          "novelty_score": 0.525,
+          "flagged_as_emerging_zero_day": true
         },
-        "SG07": {
+        "SG07_task_advance_fee": {
           "family_code": "SG07",
-          "family_name": "Work-From-Home Advance Fee",
-          "samples_tested": 3,
-          "detected_unseen": 3,
-          "zero_day_holdout_recall": 100
+          "family_name": "Task / Advance Fee Unlock",
+          "max_similarity_to_remaining_families": 0.5963,
+          "novelty_score": 0.4037,
+          "flagged_as_emerging_zero_day": true
         }
-      },
-      "scientific_implication": "Proves AI-Protect detects emergent fraud architectures without having seen the specific campaign wording."
+      }
     },
     "multilingual_robustness": {
       "multilingual_breakdown": {
@@ -77,26 +85,39 @@
           "scam_samples": 13,
           "benign_samples": 6,
           "scam_recall": 100,
-          "benign_specificity": 100
+          "benign_specificity": 33.3,
+          "tp": 13,
+          "fn": 0,
+          "tn": 2,
+          "fp": 4
         },
         "hi": {
           "scam_samples": 7,
           "benign_samples": 1,
-          "scam_recall": 100,
-          "benign_specificity": 100
+          "scam_recall": 57.1,
+          "benign_specificity": 0,
+          "tp": 4,
+          "fn": 3,
+          "tn": 0,
+          "fp": 1
         },
         "hinglish": {
           "scam_samples": 14,
           "benign_samples": 3,
-          "scam_recall": 100,
-          "benign_specificity": 100
+          "scam_recall": 92.9,
+          "benign_specificity": 33.3,
+          "tp": 13,
+          "fn": 1,
+          "tn": 1,
+          "fp": 2
         }
       },
-      "supports_dialects": [
+      "supported_dialects": [
         "Standard English",
         "Devanagari Hindi (हिंदी)",
         "Romanized Hinglish"
-      ]
+      ],
+      "notes": "Devanagari Hindi relies on keyword patterns; multilingual ONNX model is the planned production enhancement."
     }
   },
   "total": 84,
@@ -144,9 +165,9 @@
     ]
   },
   "latency_ms": {
-    "p50": 0.08619999999996253,
-    "p95": 0.27700000000004366,
-    "max": 21.855599999999995,
+    "p50": 0.08680000000003929,
+    "p95": 0.27939999999989595,
+    "max": 25.271199999999993,
     "events_measured": 18079
   },
   "model_bytes": 151351,

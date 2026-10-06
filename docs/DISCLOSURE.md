@@ -10,11 +10,19 @@ OpenAI ChatGPT/Codex generated this implementation, documentation, design, SVG i
 
 ## Models and dependencies
 
-Eleven original word/bigram binary logistic heads trained with scikit-learn 1.8.0 remain in core/model.json. v0.4 adds a dependency-free multi-label logistic classifier over inspectable multilingual concept features, separate synthetic seeds in ml/semantic-training.json and coefficients in core/semantic-model.mjs. Scores from both models are uncalibrated. This concept model has finite lexical coverage; it is not a pretrained multilingual language model or embedding encoder. Its classifier interface can later accept a validated on-device model without changing workflow/policy code. No pretrained language model, ASR model, voice-clone classifier, deepfake model or graph model ships. Rules and workflow scoring are authored heuristics. Runtime: browser APIs, Python standard library / SQLite, Node built-in test runner, and bundled jsQR 1.4.0 (Apache-2.0; original license retained at web/vendor/jsQR-LICENSE.txt). Original training: scikit-learn (BSD-3-Clause) and its dependencies; new semantic training: Node built-ins. PDF generation: ReportLab (BSD license). Optional analytics: PostHog hosted capture API; project data collection is disabled by default. Development browser verification uses Playwright. GitHub Actions use official checkout/setup actions. System Arial/Georgia font stacks; no downloaded images, commercial illustration or third-party logo is used. The generic shield SVG is generated for this project.
+- **Client runtime**: Zero runtime network dependencies. Pure JavaScript running in the browser / Android WebView. PhiUSIIL URL lexical model inference runs offline in pure JavaScript (`core/url-model.json`). Bundled jsQR 1.4.0 (Apache-2.0) for local QR parsing.
+- **Scam Radar backend runtime**: Python 3.10+ with `numpy`, `scikit-learn` (HDBSCAN clustering), and `river` (ADWIN streaming drift detector), pinned in `requirements.txt`. Radar imports gracefully degrade if packages are missing.
+- **Evaluation datasets**:
+  1. *PhiUSIIL Phishing URL Dataset*: 10,000 held-out URLs partitioned strictly by registrable domain hash (0 domain overlap between train and test).
+  2. *UCI SMS Spam Collection*: All 4,827 authentic legitimate (ham) messages evaluated through the live ScamGuard engine to verify false alert burden.
+  3. *RBI BE(A)WARE Taxonomy*: Behavioral fraud-family prototypes derived from published RBI fraud cases (SG01 to SG07) for Leave-One-Family-Out (LOFO) novelty benchmarking.
 
 ## Reference status
 
-The attachments inform design direction. Earlier pasted paper statistics and 2026 research links are not reproduced as validated findings. Official Android, NPCI, scikit-learn and PostHog resources are the operational references. LiveKit, sherpa-onnx, ONNX Runtime, HDBSCAN, River/ADWIN and financial graph research are future implementation candidates. Current campaign grouping uses authored Jaccard/LCS code and a fixed-window Hoeffding cue, not these packages. They are not current dependencies or evaluated results.
+Operational references: Official Android, NPCI UPI specifications, scikit-learn, River (online ML), and RBI BE(A)WARE fraud taxonomy guidelines.
+HDBSCAN and River ADWIN are actively implemented in `backend/radar/` for clustering 64-dimensional behavioral trajectory vectors and detecting streaming campaign emergence.
+The 64-dimensional trajectory vector is an inspectable, hand-engineered behavioral feature representation (not a learned neural embedding).
+Pretrained heavy neural language models, deepfake audio detectors, and raw call interceptors remain future native platform integrations.
 
 ## Submission review
 

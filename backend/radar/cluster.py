@@ -9,8 +9,8 @@ import numpy as np
 from sklearn.cluster import HDBSCAN
 from sklearn.metrics.pairwise import cosine_similarity
 
-# RBI BE(A)WARE Canonical Baseline Trajectories (SG01 to SG12)
-# Reference vectors in R^64 representing established Indian fraud architectures.
+# Behavioral fraud-family prototypes derived from RBI BE(A)WARE taxonomy (SG01 to SG07)
+# Hand-engineered reference vectors in R^64 representing established Indian fraud architectures.
 RBI_BASELINE_CENTROIDS = {
     'SG01_digital_arrest': {
         'family': 'Digital Arrest / Official Impersonation',

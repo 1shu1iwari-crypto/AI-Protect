@@ -9,6 +9,7 @@ import json
 import math
 import os
 import re
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 from sklearn.linear_model import LogisticRegression
@@ -16,6 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 DATA_PATH = ROOT / 'data/PhiUSIIL_Phishing_URL_Dataset.csv'
 OUTPUT_MODEL = ROOT / 'core/url-model.json'
 
@@ -86,54 +88,64 @@ FEATURE_NAMES = [
 
 
 def train_url_model(sample_size=60000):
-    """Train on balanced sample of PhiUSIIL and export lightweight weights."""
+    """Train on balanced sample of PhiUSIIL with strict domain-level train/val/test split."""
     print(f"Reading PhiUSIIL dataset from {DATA_PATH}...")
-    X = []
-    y = []
+    from ml.data_loader import get_phiusiil_domain_split
+
+    X_train, y_train = [], []
+    X_val, y_val = [], []
+    X_test, y_test = [], []
 
     with open(DATA_PATH, 'r', encoding='utf-8', errors='ignore') as f:
         reader = csv.DictReader(f)
         count = 0
         for row in reader:
             url = row.get('URL', '')
+            domain = row.get('Domain', '')
             if not url:
                 continue
             feats = extract_static_features(url)
             # PhiUSIIL: 0 = phishing, 1 = legitimate
             label = 1 if row.get('label') == '0' else 0  # 1 for phishing risk
-            X.append(feats)
-            y.append(label)
+            split = get_phiusiil_domain_split(domain)
+            if split == 'train':
+                X_train.append(feats)
+                y_train.append(label)
+            elif split == 'val':
+                X_val.append(feats)
+                y_val.append(label)
+            else:
+                X_test.append(feats)
+                y_test.append(label)
+
             count += 1
             if sample_size and count >= sample_size:
                 break
 
-    print(f"Loaded {len(X)} samples. Positive (phishing): {sum(y)}, Negative (legitimate): {len(y) - sum(y)}")
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-
+    print(f"Loaded {count} samples across domain partitions. Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
     clf = LogisticRegression(max_iter=1000, C=1.0, class_weight='balanced', random_state=42)
     clf.fit(X_train, y_train)
 
-    y_pred = clf.predict(X_test)
-    y_prob = clf.predict_proba(X_test)[:, 1]
+    y_pred_test = clf.predict(X_test)
 
-    acc = accuracy_score(y_test, y_pred)
-    prec = precision_score(y_test, y_pred)
-    rec = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
+    acc = accuracy_score(y_test, y_pred_test)
+    prec = precision_score(y_test, y_pred_test)
+    rec = recall_score(y_test, y_pred_test)
+    f1 = f1_score(y_test, y_pred_test)
 
-    print(f"\n--- Offline URL Model Validation Results ---")
-    print(f"Accuracy : {acc * 100:.2f}%")
-    print(f"Precision: {prec * 100:.2f}%")
-    print(f"Recall   : {rec * 100:.2f}%")
-    print(f"F1-Score : {f1 * 100:.2f}%")
+    print(f"\n--- Offline URL Model Validation Results (Strict Domain Holdout) ---")
+    print(f"Domain Holdout Accuracy : {acc * 100:.2f}%")
+    print(f"Domain Holdout Precision: {prec * 100:.2f}%")
+    print(f"Domain Holdout Recall   : {rec * 100:.2f}%")
+    print(f"Domain Holdout F1-Score : {f1 * 100:.2f}%")
 
     weights = {name: round(float(clf.coef_[0][i]), 6) for i, name in enumerate(FEATURE_NAMES)}
     intercept = round(float(clf.intercept_[0]), 6)
 
     model_payload = {
-        'version': '1.0.0',
+        'version': '1.1.0',
         'model_type': 'static_lexical_logistic',
-        'provenance': 'Trained on PhiUSIIL Phishing URL Dataset (235,795 URLs)',
+        'provenance': 'Trained on PhiUSIIL Phishing URL Dataset with strict registrable domain partition (0 domain leakage)',
         'features': FEATURE_NAMES,
         'weights': weights,
         'intercept': intercept,
@@ -142,7 +154,8 @@ def train_url_model(sample_size=60000):
             'precision': round(prec, 4),
             'recall': round(rec, 4),
             'f1_score': round(f1, 4),
-            'validation_samples': len(y_test)
+            'validation_samples': len(y_test),
+            'partition_strategy': 'registrable_domain_sha256_hash_split'
         },
         'suspicious_tlds': sorted(list(SUSPICIOUS_TLDS)),
         'financial_keywords': sorted(list(FINANCIAL_KEYWORDS)),

@@ -19,7 +19,7 @@ import {encodeTrajectory} from './trajectory.mjs';
 
 export class Session {
  constructor(model=null,options={}){this.model=model;this.semanticClassifier=Object.hasOwn(options,'semanticClassifier')?options.semanticClassifier:defaultSemanticClassifier;this.reset();}
- reset(){this.id=randomId();this.events=[];this.lastAlert=null;this.lastWarningAt=-Infinity;this.started=Date.now();}
+ reset(){this.id=randomId();this.events=[];this.lastAlert=null;this.lastWarningAt=-Infinity;this.started=Date.now();this.contradictionHistory=[];}
  add(input){
   if(!CHANNELS.includes(input.channel))throw Error('Unsupported channel.');
   const text=String(input.text||'');if(text.length>10000)throw Error('Keep one event under 10,000 characters.');
@@ -37,8 +37,10 @@ export class Session {
  assess(current){
   const workflow=workflowState(this.events,current),transition=workflowTransition(this.events,current,workflow);
   const contradiction=checkIntentConsistency(this.events,current);
+  current.contradictions=contradiction.contradictions||[];
+  if(contradiction.hasContradiction){this.contradictionHistory.push(...(contradiction.contradictions||[]));}
   const risk=riskAssessment(this.events,current,workflow,contradiction),decision=intervention(risk,current,workflow,this.lastAlert,this.lastWarningAt);
-  if(decision.showWarning){this.lastWarningAt=current.timestamp;this.lastAlert={signature:workflow.family+':'+risk.severity,family:workflow.family,severity:risk.severity,tactics:risk.tactics,escalating:workflow.escalating,hasContradiction:contradiction.hasContradiction};}
+  if(decision.showWarning){this.lastWarningAt=current.timestamp;this.lastAlert={signature:workflow.family+':'+risk.severity,family:workflow.family,severity:risk.severity,tactics:risk.tactics,escalating:workflow.escalating,hasContradiction:contradiction.hasContradiction,contradictions:contradiction.contradictions||[]};}
   return {...risk,...decision,contradiction,family:workflow.family,workflow,transition,...explain(workflow,transition,risk),labels:risk.tactics.map(k=>LABELS[k]),event:current};
  }
  fingerprint(){return fingerprint(this);}

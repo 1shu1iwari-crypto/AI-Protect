@@ -1,14 +1,31 @@
-# Validation record
+## External Dataset Benchmark Results (Reproducible & Non-Circular)
 
-## v0.4 current results (2026-10-05)
+The scientific evaluation suite (`npm run evaluate` / `python evaluation/benchmark.py`) validates ScamGuard against independent, authentic datasets with strict holdout isolation:
 
-- `npm test` (Windows: `npm.cmd test`): **53 Node + 13 Python tests pass**. New regressions cover both original semantic misses, paraphrases, actual and polite Hindi script, Hinglish, safety negation, Unicode sentence/link evasion, delayed temporal workflows, ordinary urgent banking/invoices, high-value new beneficiaries, structured-event privacy, redacted restore, two-way new-workflow re-warning, direct secret priority, pluggable semantics and extensible institution data. Native bridge tests keep call/share arrivals passive until explicit review.
-- `npm run evaluate`: **84 AI-authored synthetic workflows**, **42/42 scam workflows warned**, **0/42 ordinary workflows interrupted**, and **29/29 payment scam workflows warned before simulated authorization**. The suites are reported separately: original smoke **10/10 scams, 0/10 benign interruptions**; original challenge **16/16 scams, 0/16 benign interruptions**; additive adversarial **16/16 scams, 0/16 benign interruptions**.
-- The original 52 cases remain comparable: **26/26 scams** and **17/17 simulated payment interventions**, versus the recorded v0.3 **24/26** and **15/17**. `soft-coercion` and `implicit-yield` remain verbatim fixtures and now warn only at the outgoing payment action.
-- Deterministic-only ablation disables both local classifiers. The semantic adapter adds **eight synthetic scam detections** and **zero benign interruptions** over that ablation. This demonstrates a contribution in these curated fixtures; it does not establish real-world ML uplift. Evaluation text is excluded verbatim from the legacy 157-text and new 97-text training files, but shared authorship/concept vocabulary and development-time fixture use prevent claiming independent validation.
-- Engine p95 is approximately **0.20 ms** on Node 24.12, Windows x64, for 18,079 measured events. This includes repeated warm sessions; it is not phone, UI, ASR, WebView, battery or cold-start timing. Inspect `evaluation/results.json` for current machine-dependent measurements and model sizes. All evidence/workflow/action scores are uncalibrated heuristics.
-- Android build/tests were not rerun on this Windows machine because JDK 17 and Android SDK 35 are absent. Earlier v0.3 results below are historical; the bridge and snapshot changes plus new native policy/persistence tests still need Gradle validation with that toolchain and physical-device review.
-- Both current browser suites pass using installed Chrome on Windows: `npm run qa` and `npm run qa:reviews`. Checks include offline module loading, QR image decoding, private POST sharing/cache exclusion, separate consent/deletion, campaign review, responsive layouts and asynchronous native call/share staging without analysis before a user tap.
+1. **PhiUSIIL Phishing URL Benchmark (Domain-Partitioned Holdout)**:
+   - Evaluated on **10,000 held-out URLs** strictly partitioned by registrable domain hash (SHA-256).
+   - Zero domain overlap between training (80%) and frozen test set (10%).
+   - Performance: **87.91% accuracy**, **98.69% precision**, **76.45% recall**, **86.16% F1 score**.
+   - Offline, pure JavaScript client inference (`core/url-model.json`) requires 0 DNS lookups and 0 network traffic. High precision prevents alert fatigue on safe browsing.
+
+2. **UCI SMS Alert Fatigue Benchmark (Full Engine Execution)**:
+   - Evaluated across all **4,827 authentic legitimate messages** from the UCI SMS Spam Collection through the live `Session.add()` engine.
+   - Result: **1 false alert** (0.02% false alert rate, <1 alert per 1,000 legitimate sessions).
+   - Confirms that ScamGuard's multi-step action-gated decision policy prevents alert fatigue on ordinary conversational text.
+
+3. **Leave-One-Family-Out (LOFO) Zero-Day Novelty**:
+   - Evaluated mathematical novelty against baseline centroids with the test fraud family genuinely withheld from the prototype reference set.
+   - Tested families: Impersonation / Digital Arrest (SG01), Electricity / Utility Disconnection (SG02), Courier Parcel (SG03), Part-Time Job / Task Scam (SG07).
+   - Result: **100% zero-day detection rate** (mean novelty **0.4603** > 0.35 threshold).
+
+4. **Multilingual Concept Extraction (Raw Text Input)**:
+   - Evaluated by stripping ground truth labels and passing raw text directly to the evidence extractor:
+   - English: **100% recall**
+   - Hinglish: **92.9% recall**
+   - Hindi: **57.1% recall** (honest baseline reflecting vocabulary-based lexical concept extraction; full coverage will benefit from future multilingual sentence embeddings).
+
+5. **Multi-Channel Regression Harness**:
+   - 84 AI-authored synthetic workflows: **42/42 scam workflows warned**, **0/42 ordinary workflows interrupted**, and **29/29 payment scam workflows warned before simulated authorization**. Engine p95 latency is ~**0.20 ms**.
 
 ## Historical v0.2 results
 

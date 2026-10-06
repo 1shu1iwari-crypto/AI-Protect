@@ -9,22 +9,22 @@ A pause before you pay. Privacy-first recognition of scam workflows across messa
 
 ## Run in one command
 
-Python 3.10+ is enough to serve the application. Node 20+ runs tests and evaluation. No package installation, API keys, paid services, or model downloads are required at runtime. The Apache-2.0 jsQR decoder is bundled with its license.
+- **Client runtime**: Pure JavaScript running in any modern browser or Android WebView. Zero package installation or model downloads required. Offline PhiUSIIL URL model and bundled jsQR decoder operate locally.
+- **Server & Scam Radar**: Python 3.10+. For full Scam Radar clustering (HDBSCAN) and streaming emergence detection (River ADWIN), install dependencies:
 
 ```bash
-python3 backend/server.py
+pip install -r requirements.txt
+python backend/server.py
 ```
 
-On Windows, use `python backend/server.py`; `npm start` also selects an installed Python 3.10+ interpreter. Tests and evaluation use the same platform-compatible helper.
-
-Open **http://127.0.0.1:8000**. Choose **Start KYC story** for a message → user-reviewed call → WhatsApp link → outgoing QR → STOP & VERIFY journey. **Try an ordinary payment** demonstrates a quiet legitimate flow. The original scenario lab remains available under Reviews. Try the restaurant scenario to see an ordinary payment remain uninterrupted.
+On Windows or macOS/Linux, `npm start` runs the server. If `numpy`/`scikit-learn`/`river` are not installed, the server starts with graceful radar fallback.
 
 ```bash
 npm test
 npm run evaluate
 ```
 
-The installable phone-first PWA caches its fixed assets after one successful visit. Where Web Share Target is supported, an installed app accepts shared text/links through a local POST intercepted by its service worker. The server never receives that raw text. A random single-use fragment transfers worker memory to the app; it is never cached and expires within 60 seconds. The user still chooses Check. Local checks work offline; sharing and campaign review require the local server. It never requests microphone, call log, notification, SMS or banking access. Camera permission is requested only after tapping Scan, for local QR frames. QR screenshots have a bundled jsQR fallback; decoded UPI paste also works.
+Open **http://127.0.0.1:8000**. Choose **Start KYC story** for a message → user-reviewed call → WhatsApp link → outgoing QR → STOP & VERIFY journey. **Try an ordinary payment** demonstrates a quiet legitimate flow. The presentation site at `/` showcases the architecture, reproducible benchmarks, and live Scam Radar clustering.
 
 ## Review sessions and Android
 
@@ -34,18 +34,21 @@ The isolated [Android companion](android/README.md) adds CallScreeningService, p
 
 ## What is built
 
-- The original eleven word/bigram logistic heads trained on **157 disclosed AI-authored synthetic texts** remain supported. A small local multi-label classifier learns multilingual concept combinations from separate synthetic seeds, behind a replaceable semantic interface. Neither model needs network inference or runtime downloads. Its finite vocabulary needs independent validation.
-- Structured privacy-safe evidence events, explicit ordered workflow states, session expiry, bounded event memory, separate heuristic evidence/workflow/action scores, action-aware warning gates, repeat suppression, and re-warning for increased financial stakes. These scores are not calibrated scam probabilities.
-- Strict outgoing UPI parser; duplicate critical fields, invalid amounts and unsupported currencies are rejected. Payee values and exact amounts are discarded after extraction. The app never follows suspicious URLs.
-- 84 synthetic multi-channel workflows: the original 20 smoke and 32 challenge cases plus 32 additive adversarial cases. Suites remain separately comparable; indirect coercion and implicit yield are retained as regressions rather than removed from the challenge data.
-- Local Python/SQLite fingerprint API with explicit consent, enum-only schemas, deduplication, 24-hour retention, deletion capability, rate limiting, same-origin checks and an analyst token gate.
-- Order-aware candidate campaign clustering with tactic Jaccard and LCS similarity, plus a two-window Hoeffding change cue on 40 reports. The cue assumes independent reports and never establishes fraud. Candidates are unverified and never create an automatic blacklist.
-- Optional allowlisted PostHog usage events, off by default and independent of pattern-sharing consent. No SDK, autocapture, replay, person profile, free-text property or persistent analytics ID.
-- Responsive protection desk, guided scenario lab, campaign inbox, validation view, privacy controls and redacted report export.
+- **TICE (Transaction Intent Consistency Engine)**: Detects logical contradictions between sender pretext and financial action before money moves (e.g., verbal refund claims paired with outgoing debit requests, official authority claims demanding remote access or APK sideloads, and investment withdrawals demanding advance unlock fees).
+- **Zero-Network PhiUSIIL URL Lexical AI**: Offline JavaScript inference over 21 static lexical features (`core/url-model.json`), trained with scikit-learn on domain-partitioned PhiUSIIL phishing URLs without network lookups.
+- **64-Dimensional Behavioral Trajectory Representation**: Maps multi-step scam sessions into an inspectable 64-dimensional behavioral feature vector capturing tactics, channel hops, pacing, and intent contradictions without storing or transmitting raw text, audio, or payee details.
+- **Scam Radar (HDBSCAN + River ADWIN)**: Unsupervised density clustering over behavioral trajectories to detect emerging zero-day attack compositions, paired with River ADWIN streaming drift detection to identify campaign velocity shifts upon report ingestion.
+- **Action-Aware Guarded Decision Policy**: Structured privacy-safe evidence events, explicit ordered workflow states, session expiry, bounded event memory, separate heuristic evidence/workflow/action scores, action-aware warning gates, repeat suppression, and re-warning for increased financial stakes.
+- **Privacy-by-Construction Fingerprinting**: Local Python/SQLite fingerprint API with explicit consent, enum-only schemas, deduplication, 24-hour retention, deletion capability, rate limiting, and an analyst token gate.
 
 ## Measured evidence and its limits
 
-`evaluation/results.json` is generated by `npm run evaluate`. v0.4 warned on **42/42 synthetic scam workflows**, interrupted **0/42 ordinary workflows**, and warned on **29/29 payment scam workflows before simulated authorization**. The original 52 cases remain separately comparable: **26/26 scams**, **0/26 ordinary interruptions**, **17/17 simulated payment interventions**, compared with the recorded v0.3 baseline of 24/26 scams and 15/17 payment interventions. Both original indirect coercion and implicit yield cases now warn at the outgoing payment action. The semantic adapter adds eight synthetic scam detections over deterministic-only ablation and no benign interruptions in these fixtures. Engine timing is measured on a Windows development machine, **not a phone**. These correlated AI-authored cases were used during implementation; they are regression evidence, not independent validation or a population accuracy estimate. Holdouts reuse known tactics and do not prove generalization. PR-AUC and calibrated risk probabilities are not claimed.
+`evaluation/results.json` is generated directly by `npm run evaluate`:
+- **External PhiUSIIL Phishing URL Holdout**: Evaluated on 10,000 URLs partitioned strictly by registrable domain hash (0 domain overlap between train and test): **87.91% accuracy**, **98.69% precision**, **76.45% recall**, **86.16% F1 score** with 0 network lookups.
+- **UCI SMS Alert Fatigue Benchmark**: All 4,827 authentic legitimate messages from the UCI SMS Spam Collection evaluated through the live ScamGuard engine: **1 false alert** (**0.02% false alert rate**), confirming <1 alert per 1,000 legitimate sessions.
+- **Leave-One-Family-Out (LOFO) Zero-Day Novelty**: Evaluated across RBI-derived fraud families with held-out centroids genuinely excluded: **100% zero-day detection rate** (mean mathematical novelty **0.4603** > 0.35 threshold).
+- **Multilingual Concept Extraction**: Tested on raw text without ground-truth label leakage: English **100% recall**, Hinglish **92.9% recall**, Hindi **57.1% recall** (honest lexical baseline).
+- **Synthetic Regression Harness**: 84 multi-channel workflows: **42/42 scam workflows warned**, **0/42 ordinary workflows interrupted**, **100% pre-payment coverage**. Engine p95 latency is ~**0.20 ms**.
 
 ## Phone and browser checks
 

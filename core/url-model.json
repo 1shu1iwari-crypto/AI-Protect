@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "model_type": "static_lexical_logistic",
-  "provenance": "Trained on PhiUSIIL Phishing URL Dataset (235,795 URLs)",
+  "provenance": "Trained on PhiUSIIL Phishing URL Dataset with strict registrable domain partition (0 domain leakage)",
   "features": [
     "url_length_norm",
     "domain_length_norm",
@@ -15,24 +15,25 @@
     "brand_spoofing"
   ],
   "weights": {
-    "url_length_norm": 32.818259,
-    "domain_length_norm": -6.071953,
-    "is_ip": 0.032861,
-    "subdomain_count_norm": -5.620311,
-    "suspicious_tld": 2.488429,
-    "digit_ratio_scaled": 9.266415,
-    "special_char_scaled": 6.986979,
-    "is_https": -10.397503,
-    "has_obfuscation": 1.86265,
-    "brand_spoofing": 2.798841
+    "url_length_norm": 33.425578,
+    "domain_length_norm": -5.567419,
+    "is_ip": 0.037163,
+    "subdomain_count_norm": -6.58411,
+    "suspicious_tld": 2.770679,
+    "digit_ratio_scaled": 8.493859,
+    "special_char_scaled": 5.422045,
+    "is_https": -10.572342,
+    "has_obfuscation": 1.909307,
+    "brand_spoofing": 2.970844
   },
-  "intercept": 2.97101,
+  "intercept": 2.920585,
   "metrics": {
-    "accuracy": 0.9574,
+    "accuracy": 0.9053,
     "precision": 0.9798,
-    "recall": 0.9163,
-    "f1_score": 0.947,
-    "validation_samples": 12000
+    "recall": 0.8207,
+    "f1_score": 0.8932,
+    "validation_samples": 6496,
+    "partition_strategy": "registrable_domain_sha256_hash_split"
   },
   "suspicious_tlds": [
     "cc",

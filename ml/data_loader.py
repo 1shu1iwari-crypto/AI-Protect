@@ -7,6 +7,7 @@ Ingests real-world external corpora and RBI BE(A)WARE taxonomy:
 4. Leave-One-Family-Out holdout splits for zero-day generalization benchmarking
 """
 import csv
+import hashlib
 import json
 import os
 import random
@@ -57,8 +58,21 @@ def load_sms_spam_collection(limit=None):
     return records
 
 
-def load_phiusiil_urls(limit=None, sample_ratio=None):
-    """Load static URL features and labels from PhiUSIIL dataset."""
+def get_phiusiil_domain_split(domain_str):
+    """Deterministically partition URLs by registrable domain to prevent data leakage."""
+    d = str(domain_str or '').lower().strip().removeprefix('www.')
+    parts = d.split('.')
+    reg = '.'.join(parts[-2:]) if len(parts) >= 2 else d
+    h = int(hashlib.sha256(reg.encode('utf-8')).hexdigest()[:8], 16) % 100
+    if h < 80:
+        return 'train'
+    elif h < 90:
+        return 'val'
+    return 'test'
+
+
+def load_phiusiil_urls(limit=None, split='all'):
+    """Load static URL features and labels from PhiUSIIL dataset with strict domain-level split."""
     path = DATA_DIR / 'PhiUSIIL_Phishing_URL_Dataset.csv'
     if not path.exists():
         raise FileNotFoundError(f"Missing {path}. Extract phiusiil+phishing+url+dataset.zip into data/")
@@ -66,11 +80,16 @@ def load_phiusiil_urls(limit=None, sample_ratio=None):
     with open(path, 'r', encoding='utf-8', errors='ignore') as f:
         reader = csv.DictReader(f)
         for idx, row in enumerate(reader):
+            domain = row.get('Domain', '')
+            domain_split = get_phiusiil_domain_split(domain)
+            if split != 'all' and domain_split != split:
+                continue
             # label 1 = legitimate, 0 = phishing
             is_phishing = 1 if row.get('label') == '0' else 0
             records.append({
                 'url': row.get('URL', ''),
-                'domain': row.get('Domain', ''),
+                'domain': domain,
+                'domain_split': domain_split,
                 'tld': row.get('TLD', ''),
                 'url_length': int(row.get('URLLength', 0) or 0),
                 'domain_length': int(row.get('DomainLength', 0) or 0),

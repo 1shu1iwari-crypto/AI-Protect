@@ -56,4 +56,17 @@ test('TICE: normal benign transaction has zero contradictions', () => {
  assert.equal(res.contradiction.contradictions.length, 0);
  assert.equal(res.showWarning, false);
  assert.equal(res.severity, 'quiet');
+ const traj = session.trajectory();
+ assert.equal(traj[42], 0.0);
+ assert.equal(traj[43], 0.0);
+ assert.equal(traj[44], 0.0);
+ assert.equal(traj[45], 0.0);
+});
+
+test('TICE: trajectory vector correctly encodes contradiction dimensions 42-45', () => {
+ const session = new Session();
+ session.add({ channel: 'message', text: 'Cashback refund of ₹2500 is ready. Scan QR to receive money.' });
+ session.add({ channel: 'qr', text: 'upi://pay?pa=refunddesk@demo&am=2500&cu=INR' });
+ const traj = session.trajectory();
+ assert.equal(traj[42], 1.0, 'Dimension 42 should encode credit_vs_debit contradiction');
 });

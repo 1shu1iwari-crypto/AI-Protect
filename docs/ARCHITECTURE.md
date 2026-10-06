@@ -40,15 +40,32 @@ All arrows above are implemented. Browser content stays local. No raw text is se
 
 Android uses exact-origin, main-frame `WebViewCompat` messages and asynchronous request/reply handling. Older WebViews without messaging support retain manual checks and require an update for native storage/sharing. Native storage reconstructs snapshots from bounded derived fields; persisted prose and unknown fields are dropped, and shared JavaScript regenerates explanations on restore. No new permission or Kotlin detector is introduced. Local classifiers/modules are packaged in the APK and offline PWA asset cache.
 
-## Fingerprints and campaigns
+## Fingerprints, Scam Radar and HDBSCAN Trajectory Clustering
 
-Fingerprint schema: version, random session ID, enum tactic set, ordered tactic sequence, enum channel set, amount bucket and event count. Reject all unexpected fields. No hashing of low-entropy personal identifiers is necessary because no personal identifiers are uploaded. Fingerprints remain potentially sensitive; consent and 24-hour expiry are mandatory.
-
-Campaign grouping requires tactic Jaccard >=0.70 and normalized ordered longest-common-subsequence >=0.70, against a fixed anchor. Within-event tactic order comes from extractor order; sequence evidence describes event progression, not word order inside an utterance. Three distinct random session IDs form a candidate. Signature hashes contain only enums, not personal identifiers.
-
-At 40 total reports, compare the last two fixed 20-report windows. For each candidate, calculate its membership-rate increase and the threshold `sqrt(0.5 * log(2 / delta) * (1/n0 + 1/n1))`, with `delta = 0.01 / number_of_groups`. This is a two-window Hoeffding cue, not ADWIN. Its assumptions require independent observations; grouping and repeated snapshots are data dependent, so this implementation does not claim a calibrated global false-alarm guarantee. A synthetic 20 ordinary -> 20 new-composition replay exposes the shift; a stationary alternating mix stays quiet.
-
-Reporter identities remain unverified. A malicious actor can create many session IDs; deduplication and the 1,000-report local cap are not Sybil resistance. Candidates never change local warnings. Analyst authentication only changes reviewed/dismissed status. No policy is published and no payment account is blacklisted.
+- **Privacy-Safe Fingerprint Schema**: Version, random session ID, enum tactic set, ordered tactic sequence, enum channel set, coarse amount bucket, event count, and a 64-dimensional behavioral trajectory vector (`core/trajectory.mjs`). No personal data, phone numbers, raw text, audio, or bank details are retained or uploaded. Fingerprints remain strictly opt-in with mandatory 24-hour retention expiry.
+- **64-Dimensional Behavioral Trajectory Representation**:
+  - Dims 0–12: Relative frequency of extracted behavioral tactics.
+  - Dims 13–20: Persuasion and coercion intensity (urgency, authority, secrecy, isolation).
+  - Dims 21–25: Channel utilization distribution (call, message, link, QR, payment).
+  - Dims 26–37: Inter-channel transitions (e.g. call → link, message → QR).
+  - Dims 38–41: Payment pacing and velocity.
+  - Dims 42–45: TICE intent contradictions (credit vs. debit, authority vs. remote access, investment vs. advance fee, KYC vs. sideload).
+  - Dims 46–49: Temporal duration and session pacing.
+  - Dims 50–55: Sensitive action indicators (credentials requested, OTP solicited, remote tool pushed).
+  - Dims 56–63: Risk progression dynamics and alert severity delta.
+  *Note: This is an inspectable, hand-engineered behavioral feature vector, not an unexplainable learned neural embedding.*
+- **Unsupervised HDBSCAN Clustering (`backend/radar/cluster.py`)**:
+  - Clusters reported trajectories in cosine distance space (`metric='precomputed'`).
+  - Automatically identifies distinct clusters and isolates noise without requiring a fixed cluster count $k$.
+  - Compares cluster centroids against behavioral fraud-family prototypes derived from the RBI BE(A)WARE taxonomy (SG01 to SG07).
+  - Flags novel attack workflow compositions when cosine novelty $\ge 0.35$.
+- **Streaming Emergence Detection via River ADWIN (`backend/radar/drift.py`)**:
+  - Monitors report ingestion stream dynamically inside `POST /api/fingerprints`.
+  - Employs River's ADWIN (Adaptive Windowing) to detect distribution shifts in streaming novelty and report velocity.
+  - Generates actionable emergence cues without polling or false triggers on dashboard refreshes.
+- **Sybil Resistance and Operator Boundaries**:
+  - Reporter identities remain unverified in the local PoC; deduplication and rate limits provide bounded local protection. Production deployment requires authenticated client attestation.
+  - Radar candidates never alter local client warnings automatically; human analyst review remains mandatory before publishing countermeasures.
 
 ## Security and privacy mitigations
 

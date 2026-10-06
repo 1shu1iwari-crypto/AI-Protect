@@ -7,8 +7,15 @@ from pathlib import Path
 from threading import Lock, Thread
 from urllib.parse import urlsplit
 from campaigns import discover
-from radar.cluster import cluster_trajectories
-from radar.drift import StreamingRadarDriftDetector
+try:
+    from radar.cluster import cluster_trajectories
+    from radar.drift import StreamingRadarDriftDetector
+    RADAR_DRIFT_DETECTOR=StreamingRadarDriftDetector()
+    RADAR_AVAILABLE=True
+except ImportError:
+    RADAR_AVAILABLE=False
+    cluster_trajectories=lambda reports: {'clusters':[], 'novel_campaigns':[], 'noise_count':len(reports), 'total_evaluated':0}
+    RADAR_DRIFT_DETECTOR=None
 
 ROOT=Path(__file__).resolve().parents[1]
 VERSION=json.loads((ROOT/'package.json').read_text(encoding='utf-8'))['version']
@@ -17,7 +24,6 @@ TACTICS={'authority','urgency','threat','isolation','credentials','remote_access
 CHANNELS={'message','call','link','qr','payment'}
 BUCKETS={'unknown','under_1k','1k_10k','10k_50k','50k_plus'}
 LOCK=Lock(); LIMITS=defaultdict(deque)
-RADAR_DRIFT_DETECTOR=StreamingRadarDriftDetector()
 
 def validate(p):
     base_keys={'version','session_id','tactics','channels','sequence','amount_bucket','event_count'}
@@ -53,6 +59,8 @@ class Store:
             if c.execute('SELECT COUNT(*) FROM fingerprints').fetchone()[0] >= 1000:
                 raise ValueError('Local store is full; wait for expiry or delete reports')
             c.execute('INSERT OR IGNORE INTO fingerprints VALUES(?,?,?)',(p['session_id'],time.time(),json.dumps(p)))
+        if RADAR_AVAILABLE and RADAR_DRIFT_DETECTOR and 'trajectory' in p:
+            RADAR_DRIFT_DETECTOR.observe_report(p, timestamp=time.time())
     def remove(self,id):
         with LOCK,self.db() as c:c.execute('DELETE FROM fingerprints WHERE id=?',(id,))
     def campaigns(self):
@@ -73,15 +81,29 @@ class Store:
             try:
                 p=json.loads(raw); p['created']=created; reports.append(p)
             except Exception: pass
+        if not RADAR_AVAILABLE:
+            return {
+                'radar_status':'fallback_only',
+                'algorithm':'Rule-based grouping (Install numpy, scikit-learn, river for HDBSCAN Radar)',
+                'clusters':[],
+                'novel_campaigns':[],
+                'drift_alerts':[],
+                'total_reports':len(reports),
+                'noise_reports':len(reports),
+                'privacy_guarantee':{
+                    'raw_messages_received':0,
+                    'audio_bytes_received':0,
+                    'phone_numbers_received':0,
+                    'upi_ids_received':0
+                }
+            }
         clustered=cluster_trajectories(reports)
-        for camp in clustered.get('novel_campaigns',[]):
-            RADAR_DRIFT_DETECTOR.observe(camp['cluster_id'],is_active=1,timestamp=time.time())
         return {
             'radar_status':'active',
             'algorithm':'HDBSCAN Density Clustering + River ADWIN on 64-d Trajectories',
             'clusters':clustered.get('clusters',[]),
             'novel_campaigns':clustered.get('novel_campaigns',[]),
-            'drift_alerts':RADAR_DRIFT_DETECTOR.get_active_alerts(),
+            'drift_alerts':RADAR_DRIFT_DETECTOR.get_active_alerts() if RADAR_DRIFT_DETECTOR else [],
             'total_reports':len(reports),
             'noise_reports':clustered.get('noise_count',0),
             'privacy_guarantee':{
