@@ -59,18 +59,25 @@ export function extractStaticUrlFeatures(rawUrl) {
  };
 }
 
+import { parseAndAnalyzeUrl, extractRegisteredDomain } from './domain-parser.mjs';
+
 export function evaluateUrlRisk(urlStr) {
  const feats = extractStaticUrlFeatures(urlStr);
+ const domainAnalysis = parseAndAnalyzeUrl(urlStr);
  let z = model.intercept || 0;
  for (const [fName, weight] of Object.entries(model.weights || {})) {
   z += (feats[fName] || 0) * weight;
+ }
+ if (domainAnalysis.isBrandMismatch) {
+  z += 2.5; // Strong boost for deceptive brand mismatch on registrable domain
  }
  const probability = 1 / (1 + Math.exp(-z));
  const threshold = model.decision_threshold || 0.65;
  return {
   probability: Math.round(probability * 1000) / 1000,
-  isHighRisk: probability >= threshold,
-  features: feats
+  isHighRisk: probability >= threshold || domainAnalysis.isBrandMismatch,
+  features: feats,
+  domainAnalysis
  };
 }
 
@@ -79,11 +86,13 @@ export function classifyTextLinks(text) {
  const links = clean.match(/https?:\/\/[^\s<>"']+/gi) || [];
  let maxScore = 0;
  let unusualVerification = false;
+ const linkAnalyses = [];
  for (const link of links) {
   try {
    const res = evaluateUrlRisk(link);
+   linkAnalyses.push(res);
    if (res.probability > maxScore) maxScore = res.probability;
-   if (res.isHighRisk) unusualVerification = true;
+   if (res.isHighRisk || res.domainAnalysis?.isBrandMismatch) unusualVerification = true;
    // Lexical verification check for compatibility with legacy test assertions
    const u = new URL(link);
    const host = u.hostname.toLowerCase();
@@ -92,5 +101,5 @@ export function classifyTextLinks(text) {
    if (verification && unusual) unusualVerification = true;
   } catch {}
  }
- return { unusualVerification, maxRiskScore: maxScore, linkCount: links.length };
+ return { unusualVerification, maxRiskScore: maxScore, linkCount: links.length, linkAnalyses };
 }

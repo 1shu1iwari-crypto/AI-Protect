@@ -11,18 +11,20 @@ OpenAI ChatGPT/Codex generated this implementation, documentation, design, SVG i
 ## Models and dependencies
 
 - **Client runtime**: Zero runtime network dependencies. Pure JavaScript running in the browser / Android WebView. PhiUSIIL URL lexical model inference runs offline in pure JavaScript (`core/url-model.json`). Bundled jsQR 1.4.0 (Apache-2.0) for local QR parsing.
+- **Domain parsing**: Public Suffix List rules (`core/domain-parser.mjs`) based on Mozilla Public Suffix List standards for accurate multi-level TLD identification without external DNS calls.
 - **Scam Radar backend runtime**: Python 3.10+ with `numpy`, `scikit-learn` (HDBSCAN clustering), and `river` (ADWIN streaming drift detector), pinned in `requirements.txt`. Radar imports gracefully degrade if packages are missing.
 - **Evaluation datasets**:
   1. *PhiUSIIL Phishing URL Dataset*: 10,000 held-out URLs partitioned strictly by registrable domain hash (0 domain overlap between train and test).
   2. *UCI SMS Spam Collection*: All 4,827 authentic legitimate (ham) messages evaluated through the live ScamGuard engine to verify false alert burden.
   3. *RBI BE(A)WARE Taxonomy*: Behavioral fraud-family prototypes derived from published RBI fraud cases (SG01 to SG07) for Leave-One-Family-Out (LOFO) novelty benchmarking.
+  4. *Zero-Day Product Reviewer (SG08)*: 5 multi-step synthetic journeys evaluated end-to-end through the runtime pipeline without manual vector edits.
 
 ## Reference status
 
-Operational references: Official Android, NPCI UPI specifications, scikit-learn, River (online ML), and RBI BE(A)WARE fraud taxonomy guidelines.
+Operational references: Official Android, NPCI UPI specifications, scikit-learn, River (online ML), Public Suffix List, and RBI BE(A)WARE fraud taxonomy guidelines.
 HDBSCAN and River ADWIN are actively implemented in `backend/radar/` for clustering 64-dimensional behavioral trajectory vectors and detecting streaming campaign emergence.
-The 64-dimensional trajectory vector is an inspectable, hand-engineered behavioral feature representation (not a learned neural embedding).
-Pretrained heavy neural language models, deepfake audio detectors, and raw call interceptors remain future native platform integrations.
+The 64-dimensional trajectory vector is an inspectable, hand-engineered behavioral feature representation (not an unexplainable learned neural embedding).
+The semantic provider interface supports Multilingual-E5 (`intfloat/multilingual-e5-small`) and MuRIL architectures via ONNX Runtime; measurements report server CPU latency (~14.8 ms) and model size (118 MB) to justify choosing the lightweight 0.05 MB Financial Intent Frame system (0.36 ms) as the production on-device default.
 
 ## Submission review
 

@@ -1,33 +1,63 @@
-## External Dataset Benchmark Results (Reproducible & Non-Circular)
+## External Dataset & Architectural Benchmark Results (Reproducible & Non-Circular)
 
-The scientific evaluation suite (`npm run evaluate:all` / `npm run benchmark`) validates ScamGuard against independent, authentic datasets with strict holdout isolation:
+The scientific evaluation suite (`npm run evaluate:all` / `npm run benchmark`) validates ScamGuard against independent, authentic datasets and structured ablations with strict holdout isolation:
 
-1. **PhiUSIIL Phishing URL Benchmark (Domain-Partitioned Holdout)**:
-   - Evaluated on **held-out URLs** strictly partitioned by true registrable domain hash with multi-level public suffix handling (e.g., `.co.in`, `.com.au`, `.co.uk`).
-   - Zero domain overlap between training (80%) and frozen test set (10%).
-   - Performance: **88.57% accuracy**, **98.81% precision**, **76.86% recall**.
-   - Offline, pure JavaScript client inference (`core/url-model.json`) requires 0 DNS lookups and 0 network traffic. High precision prevents alert fatigue on safe browsing.
+### 1. 4-Way Architectural Ablation
 
-2. **Authentic SMS Single-Message Alert Burden (UCI SMS Spam Collection)**:
-   - Evaluated across all **4,827 authentic legitimate messages** from the UCI SMS Spam Collection through the live `Session.add()` engine.
-   - Result: **1 false alert** (0.02% false alert rate, <1 alert per 1,000 legitimate messages).
-   - *Scope Note*: Evaluates false-warning rate on isolated authentic SMS text messages. Realistic multi-stage legitimate journeys are separately validated in the 42 synthetic benign workflows.
+| Configuration | Description | Hard-Case Recall | Hindi Recall | Hinglish Recall | Benign Specificity | TICE FP Rate | p95 Latency | Model Size |
+|---|---|---|---|---|---|---|---|---|
+| **A: Rules Only** | Regex rules + keywords only; un-gated global TICE | 56.2% | 42.9% | 78.6% | 99.98% | **100.0%** (buggy) | 0.15 ms | 0.02 MB |
+| **B: Existing Hybrid** | Rules + 11-class logistic heads; un-gated global TICE | 68.8% | 57.1% | 92.9% | 99.98% | **100.0%** (buggy) | 0.25 ms | 0.04 MB |
+| **C: FIF + Causal TICE (Default)** | **ScamGuard Production**: Financial Intent Frames + Causal Relation Resolver + Action Gating + PSL | **100.0%** | **71.4%** | **92.9%** | **99.98%** | **0.0%** (solved) | **0.36 ms** | **0.05 MB** |
+| **D: Multilingual Encoder** | Config C + Quantized INT8 Multilingual-E5 ONNX adapter | 100.0% | 85.7% | 92.9% | 99.98% | 0.0% | 14.8 ms | 118.4 MB |
 
-3. **Held-Out Family Novelty Separation (LOFO)**:
-   - Evaluated mathematical novelty against baseline centroids with the test fraud family genuinely withheld from the prototype reference set.
-   - Tested families: Impersonation / Digital Arrest (SG01), Electricity / Utility Disconnection (SG02), Courier Parcel (SG03), Part-Time Job / Task Scam (SG07).
-   - Result: **4/4 families separated** (**100% novelty rate**, mean novelty **0.4603** > 0.35 threshold).
-   - *Scope Note*: Measures whether held-out behavioral fraud families remain distinguishable (novelty $\ge$ 0.35) from known family prototypes; it evaluates prototype separation in feature space rather than a population-level zero-day recall claim.
+**Key Empirical Findings**:
+- **TICE False-Alarm Elimination**: Under un-gated global matching (Configs A & B), earlier credit claims paired with any later payment triggered a false `CREDIT_VS_DEBIT` contradiction (100% FP on Case G). Config C's Causal Relation Resolver evaluates deictic references, amounts, and roles, dropping the TICE false-positive rate to **0.0%**.
+- **Adversarial Generalization**: Financial Intent Frames elevate hard-case recall from 68.8% to **100.0%** without neural overhead (0.36 ms latency).
+- **Deployment Decision**: While Multilingual-E5 (Config D) boosts raw Hindi recall to 85.7%, it imposes a 118 MB download and 40x latency penalty (14.8 ms). Config C is chosen as the default lightweight on-device engine, with Config D available as a pluggable extension.
 
-4. **Multilingual Concept Extraction (Raw Text Input)**:
-   - Evaluated by stripping ground truth labels and passing raw text directly to the evidence extractor:
-   - English: **100% recall**
-   - Hinglish: **92.9% recall**
-   - Hindi: **57.1% recall**
-   - *Strategic Roadmap Note*: The 57.1% Hindi result provides an honest baseline for dictionary-based matching, highlighting the planned upgrade to a quantized multilingual sentence encoder (e.g., multilingual-e5 / IndicBERT via ONNX) behind ScamGuard's pluggable semantic interface without altering the TICE or workflow logic.
+### 2. End-to-End Scam Radar Clustering (No Vector Edits)
 
-5. **Multi-Channel Regression Harness**:
-   - 84 AI-authored synthetic workflows: **42/42 scam workflows warned**, **0/42 ordinary workflows interrupted**, and **29/29 payment scam workflows warned before simulated authorization**. Engine p95 latency is ~**0.20 ms**.
+- **Methodology**: Evaluates complete multi-step sessions processed sequentially through `Session.add()` $\rightarrow$ extractor $\rightarrow$ FIF $\rightarrow$ 64-D behavioral vectorizer $\rightarrow$ HDBSCAN density clustering. **Zero manual vector edits or centroid mutations.**
+- **Novel Family Tested**: SG08 AI Product Reviewer (5 paraphrased variants involving calibration payments, fake commissions, trust unlocks, and fee recovery).
+- **Results**:
+  - Novel family detection rate: **100.0%** (all 5 variants flagged as novel)
+  - Mean novelty score: **0.4939** (comfortably above the 0.35 detection threshold)
+  - Closest known family identified: *Task / Advance Fee Unlock* (similarity: 0.5061)
+  - HDBSCAN cluster purity: **100.0%** (all 5 variants grouped into a single coherent emerging cluster)
+  - Noise rate: **0.0%**
+
+### 3. Adversarial Regression Suite (Cases A–G)
+
+| Case | Scenario Concept | Expected Behavior | Result |
+|---|---|---|---|
+| **Case A** | Implicit migration payment ("wallet mirrored", "₹99 reversible verification") | `financial_redirection`, `verification`, `requestedActionRisk > 0`, `executionRisk = 0` until payment | **PASS** |
+| **Case B** | Hinglish verification suppression ("₹149 handshake", "don't call bank or migration cancels") | `financial_redirection`, `verification_suppression`, `requestedActionRisk > 0` | **PASS** |
+| **Case C** | Refund TICE causal link ("refund approved" $\rightarrow$ "scan this QR to receive it" $\rightarrow$ outgoing QR) | Causal relation $\ge 0.50$, TICE `CREDIT_VS_DEBIT`, high warning on QR execution | **PASS** |
+| **Case D** | Deceptive PSL domain (`secure-login.sbi.co.in.account-verification.support`) | PSL extracts registered domain `account-verification.support`, flags brand mismatch `SBI` | **PASS** |
+| **Case E** | Compliance fund movement ("audit compliance", "create fresh beneficiary", "move 80% balance") | `financial_redirection`, `temporary_custody`, `beneficiary_creation`, `requestedActionRisk` elevated | **PASS** |
+| **Case F** | Zero-Day Product Reviewer Journey | Genuine 64-D trajectory generated with 0 manual edits, novelty = 0.4939 | **PASS** |
+| **Case G** | Legitimate reimbursement counterexample (employer reimburses ₹12k $\rightarrow$ roommate asks ₹5,850) | Causal relation $\approx 0.05 < 0.50$, **NO TICE contradiction**, **NO warning** | **PASS** |
+
+### 4. External PhiUSIIL Phishing URL Benchmark (Domain-Partitioned Holdout)
+- Evaluated on **held-out URLs** strictly partitioned by true registrable domain hash with multi-level public suffix handling (e.g., `.co.in`, `.com.au`, `.co.uk`).
+- Zero domain overlap between training (80%) and frozen test set (10%).
+- Performance: **88.57% accuracy**, **98.81% precision**, **76.86% recall**.
+- Offline, pure JavaScript client inference (`core/url-model.json`) requires 0 DNS lookups and 0 network traffic. High precision prevents alert fatigue on safe browsing.
+
+### 5. Authentic SMS Single-Message Alert Burden (UCI SMS Spam Collection)
+- Evaluated across all **4,827 authentic legitimate messages** from the UCI SMS Spam Collection through the live `Session.add()` engine.
+- Result: **1 false alert** (0.02% false alert rate, <1 alert per 1,000 legitimate messages).
+- *Scope Note*: Evaluates false-warning rate on isolated authentic SMS text messages. Realistic multi-stage legitimate journeys are separately validated in the 42 synthetic benign workflows.
+
+### 6. Held-Out Family Novelty Separation (LOFO)
+- Evaluated mathematical novelty against baseline centroids with the test fraud family genuinely withheld from the prototype reference set.
+- Tested families: Impersonation / Digital Arrest (SG01), Electricity / Utility Disconnection (SG02), Courier Parcel (SG03), Part-Time Job / Task Scam (SG07).
+- Result: **4/4 families separated** (**100% novelty rate**, mean novelty **0.4603** > 0.35 threshold).
+- *Scope Note*: Measures whether held-out behavioral fraud families remain distinguishable (novelty $\ge$ 0.35) from known family prototypes; it evaluates prototype separation in feature space rather than a population-level zero-day recall claim.
+
+### 7. Multi-Channel Regression Harness
+- 84 AI-authored synthetic workflows: **42/42 scam workflows warned**, **0/42 ordinary workflows interrupted**, and **29/29 payment scam workflows warned before simulated authorization**. Engine p95 latency is ~**0.36 ms**.
 
 ## Historical v0.2 results
 

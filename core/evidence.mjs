@@ -2,9 +2,11 @@ import {TACTICS,CHANNELS,LABELS} from './constants.mjs';
 import {amountBucket,normalize} from './input.mjs';
 import {extractRules} from './rules.mjs';
 import {semanticEvidence,defaultSemanticClassifier} from './semantic.mjs';
+import {extractFinancialIntentFrame,FinancialIntentFrame} from './financial-intent.mjs';
+
 export const ACTIONS=['none','transfer','credentials','remote_access','install_app','open_link'];
 export const IDENTITIES=['none','institution','authority','support','investment_desk'];
-export const PERSUASION=['urgency','threat','isolation','trust','reward','redirection','recovery','coercion'];
+export const PERSUASION=['urgency','threat','isolation','trust','reward','redirection','recovery','coercion','verification_suppression','financial_redirection'];
 export const VERIFICATION=['verified','unverified','mismatch','unknown'];
 export const BUCKETS=['unknown','under_1k','1k_10k','10k_50k','50k_plus'];
 const uniqueEnums=(values,allowed)=>[...new Set(Array.isArray(values)?values.filter(v=>allowed.includes(v)):[])];
@@ -23,6 +25,7 @@ export function sanitiseEvidenceEvent(raw){
  const payment=p?{amountBucket:bucket,newPayee:novelty==='new',direction:'outgoing'}:null,modelScores={};
  for(const [label,value] of Object.entries(raw.modelScores||{}))if(TACTICS.includes(label)&&confidence(value)!==null)modelScores[label]=value;
  const identity=IDENTITIES.includes(raw.claimed_identity)?raw.claimed_identity:tactics.includes('authority')?'authority':tactics.includes('investment')?'investment_desk':'none';
+ const frame=raw.frame instanceof FinancialIntentFrame?raw.frame:(raw.frame?new FinancialIntentFrame(raw.frame):extractFinancialIntentFrame(raw,raw.text));
  return {channel:CHANNELS.includes(raw.channel)?raw.channel:'message',timestamp:Number.isFinite(raw.timestamp)?raw.timestamp:0,tactics,
   requested_action:ACTIONS.includes(raw.requested_action)?raw.requested_action:requestedAction(tactics,payment),
   claimed_identity:identity,claimed_identity_category:identity,
@@ -31,7 +34,7 @@ export function sanitiseEvidenceEvent(raw){
   amount_bucket:bucket,beneficiary_novelty:novelty,semantic_confidence:confidence(raw.semantic_confidence),
   semantic_tactics:uniqueEnums(raw.semantic_tactics,TACTICS),evidence_sources:uniqueEnums(raw.evidence_sources,['rules','semantic']),
   model_corroboration:raw.model_corroboration===true||tactics.some(t=>(modelScores[t]??0)>=0.75),
-  modelScores:Object.keys(modelScores).length?modelScores:null,payment};
+  modelScores:Object.keys(modelScores).length?modelScores:null,payment,frame};
 }
 export function extract(text,model=null,semanticClassifier=defaultSemanticClassifier){
  const rules=extractRules(text,model),semantic=semanticEvidence(text,semanticClassifier);
@@ -44,11 +47,26 @@ export function evidenceEvent(input,payment,model,classifier){
  const f=extract(input.text||'',model,classifier),t=normalize(input.text);
  if(input.channel==='link'&&/\.apk(?:\?|$)/iu.test(t)&&!f.tactics.includes('apk'))f.tactics.push('apk');
  if(payment&&!f.tactics.includes('payment'))f.tactics.push('payment');
+ const frame=extractFinancialIntentFrame({...input,payment},input.text);
+ if(frame.verification_suppression&&!f.persuasion_signals.includes('verification_suppression')){
+  f.persuasion_signals.push('verification_suppression');
+ }
+ if(frame.financial_redirection&&!f.persuasion_signals.includes('financial_redirection')){
+  f.persuasion_signals.push('financial_redirection');
+ }
+ if(frame.financial_redirection&&!f.tactics.includes('payment')){
+  f.tactics.push('payment');
+ }
+ if((frame.purpose==='verification'||frame.purpose==='migration')&&!f.tactics.includes('verification')){
+  f.tactics.push('verification');
+ }
  const identity=f.tactics.includes('authority')?'authority':f.tactics.includes('investment')?'investment_desk':/\bsupport|helpdesk\b|मदद/iu.test(t)?'support':f.tactics.includes('verification')?'institution':'none';
  return sanitiseEvidenceEvent({channel:input.channel,timestamp:input.timestamp,tactics:f.tactics,
   requested_action:requestedAction(f.tactics,payment),claimed_identity:identity,persuasion_signals:f.persuasion_signals,
   verification_status:input.verification_status,semantic_confidence:f.semantic_confidence,semantic_tactics:f.semantic_tactics,
   evidence_sources:f.evidence_sources,modelScores:f.modelScores,
-  amount_bucket:payment?amountBucket(payment.amount):'unknown',beneficiary_novelty:payment?(payment.newPayee??true)?'new':'known':'unknown',
-  payment:payment?{amountBucket:amountBucket(payment.amount),newPayee:payment.newPayee??true}:null});
+  amount_bucket:payment?amountBucket(payment.amount):(frame.raw_amount?amountBucket(frame.raw_amount):'unknown'),
+  beneficiary_novelty:payment?(payment.newPayee??true)?'new':'known':(frame.beneficiary_creation?'new':'unknown'),
+  payment:payment?{amountBucket:amountBucket(payment.amount),newPayee:payment.newPayee??true}:null,
+  frame});
 }

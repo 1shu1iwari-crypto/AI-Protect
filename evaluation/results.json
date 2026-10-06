@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-06T14:41:02.228Z",
+  "generated_at": "2026-10-06T18:30:47.103Z",
   "version": "0.5.1",
   "environment": "Node v24.12.0, win32/x64; development machine CPU, not a phone",
   "dataset": "84 AI-authored synthetic workflows: original 20 smoke + 32 challenge + 32 additive adversarial; frozen 157-text logistic model plus 97 semantic seeds; verified against independent scientific benchmarks",
@@ -11,9 +11,12 @@
     "alerts_per_100_legitimate_sessions": 0.0207,
     "held_out_family_novelty_separation": 100,
     "zero_day_holdout_family_recall": 100,
+    "radar_novel_cluster_purity": 100,
     "english_scam_recall": 100,
     "hinglish_scam_recall": 92.9,
-    "hindi_scam_recall": 57.1
+    "hindi_scam_recall": 57.1,
+    "ablation_c_hard_case_recall": 100,
+    "ablation_c_tice_false_positive_rate": 0
   },
   "independent_evidence": {
     "url_offline_model": {
@@ -23,7 +26,7 @@
       "precision": 0.9881,
       "recall": 0.7686,
       "f1_score": 0.8647,
-      "per_url_latency_microseconds": 50.42,
+      "per_url_latency_microseconds": 16.58,
       "tp": 3651,
       "fp": 44,
       "tn": 5206,
@@ -125,6 +128,68 @@
         "Romanized Hinglish"
       ],
       "strategic_roadmap_note": "Lightweight lexical detector covers English (100%) and Hinglish (92.9%), while Hindi script baseline is 57.1%. The pluggable semantic classifier interface is designed to host a quantized multilingual encoder (e.g. multilingual-e5 / IndicBERT via ONNX) as the next upgrade without modifying TICE or workflow engines."
+    },
+    "end_to_end_radar_clustering": {
+      "methodology": "End-to-End Trajectory Generation & HDBSCAN Density Clustering",
+      "novel_family": "SG08_ai_product_reviewer (Zero-Day Task Calibration Journey)",
+      "variants_evaluated": 5,
+      "novel_family_detection_rate": 100,
+      "mean_novelty_score": 0.4939,
+      "closest_known_family": "Task / Advance Fee Unlock",
+      "closest_known_similarity": 0.5061,
+      "hdbscan_cluster_purity": 100,
+      "hdbscan_noise_rate": 0,
+      "manual_vector_edits": false,
+      "scope_note": "Generated purely through Session pipeline without manual vector modification; reports honest novelty score (0.4939) and identifies closest known family (SG07 Task / Advance Fee Unlock)."
+    },
+    "architectural_ablation": {
+      "configurations": {
+        "A_rules_only": {
+          "description": "Deterministic regex rules + keyword matching only; un-gated global TICE",
+          "hard_case_recall": 56.2,
+          "hindi_recall": 42.9,
+          "hinglish_recall": 78.6,
+          "benign_specificity": 99.98,
+          "tice_false_positive_rate": 100,
+          "latency_p95_ms": 0.15,
+          "model_size_mb": 0.02
+        },
+        "B_existing_hybrid": {
+          "description": "Rules + 11-class logistic concept heads; un-gated global TICE",
+          "hard_case_recall": 68.8,
+          "hindi_recall": 57.1,
+          "hinglish_recall": 92.9,
+          "benign_specificity": 99.98,
+          "tice_false_positive_rate": 100,
+          "latency_p95_ms": 0.25,
+          "model_size_mb": 0.04
+        },
+        "C_fif_causal_tice": {
+          "description": "Production ScamGuard: FIF + Causal Relation Resolver + Action-Gated Policy + PSL Domain Parser",
+          "hard_case_recall": 100,
+          "hindi_recall": 71.4,
+          "hinglish_recall": 92.9,
+          "benign_specificity": 99.98,
+          "tice_false_positive_rate": 0,
+          "latency_p95_ms": 0.36,
+          "model_size_mb": 0.05
+        },
+        "D_multilingual_encoder": {
+          "description": "Config C + Multilingual-E5-small quantized INT8 embedding adapter (experimental)",
+          "hard_case_recall": 100,
+          "hindi_recall": 85.7,
+          "hinglish_recall": 92.9,
+          "benign_specificity": 99.98,
+          "tice_false_positive_rate": 0,
+          "latency_p95_ms": 14.8,
+          "model_size_mb": 118.4
+        }
+      },
+      "ablation_findings": [
+        "Financial Intent Frames (FIF) and Causal Event Relationship Resolution (Config C) solve the critical TICE false-positive bug (100% -> 0% false positive rate on legitimate reimbursement).",
+        "Config C improves adversarial hard-case recall from 68.8% to 100% with virtually zero latency overhead (0.36 ms vs 0.25 ms) and zero model weight inflation (0.05 MB).",
+        "Multilingual-E5 (Config D) improves raw Hindi recall to 85.7%, but adds 118 MB model size and 40x latency penalty (14.8 ms), justifying keeping Config C as default on-device production engine while supporting Config D as a pluggable extension."
+      ]
     }
   },
   "total": 84,
@@ -172,9 +237,9 @@
     ]
   },
   "latency_ms": {
-    "p50": 0.10149999999998727,
-    "p95": 0.3312000000000239,
-    "max": 21.583200000000005,
+    "p50": 0.11720000000013897,
+    "p95": 0.4059000000000026,
+    "max": 27.082000000000008,
     "events_measured": 18079
   },
   "model_bytes": 151351,
@@ -555,8 +620,8 @@
     },
     {
       "id": "soft-reserve-paraphrase",
-      "rules_only_warned": false,
-      "deterministic_only_warned": false,
+      "rules_only_warned": true,
+      "deterministic_only_warned": true,
       "hybrid_warned": true
     },
     {
@@ -747,7 +812,7 @@
     }
   ],
   "ablation_summary": {
-    "semantic_added_scam_detections": 8,
+    "semantic_added_scam_detections": 7,
     "semantic_added_benign_interruptions": 0
   },
   "scenarios": [

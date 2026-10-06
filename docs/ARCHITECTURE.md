@@ -4,37 +4,47 @@
 
 ```mermaid
 flowchart TD
-  U[User selects content] --> N[Normalize local event]
-  N --> R[Rules and two local classifiers]
-  R --> E[Privacy-safe structured evidence]
-  E --> S[Ordered workflow states]
-  S --> A[Action-aware warning policy]
-  A --> Q[Quiet or passive context]
-  A --> W[Explain and pause risky request]
-  S --> F[Enum-only fingerprint]
-  F --> C{Explicit pattern consent}
+  U[User selects content / raw event] --> N[Normalize local event]
+  N --> S1[Deterministic extraction + Semantic representation]
+  S1 --> FIF[Financial Intent Frame: direction, purpose, role, suppression]
+  FIF --> ERR[Causal Event Relationship Resolver: deictic, amount, role alignment]
+  ERR --> TICE[TICE Intent Contradiction Engine]
+  TICE --> WF[Ordered Workflow State Machine]
+  WF --> AR[Action-Risk Separation: requestedActionRisk vs executionRisk]
+  AR --> POL[Action-Gated Intervention Policy]
+  POL --> Q[Quiet / passive context]
+  POL --> W[Explain and pause execution: STOP & VERIFY]
+  POL --> TR[64-D Behavioral Trajectory Vector]
+  TR --> C{Explicit pattern consent}
   C --> API[Local fingerprint API]
   API --> DB[SQLite with 24-hour expiry]
-  DB --> CL[Ordered campaign candidates and shift cues]
-  CL --> H[Token-gated human review]
-  H --> D[Reviewed or dismissed candidate]
+  DB --> RAD[HDBSCAN Density Clustering + River ADWIN Drift]
+  RAD --> H[Token-gated analyst review]
 ```
 
-All arrows above are implemented. Browser content stays local. No raw text is sent to a server; no text, URLs, VPAs or exact amounts are retained in the derived session. Before analysis, user input remains in the field; a PWA share handoff temporarily holds raw text in worker memory for up to 60 seconds, then deletes it. No share text is placed in URLs, disk storage or CacheStorage. QR frames/images decode on the device and camera tracks stop on scan success, close, channel/view change, or backgrounding. Events retain derived action/identity/persuasion/verification enums, tactic evidence, channel, timestamp and coarse payment metadata. Sessions keep only allowlisted numeric scores; snapshots discard legacy model scores. The frozen word/bigram classifier supplies optional corroboration. The additional concept-feature classifier can add semantic evidence to ordered workflows. Both are synthetic-trained and uncalibrated; no network inference exists.
+All arrows above are implemented. Browser content stays local. No raw text is sent to a server; no text, URLs, VPAs or exact amounts are retained in the derived session. Before analysis, user input remains in the field; a PWA share handoff temporarily holds raw text in worker memory for up to 60 seconds, then deletes it. No share text is placed in URLs, disk storage or CacheStorage. QR frames/images decode on the device and camera tracks stop on scan success, close, channel/view change, or backgrounding. Events retain derived action/identity/persuasion/verification enums, tactic evidence, channel, timestamp and coarse payment metadata. Sessions keep only allowlisted numeric scores; snapshots discard legacy model scores.
 
-## Detection logic
+## Detection logic & Layered Reasoning
 
-1. NFKC, case and invisible-control normalization; sentence-aware negation suppression for credential and remote-control advice.
-2. Extract thirteen behavior tactics with deterministic protections and optional semantic evidence. URLs are normalized and inspected as text, never fetched. This is not URL reputation or APK malware analysis. The synchronous classifier adapter accepts `{scores:{tactic:0..1}}`; passing `semanticClassifier:null` disables it for the deterministic-only ablation. Adapter failures preserve deterministic checks; unknown model fields are discarded.
-3. One explicit local session, at most 64 events; reset after a 20-minute gap. Timestamp order is enforced. User-selected sessions avoid hidden cross-app association. Different conversations need a manual reset; automated session association is not implemented.
-4. Explicit ordered states cover refund/outgoing QR, authority/pressure/transfer, investment/payment/escalation, task/deposit/withdrawal, KYC/pressure/sensitive request, support/remote access/financial action and coercive trust/reward requests. The most recent ordered completion wins, with stable family precedence for ties. A QR is an outgoing intent, not a completed payment.
-5. Evidence strength counts distinct derived signals; workflow confidence describes path completion; action risk adds current action and coarse stakes. All are heuristic 0-99 indices. Suspicious context remains passive/watch; strong ordered evidence plus a sensitive action warns. A direct secret request may warn immediately. High amount/new beneficiary alone never warns. Timeline explanations name new evidence, state transitions and intervention changes without quoting source content.
-6. Sixty-second repeat suppression; a different matched workflow, severity increases, a newly requested sensitive action, or a two-bucket financial increase can re-warn. Suppression does not lower the assessed risk. Passive evidence stays visible.
-7. Warning offers cancellation and an explicit continuation confirmation. Both act only on the simulator. Users remain in control; real verification requires an independent official channel.
+1. **Normalization & Negation Guarding**: NFKC, case and invisible-control normalization; sentence and clause-aware negation suppression for credential, remote-control, and fund redirection advice (e.g. "Never transfer funds to a safe account" stays quiet).
+2. **Financial Intent Frames (FIF)**: Local structured representation (`core/financial-intent.mjs`) extracting `claim_direction`, `requested_action`, `purpose`, `counterparty_role`, `temporary_custody`, `verification_suppression`, `financial_redirection` euphemisms ("move liquidity", "settlement handshake", "temporary holding account"), and coarse amount relations. Non-enumerable `raw_amount` is used for in-memory causal matching and scrubbed on JSON serialization.
+3. **Causal Event Relationship Resolver**: Evaluates claim-to-action coupling (`core/event-relation.mjs`) using deictic references ("this QR", "to receive it"), amount match vs divergence penalty (-0.35), counterparty role alignment, and purpose compatibility. Contradictions require a calibrated relationship score $\ge 0.50$, preventing false credit-vs-debit contradictions on multi-party benign workflows (e.g. employer reimbursement followed by roommate expense split).
+4. **Action-Risk Semantics & Action Gating**: Strict separation of `requestedActionRisk` (what the counterparty asks: transfer, scan QR, add beneficiary, install app) from `executionRisk` (user actively executing an action: preparing payment, scanning outgoing QR, entering OTP). A message demanding ₹20,000 raises `requestedActionRisk > 0` with `executionRisk = 0`. Intrusive warnings ("Stop & verify") trigger only when execution occurs.
+5. **PSL-Backed Domain Parser & Brand Spoofing Defense**: Extracts true registrable domains using the Public Suffix List (`core/domain-parser.mjs`) handling multi-part suffixes (`.co.in`, `.co.uk`, etc.). Detects brand mismatches (e.g. `secure-login.sbi.co.in.account-verification.support` identifies brand `SBI`, deceptive text `sbi.co.in`, and true domain `account-verification.support`) alongside adversarial evasion indicators (subdomain padding, percent encoding, homoglyphs, username tricks).
+6. **Ordered Workflow State Machine**: Explicit ordered states cover refund/outgoing QR, authority/pressure/transfer, investment/payment/escalation, task/deposit/withdrawal, KYC/pressure/sensitive request, support/remote access/financial action, and financial redirection. QR is treated as an outgoing intent, not a completed payment.
+7. **Repeat Suppression & Cooldown**: Sixty-second repeat suppression; a different matched workflow, severity increase, newly requested sensitive action, or two-bucket financial increase can re-warn. Suppression does not lower the assessed risk.
 
-## v0.4 shared modules
+## Shared Modules & Architecture
 
-`engine.mjs` preserves historical imports. `input.mjs` owns normalization and strict UPI/link parsing; `rules.mjs` preserves deterministic evidence; `semantic.mjs` exposes a replaceable classifier; `evidence.mjs` reconstructs privacy-safe events; `workflow.mjs` follows ordered states; `policy.mjs` controls interventions; `fingerprint.mjs` and `explanations.mjs` produce enum-only reports and fixed explanations. The frozen word/bigram model remains compatible and adds at most three corroboration points. The new multi-label logistic model maps inspectable multilingual concepts to evidence before workflow reasoning. Both are synthetic-trained and uncalibrated; the concept model has finite lexical coverage. Reproduce its 97-seed coefficients with `npm run train:semantic`.
+- `core/financial-intent.mjs`: Structured Financial Intent Frames with advice negation and privacy protection.
+- `core/event-relation.mjs`: Causal relationship scoring linking pretexts to actions.
+- `core/domain-parser.mjs`: Public Suffix List domain extractor and deceptive brand analyzer.
+- `core/semantic-provider.mjs`: Pluggable semantic interface supporting lightweight concept heads (`ConceptSemanticProvider`) and quantized Multilingual-E5 ONNX embeddings (`MultilingualEncoderSemanticProvider`).
+- `core/intent-contradiction.mjs`: TICE engine enforcing causal relationship verification before raising contradiction flags.
+- `core/policy.mjs`: Dual-risk intervention policy (`requestedActionRisk` + `executionRisk`).
+- `core/workflow.mjs`: Ordered temporal workflow state machine.
+- `core/url-classifier.mjs`: Zero-network PhiUSIIL model inference augmented with PSL brand spoofing cues.
+- `core/trajectory.mjs`: 64-dimensional behavioral trajectory vector builder.
 
 `package.json` is the release version authority. Test/evaluation commands generate `core/version.mjs`; backend configuration and Android build/version assets read the same package version directly. The versioned institution data and registry interface live in `institution-registry.mjs`, so domains/institutions can be extended without changing workflow code. A domain match never authenticates a caller or reduces behavioral risk.
 

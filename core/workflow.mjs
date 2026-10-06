@@ -15,7 +15,8 @@ const paths=[
  {id:'remote',family:'Remote access support',stages:[either(tactic('authority','refund','payment'),e=>e.claimed_identity==='support'||persuasion('trust')(e)),tactic('remote_access')],names:['Support pretext','Remote access request'],score:86},
  {id:'credential',family:'Credential theft',stages:[tactic('credentials')],names:['Secret credential request'],score:86},
  {id:'pressure',family:'Pressure to transfer',stages:[tactic('urgency'),either(tactic('threat','isolation'),persuasion('coercion')),payment],names:['Urgency','Threat or coercion','Transfer request'],score:78},
- {id:'trust',family:'Coercive sensitive request',stages:[either(persuasion('trust','reward'),e=>e.claimed_identity!=='none'),either(tactic('threat','isolation'),persuasion('coercion')),sensitive],names:['Trust or reward pretext','Coercion','Sensitive action'],score:82}
+ {id:'trust',family:'Coercive sensitive request',stages:[either(persuasion('trust','reward'),e=>e.claimed_identity!=='none'),either(tactic('threat','isolation'),persuasion('coercion')),sensitive],names:['Trust or reward pretext','Coercion','Sensitive action'],score:82},
+ {id:'redirection',family:'Financial redirection',stages:[persuasion('financial_redirection','redirection'),e=>Boolean(e.payment)||e.channel==='payment'||e.channel==='qr'],names:['Redirection pretext','Outgoing transfer'],score:84}
 ];
 function follow(events,path){
  // Find the most recent ordered completion, rather than keeping the first

@@ -4,6 +4,7 @@
 // and what the technical / payment protocol actually executes before money leaves.
 
 import { normalize } from './input.mjs';
+import { calculateEventRelationship } from './event-relation.mjs';
 
 export const CONTRADICTION_TYPES = {
  CREDIT_VS_DEBIT: 'credit_vs_debit',
@@ -28,9 +29,10 @@ const SAFE_ACCOUNT_PATTERNS = [
 export function claimsCreditOrRefund(events) {
  for (const e of events) {
   if (e.tactics?.includes('refund')) return true;
+  if (e.frame?.claimed_inbound_money) return true;
+  if (e.frame?.purpose === 'refund' || e.frame?.purpose === 'reimbursement') return true;
   if (e.persuasion_signals?.includes('reward') && !e.tactics?.includes('investment')) return true;
-  const raw = String(e.text || '');
-  if (CREDIT_CLAIM_PATTERNS.some(p => p.test(raw))) return true;
+  if (e.text && CREDIT_CLAIM_PATTERNS.some(p => p.test(String(e.text)))) return true;
  }
  return false;
 }
@@ -42,7 +44,9 @@ export function claimsAuthorityOrSupport(events) {
  return events.some(e => 
   e.claimed_identity === 'authority' || 
   e.claimed_identity === 'support' || 
-  e.tactics?.includes('authority')
+  e.tactics?.includes('authority') ||
+  e.frame?.counterparty_role === 'government' ||
+  e.frame?.counterparty_role === 'bank'
  );
 }
 
@@ -54,19 +58,35 @@ export function checkIntentConsistency(events, current) {
  const contradictions = [];
  const explanations = [];
 
- const hasCreditClaim = claimsCreditOrRefund(events);
  const isOutgoingPayment = Boolean(current.payment) || current.channel === 'payment' || current.channel === 'qr';
 
- // 1. Credit Claim vs Outgoing Debit Protocol Contradiction
- if (hasCreditClaim && isOutgoingPayment) {
-  contradictions.push({
-   type: CONTRADICTION_TYPES.CREDIT_VS_DEBIT,
-   severity: 'critical',
-   claimedIntent: 'Receive money / refund credit',
-   protocolAction: 'Outgoing UPI payment transfer (Debit)',
-   explanation: 'The other party claims you are receiving money, but this action initiates an OUTGOING payment. In UPI, receiving funds NEVER requires scanning a QR or entering a UPI PIN.'
-  });
-  explanations.push('Protocol contradiction: Claimed incoming refund vs actual outgoing UPI payment transfer.');
+ // 1. Credit Claim vs Outgoing Debit Protocol Contradiction (with causal relationship verification)
+ if (isOutgoingPayment) {
+  const creditClaims = events.filter(e => e !== current && (
+   e.tactics?.includes('refund') ||
+   e.frame?.claimed_inbound_money ||
+   e.frame?.purpose === 'refund' ||
+   e.frame?.purpose === 'reimbursement' ||
+   (e.persuasion_signals?.includes('reward') && !e.tactics?.includes('investment')) ||
+   (e.text && CREDIT_CLAIM_PATTERNS.some(p => p.test(String(e.text))))
+  ));
+
+  for (const claim of creditClaims) {
+   const rel = calculateEventRelationship(claim, current, events);
+   if (rel.isRelated) {
+    contradictions.push({
+     type: CONTRADICTION_TYPES.CREDIT_VS_DEBIT,
+     severity: 'critical',
+     claimedIntent: 'Receive money / refund credit',
+     protocolAction: 'Outgoing UPI payment transfer (Debit)',
+     explanation: 'The other party claims you are receiving money, but this action initiates an OUTGOING payment. In UPI, receiving funds NEVER requires scanning a QR or entering a UPI PIN.',
+     relationshipScore: rel.score,
+     factors: rel.positiveFactors
+    });
+    explanations.push(`Protocol contradiction (causal relation score: ${rel.score}): Claimed incoming credit vs actual outgoing UPI payment transfer.`);
+    break;
+   }
+  }
  }
 
  // 2. Official Authority vs Malicious/Coercive Action Mismatch

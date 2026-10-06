@@ -159,9 +159,10 @@
           <div id="result-note" class="result-note"></div>
           <details class="technical">
             <summary>Technical indices</summary>
-            <div class="risk-row">
+            <div class="risk-row" style="grid-template-columns: repeat(3, 1fr); gap: 8px;">
               <div><span class="metric-label">Evidence index</span><strong id="evidence">0<span>/100</span></strong></div>
-              <div><span class="metric-label">Action risk index</span><strong id="risk">0<span>/100</span></strong></div>
+              <div><span class="metric-label">Requested action</span><strong id="requested-risk">0<span>/100</span></strong></div>
+              <div><span class="metric-label">Execution risk</span><strong id="risk">0<span>/100</span></strong></div>
             </div>
             <div class="risk-track"><div id="risk-bar"></div></div>
             <p class="help">Heuristic indices, not probabilities or a safety guarantee.</p>
