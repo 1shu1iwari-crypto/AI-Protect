@@ -2,7 +2,7 @@
 
 > **A pause before you pay.** Privacy-first, hybrid semantic + deterministic recognition of multi-channel scam workflows across messages, links, consented call transcripts, UPI intents, and payment actions. Built for **RAKSHAM Problem Statement 02** (IIT Delhi AI Cybersecurity Hackathon).
 
-![ScamGuard protection desk](docs/screenshots/protection-desktop.png)
+![AI-Protect ScamGuard Platform](docs/screenshots/site-desktop.png)
 
 [![Test Suite](https://img.shields.io/badge/tests-76%20JS%20%2B%2017%20Python%20passing-brightgreen)](#reproducible-evaluation-benchmarks)
 [![Accuracy](https://img.shields.io/badge/PhiUSIIL%20URL-88.57%25%20acc%20%7C%2098.81%25%20prec-blue)](#reproducible-evaluation-benchmarks)
@@ -264,6 +264,8 @@ Open **`http://127.0.0.1:8000`** in your browser.
 ---
 
 ## Android Companion & Post-Call Review
+
+![AI-Protect Mobile Companion](docs/screenshots/app-desktop.png)
 
 The Android companion app (`android/`) provides native integration without sacrificing privacy:
 - **Play Flavor (`assemblePlayDebug`)**: Zero Internet, zero microphone, and zero accessibility permissions. Uses `CallScreeningService` to offer post-call review shortcuts; handles native `ACTION_SEND` text shares.
