@@ -1,28 +1,30 @@
 ## External Dataset Benchmark Results (Reproducible & Non-Circular)
 
-The scientific evaluation suite (`npm run evaluate` / `python evaluation/benchmark.py`) validates ScamGuard against independent, authentic datasets with strict holdout isolation:
+The scientific evaluation suite (`npm run evaluate:all` / `npm run benchmark`) validates ScamGuard against independent, authentic datasets with strict holdout isolation:
 
 1. **PhiUSIIL Phishing URL Benchmark (Domain-Partitioned Holdout)**:
-   - Evaluated on **10,000 held-out URLs** strictly partitioned by registrable domain hash (SHA-256).
+   - Evaluated on **held-out URLs** strictly partitioned by true registrable domain hash with multi-level public suffix handling (e.g., `.co.in`, `.com.au`, `.co.uk`).
    - Zero domain overlap between training (80%) and frozen test set (10%).
-   - Performance: **87.91% accuracy**, **98.69% precision**, **76.45% recall**, **86.16% F1 score**.
+   - Performance: **88.57% accuracy**, **98.81% precision**, **76.86% recall**.
    - Offline, pure JavaScript client inference (`core/url-model.json`) requires 0 DNS lookups and 0 network traffic. High precision prevents alert fatigue on safe browsing.
 
-2. **UCI SMS Alert Fatigue Benchmark (Full Engine Execution)**:
+2. **Authentic SMS Single-Message Alert Burden (UCI SMS Spam Collection)**:
    - Evaluated across all **4,827 authentic legitimate messages** from the UCI SMS Spam Collection through the live `Session.add()` engine.
-   - Result: **1 false alert** (0.02% false alert rate, <1 alert per 1,000 legitimate sessions).
-   - Confirms that ScamGuard's multi-step action-gated decision policy prevents alert fatigue on ordinary conversational text.
+   - Result: **1 false alert** (0.02% false alert rate, <1 alert per 1,000 legitimate messages).
+   - *Scope Note*: Evaluates false-warning rate on isolated authentic SMS text messages. Realistic multi-stage legitimate journeys are separately validated in the 42 synthetic benign workflows.
 
-3. **Leave-One-Family-Out (LOFO) Zero-Day Novelty**:
+3. **Held-Out Family Novelty Separation (LOFO)**:
    - Evaluated mathematical novelty against baseline centroids with the test fraud family genuinely withheld from the prototype reference set.
    - Tested families: Impersonation / Digital Arrest (SG01), Electricity / Utility Disconnection (SG02), Courier Parcel (SG03), Part-Time Job / Task Scam (SG07).
-   - Result: **100% zero-day detection rate** (mean novelty **0.4603** > 0.35 threshold).
+   - Result: **4/4 families separated** (**100% novelty rate**, mean novelty **0.4603** > 0.35 threshold).
+   - *Scope Note*: Measures whether held-out behavioral fraud families remain distinguishable (novelty $\ge$ 0.35) from known family prototypes; it evaluates prototype separation in feature space rather than a population-level zero-day recall claim.
 
 4. **Multilingual Concept Extraction (Raw Text Input)**:
    - Evaluated by stripping ground truth labels and passing raw text directly to the evidence extractor:
    - English: **100% recall**
    - Hinglish: **92.9% recall**
-   - Hindi: **57.1% recall** (honest baseline reflecting vocabulary-based lexical concept extraction; full coverage will benefit from future multilingual sentence embeddings).
+   - Hindi: **57.1% recall**
+   - *Strategic Roadmap Note*: The 57.1% Hindi result provides an honest baseline for dictionary-based matching, highlighting the planned upgrade to a quantized multilingual sentence encoder (e.g., multilingual-e5 / IndicBERT via ONNX) behind ScamGuard's pluggable semantic interface without altering the TICE or workflow logic.
 
 5. **Multi-Channel Regression Harness**:
    - 84 AI-authored synthetic workflows: **42/42 scam workflows warned**, **0/42 ordinary workflows interrupted**, and **29/29 payment scam workflows warned before simulated authorization**. Engine p95 latency is ~**0.20 ms**.

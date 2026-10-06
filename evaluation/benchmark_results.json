@@ -1,12 +1,14 @@
 {
   "benchmark_version": "2.1.0",
-  "evaluation_date": "2026-10-06 13:03:38 UTC",
-  "total_execution_seconds": 2.29,
+  "evaluation_date": "2026-10-06 14:40:58 UTC",
+  "total_execution_seconds": 4.93,
   "summary": {
-    "phiusiil_url_accuracy": 87.91,
-    "phiusiil_url_precision": 98.69,
-    "phiusiil_url_recall": 76.45,
+    "phiusiil_url_accuracy": 88.57,
+    "phiusiil_url_precision": 98.81,
+    "phiusiil_url_recall": 76.86,
+    "real_sms_single_message_alert_burden": 0.0207,
     "alerts_per_100_legitimate_sessions": 0.0207,
+    "held_out_family_novelty_separation": 100.0,
     "zero_day_holdout_family_recall": 100.0,
     "english_scam_recall": 100,
     "hinglish_scam_recall": 92.9,
@@ -16,15 +18,15 @@
     "url_offline_model": {
       "corpus": "PhiUSIIL Phishing URL Dataset (Frozen Domain Holdout)",
       "samples_evaluated": 10000,
-      "accuracy": 0.8791,
-      "precision": 0.9869,
-      "recall": 0.7645,
-      "f1_score": 0.8616,
-      "per_url_latency_microseconds": 17.04,
-      "tp": 3763,
-      "fp": 50,
-      "tn": 5028,
-      "fn": 1159,
+      "accuracy": 0.8857,
+      "precision": 0.9881,
+      "recall": 0.7686,
+      "f1_score": 0.8647,
+      "per_url_latency_microseconds": 50.42,
+      "tp": 3651,
+      "fp": 44,
+      "tn": 5206,
+      "fn": 1099,
       "leakage_prevention": "Stratified by registrable domain hash; 0 test domains exist in train set"
     },
     "alert_burden_uci_sms": {
@@ -32,8 +34,10 @@
       "legitimate_messages_tested": 4827,
       "false_alerts_triggered": 1,
       "alerts_per_100_legitimate_sessions": 0.0207,
+      "real_sms_single_message_alert_burden": 0.0207,
       "alert_fatigue_compliance": true,
       "evaluated_engine": "ScamGuard Session.add({ channel: \"message\", text })",
+      "scope_note": "Evaluates false-warning rate on isolated authentic SMS text messages. Realistic multi-stage legitimate journeys are separately validated in the 42 synthetic benign workflows.",
       "sample_triggered": [
         {
           "text": "Send me your id and password",
@@ -44,9 +48,12 @@
     "leave_one_family_out": {
       "methodology": "Leave-One-Family-Out (LOFO) Centroid Generalization in 64-D Trajectory Space",
       "families_evaluated": 4,
+      "held_out_family_novelty_separation_rate": 100.0,
+      "lofo_prototype_novelty_detection": "4/4 families",
       "zero_day_novelty_detection_rate": 100.0,
       "mean_novelty_score": 0.4603,
       "novelty_threshold": 0.35,
+      "scope_note": "Measures whether held-out behavioral fraud families remain distinguishable (novelty >= 0.35) from known family prototypes; it evaluates prototype separation in feature space rather than a population-level zero-day recall claim.",
       "family_breakdown": {
         "SG01_digital_arrest": {
           "family_code": "SG01",
@@ -116,7 +123,7 @@
         "Devanagari Hindi (हिंदी)",
         "Romanized Hinglish"
       ],
-      "notes": "Devanagari Hindi relies on keyword patterns; multilingual ONNX model is the planned production enhancement."
+      "strategic_roadmap_note": "Lightweight lexical detector covers English (100%) and Hinglish (92.9%), while Hindi script baseline is 57.1%. The pluggable semantic classifier interface is designed to host a quantized multilingual encoder (e.g. multilingual-e5 / IndicBERT via ONNX) as the next upgrade without modifying TICE or workflow engines."
     }
   },
   "scientific_rigor_notes": [

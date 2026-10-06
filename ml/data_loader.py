@@ -58,11 +58,41 @@ def load_sms_spam_collection(limit=None):
     return records
 
 
-def get_phiusiil_domain_split(domain_str):
-    """Deterministically partition URLs by registrable domain to prevent data leakage."""
+def extract_registrable_domain(domain_str):
+    """Extract true registrable domain handling multi-level public suffixes (e.g. .co.in, .com.au, .co.uk)."""
     d = str(domain_str or '').lower().strip().removeprefix('www.')
     parts = d.split('.')
-    reg = '.'.join(parts[-2:]) if len(parts) >= 2 else d
+    if len(parts) <= 2:
+        return d
+    multi_level_tlds = {
+        'co.in', 'com.in', 'net.in', 'org.in', 'gov.in', 'ac.in', 'edu.in', 'res.in', 'gen.in', 'ind.in',
+        'co.uk', 'org.uk', 'me.uk', 'ltd.uk', 'plc.uk', 'net.uk', 'sch.uk', 'ac.uk', 'gov.uk',
+        'com.au', 'net.au', 'org.au', 'edu.au', 'gov.au', 'asn.au', 'id.au',
+        'co.nz', 'net.nz', 'org.nz', 'govt.nz', 'ac.nz',
+        'co.za', 'org.za', 'net.za', 'gov.za', 'ac.za',
+        'com.br', 'net.br', 'org.br', 'gov.br', 'edu.br',
+        'co.jp', 'ne.jp', 'or.jp', 'go.jp', 'ac.jp', 'ed.jp',
+        'com.sg', 'net.sg', 'org.sg', 'gov.sg', 'edu.sg',
+        'com.my', 'net.my', 'org.my', 'gov.my', 'edu.my',
+        'com.hk', 'net.hk', 'org.hk', 'gov.hk', 'edu.hk',
+        'com.tw', 'net.tw', 'org.tw', 'gov.tw', 'edu.tw',
+        'com.tr', 'net.tr', 'org.tr', 'gov.tr', 'edu.tr',
+        'co.kr', 'ne.kr', 'or.kr', 're.kr', 'pe.kr', 'go.kr',
+        'com.mx', 'net.mx', 'org.mx', 'gob.mx', 'edu.mx',
+        'com.ar', 'net.ar', 'org.ar', 'gob.ar', 'edu.ar',
+        'com.co', 'net.co', 'org.co', 'gov.co', 'edu.co',
+        'com.pk', 'net.pk', 'org.pk', 'gov.pk', 'edu.pk',
+        'com.ng', 'org.ng', 'gov.ng', 'edu.ng', 'net.ng'
+    }
+    two_part_suffix = f'{parts[-2]}.{parts[-1]}'
+    if two_part_suffix in multi_level_tlds and len(parts) >= 3:
+        return f'{parts[-3]}.{two_part_suffix}'
+    return f'{parts[-2]}.{parts[-1]}'
+
+
+def get_phiusiil_domain_split(domain_str):
+    """Deterministically partition URLs by true registrable domain to prevent data leakage."""
+    reg = extract_registrable_domain(domain_str)
     h = int(hashlib.sha256(reg.encode('utf-8')).hexdigest()[:8], 16) % 100
     if h < 80:
         return 'train'

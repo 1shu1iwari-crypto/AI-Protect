@@ -133,8 +133,10 @@ def evaluate_uci_alert_burden(sample_limit=None):
         'legitimate_messages_tested': total_ham,
         'false_alerts_triggered': false_warnings,
         'alerts_per_100_legitimate_sessions': round(false_alert_rate, 4),
+        'real_sms_single_message_alert_burden': round(false_alert_rate, 4),
         'alert_fatigue_compliance': false_alert_rate < 1.0,
         'evaluated_engine': 'ScamGuard Session.add({ channel: "message", text })',
+        'scope_note': 'Evaluates false-warning rate on isolated authentic SMS text messages. Realistic multi-stage legitimate journeys are separately validated in the 42 synthetic benign workflows.',
         'sample_triggered': res.get('examples', [])
     }
 
@@ -172,13 +174,17 @@ def evaluate_leave_one_family_out():
 
     novelty_detection_rate = (sum(1 for f in family_results.values() if f['flagged_as_emerging_zero_day']) / max(1, len(family_results))) * 100.0
     mean_novelty = sum(f['novelty_score'] for f in family_results.values()) / max(1, len(family_results))
+    separated_count = sum(1 for f in family_results.values() if f['flagged_as_emerging_zero_day'])
 
     return {
         'methodology': 'Leave-One-Family-Out (LOFO) Centroid Generalization in 64-D Trajectory Space',
         'families_evaluated': len(family_results),
+        'held_out_family_novelty_separation_rate': round(novelty_detection_rate, 1),
+        'lofo_prototype_novelty_detection': f"{separated_count}/{len(family_results)} families",
         'zero_day_novelty_detection_rate': round(novelty_detection_rate, 1),
         'mean_novelty_score': round(mean_novelty, 4),
         'novelty_threshold': 0.35,
+        'scope_note': 'Measures whether held-out behavioral fraud families remain distinguishable (novelty >= 0.35) from known family prototypes; it evaluates prototype separation in feature space rather than a population-level zero-day recall claim.',
         'family_breakdown': family_results
     }
 
@@ -236,7 +242,7 @@ def evaluate_multilingual_robustness():
     return {
         'multilingual_breakdown': metrics,
         'supported_dialects': ['Standard English', 'Devanagari Hindi (हिंदी)', 'Romanized Hinglish'],
-        'notes': 'Devanagari Hindi relies on keyword patterns; multilingual ONNX model is the planned production enhancement.'
+        'strategic_roadmap_note': 'Lightweight lexical detector covers English (100%) and Hinglish (92.9%), while Hindi script baseline is 57.1%. The pluggable semantic classifier interface is designed to host a quantized multilingual encoder (e.g. multilingual-e5 / IndicBERT via ONNX) as the next upgrade without modifying TICE or workflow engines.'
     }
 
 
@@ -259,7 +265,7 @@ def run_full_benchmark():
 
     print("\n[3/4] Evaluating Leave-One-Family-Out Trajectory Novelty Generalization...")
     lofo_res = evaluate_leave_one_family_out()
-    print(f"      Zero-Day Novelty Detection Rate: {lofo_res['zero_day_novelty_detection_rate']}% (Mean Novelty: {lofo_res['mean_novelty_score']})")
+    print(f"      Held-Out Family Novelty Separation: {lofo_res['held_out_family_novelty_separation_rate']}% (Mean Novelty: {lofo_res['mean_novelty_score']})")
 
     print("\n[4/4] Evaluating Multilingual Robustness on Raw Text (No Ground-Truth Leakage)...")
     multi_res = evaluate_multilingual_robustness()
@@ -277,8 +283,10 @@ def run_full_benchmark():
             'phiusiil_url_accuracy': round(url_res.get('accuracy', 0.905) * 100, 2),
             'phiusiil_url_precision': round(url_res.get('precision', 0.980) * 100, 2),
             'phiusiil_url_recall': round(url_res.get('recall', 0.821) * 100, 2),
+            'real_sms_single_message_alert_burden': alert_res['alerts_per_100_legitimate_sessions'],
             'alerts_per_100_legitimate_sessions': alert_res['alerts_per_100_legitimate_sessions'],
-            'zero_day_holdout_family_recall': lofo_res['zero_day_novelty_detection_rate'],
+            'held_out_family_novelty_separation': lofo_res['held_out_family_novelty_separation_rate'],
+            'zero_day_holdout_family_recall': lofo_res['held_out_family_novelty_separation_rate'],
             'english_scam_recall': multi_res['multilingual_breakdown'].get('en', {}).get('scam_recall', 100.0),
             'hinglish_scam_recall': multi_res['multilingual_breakdown'].get('hinglish', {}).get('scam_recall', 92.9),
             'hindi_scam_recall': multi_res['multilingual_breakdown'].get('hi', {}).get('scam_recall', 57.1)

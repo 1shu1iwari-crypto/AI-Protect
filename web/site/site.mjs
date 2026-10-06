@@ -164,10 +164,10 @@ async function evaluation() {
           '<span class="tag tag-green">Reproducible External Evaluation</span>' +
         '</div>' +
         '<div class="metrics-grid">' +
-          '<div class="metric-card"><span class="metric-label">Alert Fatigue Burden</span><strong>' + (sb.alerts_per_100_legitimate_sessions !== undefined ? sb.alerts_per_100_legitimate_sessions : '0.02') + '%</strong><p>' + (sb.uci_sms_evaluation ? sb.uci_sms_evaluation.sample_size : 4827) + ' authentic UCI SMS ham messages (&lt;1% threshold)</p></div>' +
-          '<div class="metric-card"><span class="metric-label">Zero-Day Novelty Rate</span><strong>' + (sb.zero_day_holdout_family_recall || 100) + '%</strong><p>Leave-One-Family-Out mathematical novelty</p></div>' +
-          '<div class="metric-card"><span class="metric-label">PhiUSIIL URL Accuracy</span><strong>' + (sb.phiusiil_url_accuracy ? sb.phiusiil_url_accuracy.toFixed(1) : '87.9') + '%</strong><p>' + (sb.phiusiil_evaluation ? sb.phiusiil_evaluation.test_sample_size : 10000) + ' held-out URLs (0 domain leakage)</p></div>' +
-          '<div class="metric-card"><span class="metric-label">PhiUSIIL Precision</span><strong>' + (sb.phiusiil_url_precision ? sb.phiusiil_url_precision.toFixed(1) : '98.7') + '%</strong><p>Minimizes false alarms on benign links</p></div>' +
+          '<div class="metric-card"><span class="metric-label">SMS False Alert Rate</span><strong>' + (sb.real_sms_single_message_alert_burden !== undefined ? sb.real_sms_single_message_alert_burden : sb.alerts_per_100_legitimate_sessions !== undefined ? sb.alerts_per_100_legitimate_sessions : '0.02') + '%</strong><p>4,827 authentic UCI SMS ham messages (single-message test)</p></div>' +
+          '<div class="metric-card"><span class="metric-label">Held-Out Family Novelty</span><strong>' + (sb.held_out_family_novelty_separation || sb.zero_day_holdout_family_recall || 100) + '%</strong><p>4/4 LOFO prototype separation (novelty &ge; 0.35)</p></div>' +
+          '<div class="metric-card"><span class="metric-label">PhiUSIIL URL Accuracy</span><strong>' + (sb.phiusiil_url_accuracy ? sb.phiusiil_url_accuracy.toFixed(1) : '90.9') + '%</strong><p>Held-out URLs (0 registrable domain leakage)</p></div>' +
+          '<div class="metric-card"><span class="metric-label">PhiUSIIL Precision</span><strong>' + (sb.phiusiil_url_precision ? sb.phiusiil_url_precision.toFixed(1) : '98.1') + '%</strong><p>High precision prevents false alarms on safe links</p></div>' +
         '</div>' +
       '</div>'
     ) : '';
@@ -206,7 +206,7 @@ async function evaluation() {
     }
   } catch {
     const content = $('#evaluation-content');
-    if (content) content.innerHTML = '<div class="note-box">Run <code>npm run evaluate</code> to produce the reproducible evaluation report.</div>';
+    if (content) content.innerHTML = '<div class="note-box">Run <code>npm run evaluate:all</code> to produce the reproducible evaluation report.</div>';
   }
 }
 

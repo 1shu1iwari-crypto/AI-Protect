@@ -21,8 +21,10 @@ On Windows or macOS/Linux, `npm start` runs the server. If `numpy`/`scikit-learn
 
 ```bash
 npm test
-npm run evaluate
+npm run evaluate:all
 ```
+
+`npm run evaluate:all` reproduces the complete evaluation: running `python evaluation/benchmark.py` against independent datasets (PhiUSIIL, UCI SMS, LOFO, multilingual) followed by `node evaluation/run.mjs` across all 84 multi-channel workflows. Individual suites can be run via `npm run benchmark` or `npm run evaluate`.
 
 Open **http://127.0.0.1:8000**. Choose **Start KYC story** for a message → user-reviewed call → WhatsApp link → outgoing QR → STOP & VERIFY journey. **Try an ordinary payment** demonstrates a quiet legitimate flow. The presentation site at `/` showcases the architecture, reproducible benchmarks, and live Scam Radar clustering.
 
@@ -35,7 +37,7 @@ The isolated [Android companion](android/README.md) adds CallScreeningService, p
 ## What is built
 
 - **TICE (Transaction Intent Consistency Engine)**: Detects logical contradictions between sender pretext and financial action before money moves (e.g., verbal refund claims paired with outgoing debit requests, official authority claims demanding remote access or APK sideloads, and investment withdrawals demanding advance unlock fees).
-- **Zero-Network PhiUSIIL URL Lexical AI**: Offline JavaScript inference over 21 static lexical features (`core/url-model.json`), trained with scikit-learn on domain-partitioned PhiUSIIL phishing URLs without network lookups.
+- **Zero-Network PhiUSIIL URL Lexical AI**: Offline JavaScript inference over 10 static lexical features (`core/url-model.json`), trained with scikit-learn on domain-partitioned PhiUSIIL phishing URLs without network lookups.
 - **64-Dimensional Behavioral Trajectory Representation**: Maps multi-step scam sessions into an inspectable 64-dimensional behavioral feature vector capturing tactics, channel hops, pacing, and intent contradictions without storing or transmitting raw text, audio, or payee details.
 - **Scam Radar (HDBSCAN + River ADWIN)**: Unsupervised density clustering over behavioral trajectories to detect emerging zero-day attack compositions, paired with River ADWIN streaming drift detection to identify campaign velocity shifts upon report ingestion.
 - **Action-Aware Guarded Decision Policy**: Structured privacy-safe evidence events, explicit ordered workflow states, session expiry, bounded event memory, separate heuristic evidence/workflow/action scores, action-aware warning gates, repeat suppression, and re-warning for increased financial stakes.
@@ -43,11 +45,11 @@ The isolated [Android companion](android/README.md) adds CallScreeningService, p
 
 ## Measured evidence and its limits
 
-`evaluation/results.json` is generated directly by `npm run evaluate`:
-- **External PhiUSIIL Phishing URL Holdout**: Evaluated on 10,000 URLs partitioned strictly by registrable domain hash (0 domain overlap between train and test): **87.91% accuracy**, **98.69% precision**, **76.45% recall**, **86.16% F1 score** with 0 network lookups.
-- **UCI SMS Alert Fatigue Benchmark**: All 4,827 authentic legitimate messages from the UCI SMS Spam Collection evaluated through the live ScamGuard engine: **1 false alert** (**0.02% false alert rate**), confirming <1 alert per 1,000 legitimate sessions.
-- **Leave-One-Family-Out (LOFO) Zero-Day Novelty**: Evaluated across RBI-derived fraud families with held-out centroids genuinely excluded: **100% zero-day detection rate** (mean mathematical novelty **0.4603** > 0.35 threshold).
-- **Multilingual Concept Extraction**: Tested on raw text without ground-truth label leakage: English **100% recall**, Hinglish **92.9% recall**, Hindi **57.1% recall** (honest lexical baseline).
+`evaluation/results.json` is generated directly by `npm run evaluate:all`:
+- **External PhiUSIIL Phishing URL Holdout**: Evaluated on held-out URLs partitioned strictly by true registrable domain with multi-level public suffix handling (0 domain overlap between train and test): **88.57% accuracy**, **98.81% precision**, **76.86% recall** with 0 network lookups. High precision minimizes false alarms on benign links.
+- **Authentic SMS Single-Message Alert Burden**: All 4,827 authentic legitimate messages from the UCI SMS Spam Collection evaluated through the live ScamGuard engine: **1 false alert** (**0.02% false alert rate** on isolated messages). Realistic multi-stage legitimate journeys are separately validated in the 42 synthetic benign workflows.
+- **Held-Out Family Novelty Separation (LOFO)**: Evaluated across RBI-derived fraud families with held-out prototypes genuinely excluded: **4/4 families separated** (**100%**, mean novelty **0.4603** > 0.35 threshold). *Note: This measures whether held-out behavioral families remain distinguishable from known family prototypes; it evaluates prototype separation in feature space rather than a population-level zero-day recall claim.*
+- **Multilingual Concept Extraction**: Tested on raw text without ground-truth label leakage: English **100% recall**, Hinglish **92.9% recall**, Hindi **57.1% recall**. *Note: The 57.1% Hindi baseline reflects lexical dictionary coverage and motivates our planned upgrade to a quantized multilingual sentence encoder (e.g. multilingual-e5 / IndicBERT via ONNX) behind ScamGuard's pluggable semantic interface.*
 - **Synthetic Regression Harness**: 84 multi-channel workflows: **42/42 scam workflows warned**, **0/42 ordinary workflows interrupted**, **100% pre-payment coverage**. Engine p95 latency is ~**0.20 ms**.
 
 ## Phone and browser checks

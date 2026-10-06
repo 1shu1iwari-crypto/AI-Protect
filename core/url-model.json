@@ -15,24 +15,24 @@
     "brand_spoofing"
   ],
   "weights": {
-    "url_length_norm": 33.425578,
-    "domain_length_norm": -5.567419,
-    "is_ip": 0.037163,
-    "subdomain_count_norm": -6.58411,
-    "suspicious_tld": 2.770679,
-    "digit_ratio_scaled": 8.493859,
-    "special_char_scaled": 5.422045,
-    "is_https": -10.572342,
-    "has_obfuscation": 1.909307,
-    "brand_spoofing": 2.970844
+    "url_length_norm": 33.417048,
+    "domain_length_norm": -5.513238,
+    "is_ip": 0.038834,
+    "subdomain_count_norm": -6.577604,
+    "suspicious_tld": 2.7397,
+    "digit_ratio_scaled": 8.636895,
+    "special_char_scaled": 5.288755,
+    "is_https": -10.663592,
+    "has_obfuscation": 1.968705,
+    "brand_spoofing": 2.935718
   },
-  "intercept": 2.920585,
+  "intercept": 2.977022,
   "metrics": {
-    "accuracy": 0.9053,
-    "precision": 0.9798,
-    "recall": 0.8207,
-    "f1_score": 0.8932,
-    "validation_samples": 6496,
+    "accuracy": 0.9092,
+    "precision": 0.9805,
+    "recall": 0.8229,
+    "f1_score": 0.8948,
+    "validation_samples": 6781,
     "partition_strategy": "registrable_domain_sha256_hash_split"
   },
   "suspicious_tlds": [

@@ -49,10 +49,15 @@ const ablation=scenarios.map(fixture=>{
  return {id:fixture.id,rules_only_warned:rules.warned,deterministic_only_warned:rules.warned,hybrid_warned:rows.find(row=>row.id===fixture.id).warned};
 });
 let scientificBenchmarks = null;
- try {
+try {
   const bmFile = await readFile(new URL('benchmark_results.json', import.meta.url), 'utf8');
   scientificBenchmarks = JSON.parse(bmFile);
- } catch {}
+  console.log('[Notice] External benchmarks loaded from evaluation/benchmark_results.json.');
+  console.log('         To recompute external benchmarks from raw datasets: npm run benchmark');
+  console.log('         To recompute both external benchmarks and synthetic regression: npm run evaluate:all\n');
+} catch {
+  console.log('[Notice] benchmark_results.json not found. Run "npm run benchmark" to compute external benchmarks.\n');
+}
  const out={
   generated_at:new Date().toISOString(),version:VERSION,
   environment:`Node ${process.version}, ${process.platform}/${process.arch}; development machine CPU, not a phone`,
