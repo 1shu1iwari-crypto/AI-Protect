@@ -64,7 +64,7 @@ class Handler(SimpleHTTPRequestHandler):
     def end_headers(self):
         if self.path=='/web/sw.js':self.send_header('Service-Worker-Allowed','/')
         self.send_header('X-Content-Type-Options','nosniff');self.send_header('Referrer-Policy','no-referrer')
-        self.send_header('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+        self.send_header('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self'; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'")
         self.send_header('Permissions-Policy','microphone=(), camera=(self), geolocation=()')
         self.send_header('Cache-Control','no-store' if self.path.startswith('/api/') else 'no-cache');super().end_headers()
     def respond(self,status,payload):
@@ -75,7 +75,9 @@ class Handler(SimpleHTTPRequestHandler):
         if path=='/api/health':return self.respond(200,{'status':'ok','mode':'local prototype','retention_hours':24})
         if path=='/api/campaigns':return self.respond(200,{'campaigns':self.server.store.campaigns()})
         if path=='/api/config':return self.respond(200,{'version':VERSION,'external_analytics':bool(os.environ.get('POSTHOG_PROJECT_TOKEN'))})
-        if path=='/':self.path='/web/index.html'
+        # '/' is the hackathon presentation site; '/app' is the user-facing app (also bundled in the Android WebView).
+        if path=='/':self.path='/web/site/index.html'
+        elif path=='/app':self.path='/web/index.html'
         elif not (path.startswith(('/web/','/core/','/simulator/','/evaluation/'))):return self.respond(404,{'error':'Not found'})
         target=(ROOT/self.path.split('?')[0].lstrip('/')).resolve()
         allowed=any(target.is_relative_to(ROOT/d) for d in ['web','core','simulator','evaluation'])

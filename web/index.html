@@ -1,15 +1,270 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#192e2c"><title>ScamGuard — A pause before you pay</title><link rel="icon" href="/web/icon.svg" type="image/svg+xml"><link rel="manifest" href="/web/manifest.json"><link rel="stylesheet" href="/web/styles.css"><script src="/web/vendor/jsQR.js" defer></script><script type="module" src="/web/app.mjs"></script></head>
-<body><div class="app"><aside class="sidebar"><a class="brand" href="/" aria-label="ScamGuard home"><img src="/web/icon.svg" alt=""><span>ScamGuard<small>INDIA / PRIVATE BY DESIGN</small></span></a><div class="nav-caption">YOUR WORKSPACE</div><nav aria-label="Main navigation"><button data-view="protect" class="nav active"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6z M8 12l3 3 5-6"/></svg> <span>Check</span></button><button data-view="reviews" class="nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z M8 8h8 M8 12h8 M8 16h5"/></svg><span>Reviews</span></button><button data-view="lab" class="nav secondary-nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6 M10 3v6l-6 10c-1 2 1 2 1 2h14s2 0 1-2L14 9V3 M7 15h10"/></svg> <span>Scenario lab</span><small id="scenario-total">52</small></button><button data-view="campaigns" class="nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z M9 9h6 M9 13h6 M9 17h3"/></svg> <span>Campaigns</span></button><button data-view="evaluation" class="nav secondary-nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16 M7 16V9 M12 16V4 M17 16v-5"/></svg> <span>Validation</span></button><button data-view="privacy" class="nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v10H6z M8 11V7a4 4 0 0 1 8 0v4"/></svg> <span>Privacy</span></button></nav><div class="side-note"><span class="dot"></span> Local checks are ready<p>Your words stay on this device. You choose what to check.</p></div><div class="contest">BUILT FOR RAKSHAM 2026<br><strong>02 · Scam pattern recognition</strong></div></aside>
-<main><header class="topbar"><div><span class="crumb">SCAMGUARD / </span><span id="page-name">Protection desk</span></div><div class="top-right"><span id="connectivity" class="status-pill">● On-device engine</span><button id="install-app" class="text-button" hidden>Install app ↗</button><button id="clear-session" class="text-button">Clear session ↺</button></div></header>
-<section id="view-protect" class="view"><div class="hero"><div><div class="eyebrow">A PAUSE BEFORE YOU PAY</div><h1>Something feels<br>suspicious<span>?</span></h1><h1 class="mobile-heading">Something feels<br>suspicious<span>?</span></h1><p>A scam rarely happens in one message. Connect the dots across a conversation, a link, and a payment — before money moves.</p><p class="mobile-description">Paste, share or scan. Connect each request in one private review.</p><div class="hero-tags"><span>✓ Checks run locally</span><span>✓ No audio saved</span><span>✓ You stay in control</span></div></div><div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="art-shield">S<span>GUARD</span></div><div class="float-chip chip-a">Message <b>↗</b></div><div class="float-chip chip-b">UPI request <b>↗</b></div><div class="float-chip chip-c">Context connected <b>✓</b></div></div></div>
-<div class="review-entry"><button class="primary" id="review-call">🛡 Something feels wrong / Review Call</button><button class="text-button" id="new-review">New review +</button><span id="active-review-label"></span></div><div class="desk-grid"><section class="card checker"><div class="card-heading"><div><div class="eyebrow">01 / CHECK SOMETHING</div><h2>Check a request.</h2></div><span class="local-label">LOCAL ONLY</span></div><div class="sensor-tabs" role="tablist" aria-label="Event channel"><button data-channel="message" class="selected" role="tab" aria-selected="true">Message</button><button data-channel="link" role="tab" aria-selected="false">Link</button><button data-channel="qr" role="tab" aria-selected="false">UPI / QR</button><button data-channel="call" role="tab" aria-selected="false">Call text</button><button data-channel="payment" role="tab" aria-selected="false">Payment</button></div><form id="check-form"><div id="text-input"><label id="input-label" for="content">Paste a message you want to check</label><textarea id="content" placeholder="Your refund is ready. Scan this QR to receive money…" maxlength="10000" rows="5"></textarea><p id="input-help" class="help">Only content you submit is checked. Text is cleared after analysis.</p><div id="qr-import" hidden><button class="outline" type="button" id="scan-camera">Scan with camera</button> <label class="file-button" for="qr-file">Read a QR screenshot</label><input type="file" id="qr-file" accept="image/*"><span class="help">Your image stays on this device.</span></div></div><div id="payment-input" hidden><div class="form-row"><div><label for="amount">Amount (INR)</label><input id="amount" type="number" min="0.01" max="10000000" step="0.01" value="2500"></div><div><label for="payee">Payee label (optional)</label><input id="payee" maxlength="100" placeholder="Demo merchant"></div></div><label class="check-label"><input id="new-payee" type="checkbox" checked> First payment to this beneficiary</label><p class="help">A simulated payment. No money moves, and no bank or UPI account is connected.</p></div><div id="form-error" class="error" role="alert"></div><div class="form-footer"><span>◇ No raw text is stored</span><button class="primary" type="submit">Check this event <span>↗</span></button></div></form></section>
-<section class="card session-card"><div class="card-heading"><div><div class="eyebrow">02 / CONNECT THE DOTS</div><h2>Current review</h2></div><span id="event-count" class="count-pill">0 events</span></div><div id="session-empty" class="empty-session"><div class="empty-symbol">◌</div><h3>Start with one thing.</h3><p>Each check adds context. We interrupt only when evidence meets a risky action.</p></div><div id="session-result" hidden><div id="verification-evidence" class="verification-evidence"></div><details class="technical"><summary>Technical indices</summary><div class="risk-row"><div><span class="metric-label">Evidence index</span><strong id="evidence">0<span>/100</span></strong></div><div><span class="metric-label">Action risk index</span><strong id="risk">0<span>/100</span></strong></div></div><div class="risk-track"><div id="risk-bar"></div></div><p class="help">Heuristic indices, not probabilities or a safety guarantee.</p></details><div class="workflow-label"><span id="stage">Normal</span><span id="severity">Quiet</span></div><div id="timeline" class="timeline"></div><div id="result-note" class="result-note"></div></div><div class="session-bottom"><span id="latency">Waiting for your first check</span><button id="export-session" class="text-button" disabled>Export redacted report ↗</button></div></section></div>
-<section id="alert-card" class="alert-card" tabindex="-1" hidden role="alert" aria-live="assertive"><div class="alert-mark">!</div><div><div class="eyebrow">PAUSE AND VERIFY</div><h2 id="alert-title"></h2><p id="alert-reason"></p><p>Stop this request. Verify using an official channel you find independently. Never share a PIN or OTP.</p><div class="alert-actions"><button id="cancel-payment" class="primary">Cancel simulated payment</button><button id="continue-payment" class="outline">Review and continue simulation</button><button id="false-positive" class="text-button">This seems legitimate</button></div><div id="decision-result" aria-live="polite"></div></div></section>
-<section id="action-center" class="card action-center" hidden><div class="eyebrow">YOUR NEXT STEP</div><h2>STOP &amp; VERIFY</h2><p>Did you already send money?</p><div class="response-choice"><button id="paid-no" class="outline">No</button><button id="paid-yes" class="primary">Yes</button></div><div id="response-plan" aria-live="polite"></div><div class="alert-actions"><button id="independent-verify" class="outline">Verify independently</button><button id="block-ignore" class="outline">Block / ignore</button><button id="report-review" class="outline">Optional pattern report</button><button id="save-review" class="outline">Export redacted evidence</button><button id="delete-review" class="text-button">Delete review</button></div><p class="help">External reporting routes open only when selected. No report is submitted automatically.</p></section><section class="starter"><div><div class="eyebrow">CONTEST WALKTHROUGH · SIMULATED</div><h2>A bank claim. A different destination.</h2><p>Follow a KYC message, suspicious call and outgoing QR in one review.</p></div><button class="primary" id="hero-demo">Start KYC story →</button><button class="outline" id="normal-demo">Try an ordinary payment</button></section><section class="starter"><div><div class="eyebrow">SEE THE WHOLE STORY</div><h2>The refund that sends money.</h2><p>Try a synthetic message → QR → payment journey. Watch the warning arrive at the risky transition.</p></div><button class="outline" id="try-demo">Open the guided demo →</button></section><footer>Prototype · Synthetic examples · Camera is optional for QR scanning. No access to your calls, notifications, bank accounts, or payment apps.</footer></section>
-<section id="view-reviews" class="view" hidden><div class="section-title"><div class="eyebrow">YOUR PRIVATE REVIEWS</div><h1>Keep the whole story together.</h1><p>Only derived signals are retained. Add shared content to the relevant review; start a new review for an unrelated request.</p></div><div id="review-list"></div><button class="outline" id="reviews-new">Start another review</button><div class="secondary-links"><button class="text-button" data-view="lab">Scenario lab</button><button class="text-button" data-view="evaluation">Validation results</button></div></section><section id="view-lab" class="view" hidden><div class="section-title"><div class="eyebrow">CONTROLLED TEST ENVIRONMENT</div><h1>One story. Every signal.</h1><p>Replay synthetic scams and ordinary payments through the same engine. Calls use typed transcripts, not audio.</p></div><div class="lab-grid"><div id="scenario-list" class="scenario-list"></div><section class="card replay"><div class="card-heading"><div><div class="eyebrow" id="scenario-type">SYNTHETIC SCENARIO</div><h2 id="scenario-name"></h2></div><span id="step-count" class="count-pill"></span></div><p id="scenario-description"></p><div id="replay-preview" class="replay-preview"></div><div class="replay-controls"><button class="primary" id="next-event">Check next event →</button><button class="outline" id="run-all">Run full story</button><button class="text-button" id="restart-demo">Restart ↺</button></div><div id="replay-output" class="replay-output" aria-live="polite"></div><button id="open-desk" class="text-button">View this session at the protection desk ↗</button></section></div></section>
-<section id="view-campaigns" class="view" hidden><div class="section-title"><div class="eyebrow">PATTERNS ACROSS CONSENTED REPORTS</div><h1>Signals, then human judgment.</h1><p>Repeated tactic fingerprints and their order form candidate clusters. A two-window change signal helps analysts notice emerging patterns. Candidates are unverified reports, never an automatic blacklist.</p></div><div class="campaign-toolbar"><button id="refresh-campaigns" class="outline">Refresh inbox ↻</button><button id="seed-campaigns" class="primary">Generate 5 synthetic reports</button><button id="seed-emergence" class="outline">Replay a campaign shift</button><span id="campaign-status" role="status"></span></div><div id="campaign-list"></div><div class="card review-controls"><h2>Analyst review</h2><p>Review changes the candidate status only. It does not publish threat intelligence or block a payee.</p><label for="review-token">Local analyst token</label><input id="review-token" type="password" autocomplete="off" placeholder="Token configured by the server operator"><p class="help">Kept in this field only. Server must have SCAMGUARD_REVIEW_TOKEN configured.</p></div></section>
-<section id="view-evaluation" class="view" hidden><div class="section-title"><div class="eyebrow">EVIDENCE, NOT A CLAIM</div><h1>Put the pause to the test.</h1><p>These results cover 84 AI-authored synthetic workflows. Original smoke and challenge suites remain separately comparable, with 32 added adversarial cases. They do not establish performance on real scams or real phones.</p></div><div id="evaluation-content"></div><div class="card"><h2>What still needs validation</h2><p>Consented or licensed real conversations, regional-language coverage, paraphrase attacks, device battery and latency, campaign poisoning, and usability with vulnerable users. Holdout scenarios test composition of known tactics; they are not proof of unseen-scam generalization.</p></div></section>
-<section id="view-privacy" class="view" hidden><div class="section-title"><div class="eyebrow">YOU CHOOSE WHAT LEAVES</div><h1>Privacy starts with a choice.</h1><p>Checks work locally. Sharing a pattern and sharing usage analytics are separate, optional decisions.</p></div><div class="privacy-grid"><section class="card"><div class="eyebrow">CURRENT SESSION</div><h2>A pattern, without your words.</h2><p>Only tactics, channel names, sequence, an amount bucket, and a random session ID can be shared. No text, audio, phone number, VPA, exact amount, or URL is included. Even a fingerprint can be sensitive.</p><pre id="fingerprint-preview"></pre><label class="check-label"><input id="sharing-consent" type="checkbox"> Share this session's pattern with the local campaign service (24-hour retention)</label><div class="privacy-actions"><button id="share-pattern" class="primary">Share pattern</button><button id="delete-pattern" class="outline">Delete my shared patterns</button></div><p id="sharing-status" role="status"></p></section><section class="card"><div class="eyebrow">ALERT-FATIGUE MEASUREMENT</div><h2>Optional usage analytics.</h2><p>Share only fixed event names and coarse warning properties with the configured PostHog project. No autocapture, session replay, or user profiles. Disabled until an operator configures a project token.</p><label class="check-label"><input id="analytics-consent" type="checkbox"> Allow anonymous usage events for this visit</label><p id="analytics-status" role="status">Analytics are off.</p><hr><h2>Clear means clear.</h2><p>Web reviews stay in memory. Android keeps redacted reviews privately on this device for up to 24 hours; raw shares are temporary. Exported files remain under your control. Clearing resets the session and removes submitted text from the page. Downloaded reports remain under your control. Browser memory cannot guarantee forensic erasure.</p><button id="privacy-clear" class="outline">Clear this session</button></section></div></section>
-<dialog id="call-dialog"><div class="eyebrow">PRIVATE CALL REVIEW</div><h2>What felt wrong?</h2><p>No audio is recorded. Select only what you noticed.</p><form id="call-signals"><div id="quick-signals"></div><button class="primary" type="submit">Review these signals</button><button class="text-button" type="button" id="close-call">Cancel</button></form></dialog><dialog id="hero-dialog"><div class="eyebrow">SIMULATED PHONE CALL</div><div class="caller-avatar">?</div><h2>“Bank KYC desk”</h2><p id="hero-copy"></p><p class="help">Identity unverified · no microphone or real call</p><button class="primary" id="hero-next">Continue story</button><button class="text-button" id="hero-close">Close demo</button></dialog><dialog id="camera-dialog"><div class="card-heading"><h2>Check a UPI QR</h2><button id="stop-camera" class="text-button" aria-label="Close camera">Close ×</button></div><video id="camera-video" autoplay playsinline muted></video><p id="camera-status" class="help" role="status">Camera starts only when you choose to scan.</p></dialog><div id="toast" class="toast" role="status" hidden></div><dialog id="continue-dialog"><h2>Continue the simulation?</h2><p>This request has scam indicators. In a real situation, verify independently before proceeding. This demo cannot move money.</p><div class="dialog-actions"><button id="keep-paused" class="primary">Keep it paused</button><button id="confirm-continue" class="outline">Continue simulated transfer</button></div></dialog>
-</main></div></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f8fafc">
+<meta name="description" content="AI-Protect: a private, on-device check for suspicious calls, messages, links and UPI requests.">
+<title>AI-Protect — Check before you trust</title>
+<link rel="icon" href="/web/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="/web/manifest.json">
+<link rel="stylesheet" href="/web/styles.css">
+<script src="/web/vendor/jsQR.js" defer></script>
+<script type="module" src="/web/app.mjs"></script>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h3M20 17v4"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="app-bar">
+    <a class="brand" href="/app" aria-label="AI-Protect">
+      <img src="/web/icon.svg" alt="" width="38" height="38">
+      <div class="brand-text">
+        <strong>AI-Protect</strong>
+        <span id="page-name" class="small muted">Home</span>
+      </div>
+    </a>
+    <div class="app-bar-right">
+      <span class="pill pill-live" id="connectivity">On-device engine</span>
+      <button id="install-app" class="icon-button" hidden aria-label="Install app"><svg class="ic"><use href="#i-arrow"/></svg></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HOME -->
+    <section id="view-home" class="view" aria-labelledby="home-title">
+      <span class="eyebrow-chip"><svg class="ic"><use href="#i-shield"/></svg> Active Protection</span>
+      <h1 id="home-title">Caller Trust<br>&amp; Scam Guard.</h1>
+      <p class="lead">Calls, messages and payments reviewed privately on this device.</p>
+
+      <form id="home-form" class="search-card" role="search">
+        <svg class="ic ic-muted" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="sr-only" for="home-input">Paste a link, message or UPI request</label>
+        <input id="home-input" type="text" autocomplete="off" placeholder="Paste a link, message or UPI ID…" maxlength="10000">
+        <button type="submit" class="icon-button" aria-label="Review what I pasted"><svg class="ic"><use href="#i-arrow"/></svg></button>
+      </form>
+
+      <div class="quick-actions" role="group" aria-label="Quick actions">
+        <button class="quick" data-quick="call"><span class="quick-icon tone-blue"><svg class="ic"><use href="#i-phone"/></svg></span>Call</button>
+        <button class="quick" data-quick="message"><span class="quick-icon tone-indigo"><svg class="ic"><use href="#i-message"/></svg></span>Message</button>
+        <button class="quick" data-quick="link"><span class="quick-icon tone-amber"><svg class="ic"><use href="#i-link"/></svg></span>Link</button>
+        <button class="quick" data-quick="qr"><span class="quick-icon tone-green"><svg class="ic"><use href="#i-qr"/></svg></span>QR / UPI</button>
+      </div>
+
+      <div class="banner">
+        <span class="banner-icon"><svg class="ic"><use href="#i-shield"/></svg></span>
+        <div><strong>Protection ready</strong><small>On-device checks, isolated from the network</small></div>
+        <span class="chip safe">Active</span>
+      </div>
+
+      <section class="card" aria-labelledby="recent-title">
+        <div class="section-head">
+          <h2 id="recent-title">Recent activity <span id="recent-count" class="count-pill">0</span></h2>
+          <button class="link-button" data-view="reviews">See all</button>
+        </div>
+        <div id="recent-list"></div>
+      </section>
+
+      <aside class="note-card">
+        <span class="note-icon"><svg class="ic"><use href="#i-lock"/></svg></span>
+        <div><strong>Zero-knowledge audits</strong><p>Inspection runs locally on your device without saving audio or retaining message content.</p></div>
+      </aside>
+    </section>
+
+    <!-- CHECK -->
+    <section id="view-protect" class="view" aria-labelledby="check-title" hidden>
+      <span class="eyebrow-chip"><svg class="ic"><use href="#i-shield"/></svg> On-device sentinel active</span>
+      <h1 id="check-title">What feels<br>suspicious?</h1>
+      <p class="lead">Choose what you want AI-Protect to review privately on this device.</p>
+
+      <div class="review-entry">
+        <button class="primary block" id="review-call"><svg class="ic"><use href="#i-phone"/></svg> Something feels wrong: review a call</button>
+        <div class="review-entry-meta"><span id="active-review-label"></span><button class="link-button" id="new-review">New review +</button></div>
+      </div>
+
+      <form id="check-form" class="card input-card">
+        <div id="text-input">
+          <label id="input-label" for="content">Paste a message you want to check</label>
+          <textarea id="content" placeholder="Your refund is ready. Scan this QR to receive money…" maxlength="10000" rows="4"></textarea>
+          <p id="input-help" class="help">Only content you submit is checked. Text is cleared after analysis.</p>
+          <div id="qr-import" hidden>
+            <button class="outline" type="button" id="scan-camera">Scan with camera</button>
+            <label class="file-button" for="qr-file">Read a QR screenshot</label>
+            <input type="file" id="qr-file" accept="image/*">
+            <span class="help">Your image stays on this device.</span>
+          </div>
+        </div>
+        <div id="payment-input" hidden>
+          <div class="form-row">
+            <div><label for="amount">Amount (INR)</label><input id="amount" type="number" min="0.01" max="10000000" step="0.01" value="2500" inputmode="decimal"></div>
+            <div><label for="payee">Payee label (optional)</label><input id="payee" maxlength="100" placeholder="e.g. new contact"></div>
+          </div>
+          <label class="check-label"><input id="new-payee" type="checkbox" checked> First payment to this beneficiary</label>
+          <p class="help">A simulated payment. No money moves, and no bank or UPI account is connected.</p>
+        </div>
+        <div id="form-error" class="error" role="alert"></div>
+        <div class="form-footer">
+          <button class="chip-button" type="button" id="paste-clipboard"><svg class="ic"><use href="#i-clipboard"/></svg> Paste</button>
+          <button class="primary" type="submit">Review now <svg class="ic"><use href="#i-arrow"/></svg></button>
+        </div>
+      </form>
+
+      <div class="section-head"><h2>What are you checking?</h2><button id="clear-session" class="link-button">Clear</button></div>
+      <div class="mode-grid" role="group" aria-label="What to check">
+        <button class="mode" data-channel="call" aria-pressed="false"><span class="quick-icon tone-blue"><svg class="ic"><use href="#i-phone"/></svg></span><strong>Suspicious call</strong><small>Paste what the caller said</small></button>
+        <button class="mode selected" data-channel="message" aria-pressed="true"><span class="quick-icon tone-indigo"><svg class="ic"><use href="#i-message"/></svg></span><strong>Message / SMS</strong><small>WhatsApp, SMS or chat text</small></button>
+        <button class="mode" data-channel="link" aria-pressed="false"><span class="quick-icon tone-amber"><svg class="ic"><use href="#i-link"/></svg></span><strong>Link / website</strong><small>Fake bank or APK links</small></button>
+        <button class="mode" data-channel="qr" aria-pressed="false"><span class="quick-icon tone-green"><svg class="ic"><use href="#i-qr"/></svg></span><strong>QR / UPI ID</strong><small>Before you pay a merchant</small></button>
+        <button class="mode mode-wide" data-channel="payment" aria-pressed="false"><span class="quick-icon tone-slate"><svg class="ic"><use href="#i-wallet"/></svg></span><span class="mode-text"><strong>About to pay?</strong><small>Add the payment to this review</small></span></button>
+      </div>
+
+      <section id="alert-card" class="alert-card" tabindex="-1" hidden role="alert" aria-live="assertive">
+        <div class="alert-head"><span class="alert-mark"><svg class="ic"><use href="#i-hand"/></svg></span><div><div class="alert-eyebrow">Intervention protocol</div><h2 id="alert-title"></h2></div></div>
+        <p id="alert-reason"></p>
+        <p>Stop this request. Verify using an official channel you find independently. Never share a PIN or OTP.</p>
+        <div class="alert-actions">
+          <button id="cancel-payment" class="danger">Cancel simulated payment</button>
+          <button id="continue-payment" class="outline">Review and continue simulation</button>
+          <button id="false-positive" class="text-button">This seems legitimate</button>
+        </div>
+        <div id="decision-result" aria-live="polite"></div>
+      </section>
+
+      <section class="card session-card" aria-labelledby="review-title">
+        <div class="section-head"><h2 id="review-title">Current review</h2><span id="event-count" class="count-pill">0 events</span></div>
+        <div id="session-empty" class="empty-session">
+          <span class="empty-symbol"><svg class="ic"><use href="#i-search"/></svg></span>
+          <h3>Start with one submission</h3>
+          <p>Each check adds local timeline context without alerting prematurely before funds move.</p>
+        </div>
+        <div id="session-result" hidden>
+          <div id="verification-evidence" class="verification-evidence"></div>
+          <div class="workflow-label"><span id="stage">Normal</span><span id="severity">Quiet</span></div>
+          <div id="timeline" class="timeline"></div>
+          <div id="result-note" class="result-note"></div>
+          <details class="technical">
+            <summary>Technical indices</summary>
+            <div class="risk-row">
+              <div><span class="metric-label">Evidence index</span><strong id="evidence">0<span>/100</span></strong></div>
+              <div><span class="metric-label">Action risk index</span><strong id="risk">0<span>/100</span></strong></div>
+            </div>
+            <div class="risk-track"><div id="risk-bar"></div></div>
+            <p class="help">Heuristic indices, not probabilities or a safety guarantee.</p>
+          </details>
+        </div>
+        <div class="session-bottom">
+          <span id="latency">Waiting for your first check</span>
+          <button id="export-session" class="link-button" disabled>Export redacted report</button>
+        </div>
+      </section>
+
+      <section id="action-center" class="intervention" hidden>
+        <div class="alert-eyebrow">Your next step</div>
+        <h2>Stop &amp; verify</h2>
+        <p>Did you already send money?</p>
+        <div class="response-choice"><button id="paid-no" class="outline">No</button><button id="paid-yes" class="primary">Yes</button></div>
+        <div id="response-plan" aria-live="polite"></div>
+        <div class="stack">
+          <button id="independent-verify" class="dark block">Verify independently <svg class="ic"><use href="#i-arrow"/></svg></button>
+          <button id="block-ignore" class="outline block">Block caller &amp; preserve evidence</button>
+          <button id="report-review" class="outline block">Share anonymous pattern</button>
+          <button id="save-review" class="text-button block">Export redacted record</button>
+          <button id="delete-review" class="text-button block">Delete this review</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="view-reviews" class="view" aria-labelledby="reviews-title" hidden>
+      <span class="eyebrow-chip"><svg class="ic"><use href="#i-history"/></svg> Stored privately on this device</span>
+      <h1 id="reviews-title">Your private<br>reviews.</h1>
+      <p class="lead">Only derived signals are kept. Add shared content to the relevant review; start a new one for an unrelated request.</p>
+      <div id="review-list" class="review-list"></div>
+      <button class="outline block" id="reviews-new">Start another review</button>
+    </section>
+
+    <!-- PRIVACY -->
+    <section id="view-privacy" class="view" aria-labelledby="privacy-title" hidden>
+      <span class="eyebrow-chip"><svg class="ic"><use href="#i-lock"/></svg> You choose what leaves</span>
+      <h1 id="privacy-title">Privacy starts<br>with a choice.</h1>
+      <p class="lead">Checks work locally. Sharing a pattern and sharing usage analytics are separate, optional decisions.</p>
+
+      <section class="card">
+        <h2>A pattern, without your words</h2>
+        <p>Only tactics, channel names, sequence, an amount bucket and a random session ID can be shared. No text, audio, phone number, VPA, exact amount or URL is included. Even a fingerprint can be sensitive.</p>
+        <pre id="fingerprint-preview"></pre>
+        <label class="check-label"><input id="sharing-consent" type="checkbox"> Share this session's pattern with the local campaign service (24-hour retention)</label>
+        <div class="stack-row"><button id="share-pattern" class="primary">Share pattern</button><button id="delete-pattern" class="outline">Delete my shared patterns</button></div>
+        <p id="sharing-status" role="status" class="help"></p>
+      </section>
+
+      <section class="card">
+        <h2>Optional usage analytics</h2>
+        <p>Fixed event names and coarse warning properties only. No autocapture, session replay or user profiles. Disabled until an operator configures a project token.</p>
+        <label class="check-label"><input id="analytics-consent" type="checkbox"> Allow anonymous usage events for this visit</label>
+        <p id="analytics-status" role="status" class="help">Analytics are off.</p>
+      </section>
+
+      <section class="card">
+        <h2>Clear means clear</h2>
+        <p>Web reviews stay in memory. Android keeps redacted reviews privately on this device for up to 24 hours; raw shares are temporary. Exported files stay under your control. Browser memory cannot guarantee forensic erasure.</p>
+        <button id="privacy-clear" class="outline block">Clear this session</button>
+      </section>
+
+      <p class="fine-print">Prototype · AI-Protect never accesses your calls, notifications, bank accounts or payment apps. Camera is requested only after you tap Scan.</p>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav active" data-view="home"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
+    <button class="nav" data-view="protect"><svg class="ic"><use href="#i-shield"/></svg><span>Check</span></button>
+    <button class="nav-fab" id="scan-fab" aria-label="Scan a QR code"><svg class="ic"><use href="#i-qr"/></svg></button>
+    <button class="nav" data-view="reviews"><svg class="ic"><use href="#i-history"/></svg><span>Reviews</span></button>
+    <button class="nav" data-view="privacy"><svg class="ic"><use href="#i-lock"/></svg><span>Privacy</span></button>
+  </nav>
+</div>
+
+<dialog id="call-dialog">
+  <div class="alert-eyebrow">Private call review</div>
+  <h2>What felt wrong?</h2>
+  <p>No audio is recorded. Select only what you noticed.</p>
+  <form id="call-signals">
+    <div id="quick-signals"></div>
+    <div class="dialog-actions"><button class="primary block" type="submit">Review these signals</button><button class="text-button block" type="button" id="close-call">Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="camera-dialog">
+  <h2>Scan a UPI QR code</h2>
+  <video id="camera-video" playsinline></video>
+  <p id="camera-status" class="help">Place the QR code within the camera frame.</p>
+  <button id="stop-camera" class="outline block">Close camera</button>
+</dialog>
+
+<dialog id="continue-dialog">
+  <h2>Are you sure you want to proceed?</h2>
+  <p>AI-Protect flagged this workflow as matching known fraud patterns. Legitimate bank or support representatives will never ask you to transfer funds to a "safe" account.</p>
+  <div class="dialog-actions">
+    <button id="keep-paused" class="primary block">Keep payment paused</button>
+    <button id="confirm-continue" class="danger block">I understand the risk: continue</button>
+  </div>
+</dialog>
+
+<div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

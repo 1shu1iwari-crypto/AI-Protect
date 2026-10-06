@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a192f">
+<meta name="description" content="AI-Protect: pause before you pay. A private, on-device scam workflow detector for calls, messages, links and UPI requests. Built for RAKSHAM 2026, problem statement 02.">
+<title>AI-Protect: Pause before you pay | RAKSHAM 2026</title>
+<link rel="icon" href="/web/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/web/site/site.css">
+<script type="module" src="/web/site/site.mjs"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav-bar">
+  <div class="wrap nav-inner">
+    <a class="logo" href="/" aria-label="AI-Protect home">
+      <img src="/web/icon.svg" alt="" width="34" height="34">
+      <span>AI-Protect</span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#demo">Live demo</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#campaigns">Campaigns</a>
+      <a href="#boundaries">Honest limits</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="/app" id="open-app-nav">Open user app</a>
+  </div>
+</header>
+
+<main id="main">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="badge">RAKSHAM 2026 · Problem Statement 02 · Scam Pattern Recognition</span>
+        <h1>Pause before<br>you pay.</h1>
+        <p class="hero-lead">AI-Protect connects signals across calls, messages, links, and UPI requests entirely on-device, interrupting only when money is about to move.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#demo" id="cta-demo">Try the live demo</a>
+          <a class="btn btn-ghost" href="/app" id="cta-app">Open the user app</a>
+        </div>
+        <ul class="trust-row" aria-label="Core guarantees">
+          <li>On-device checks</li>
+          <li>No audio stored</li>
+          <li>User stays in control</li>
+        </ul>
+        <div id="hero-metrics" class="hero-metrics" aria-live="polite"></div>
+      </div>
+      <div class="hero-visual" aria-label="Live preview of the AI-Protect app">
+        <div class="phone" id="phone">
+          <div class="phone-notch"></div>
+          <iframe id="app-preview" src="/app" title="AI-Protect app, live preview" loading="lazy"></iframe>
+        </div>
+        <div class="float-card fc-a">
+          <strong>Message check</strong>
+          <span>HDFC KYC domain mismatch</span>
+          <span class="tag tag-amber">Suspicious link</span>
+        </div>
+        <div class="float-card fc-b">
+          <strong>UPI request</strong>
+          <span>New payee · ₹4,500</span>
+          <span class="tag tag-red">Pause and verify</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TWO SURFACES -->
+  <section class="section" id="surfaces">
+    <div class="wrap">
+      <div class="two-up reveal">
+        <article class="surface-card">
+          <span class="card-category">The Mobile App</span>
+          <h2>Made for the person being targeted.</h2>
+          <p>A calm, mobile-first companion: paste, share, scan, or review a call. It explains why it warned and what to do next. No dashboards, no jargon, no demo tooling.</p>
+          <a class="btn btn-primary" href="/app" id="surface-app">Open the user app</a>
+        </article>
+        <article class="surface-card surface-dark">
+          <span class="card-category card-category-light">Presentation &amp; Benchmarks</span>
+          <h2>Made for judges and presenters.</h2>
+          <p>The story, the architecture, a replayable scenario lab, campaign clustering, and every validation result, including documented limits. Nothing here asks for personal data.</p>
+          <a class="btn btn-light" href="#demo" id="surface-demo">Jump to the lab</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="section" id="problem">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Scams are workflows, not isolated messages.</h2>
+        <p>Each step looks harmless on its own. The danger lies in the progression, and the moment it culminates in an irreversible transfer.</p>
+      </div>
+      <ol class="steps-3">
+        <li class="step-card reveal">
+          <span class="step-no">1</span>
+          <h3>The hook</h3>
+          <p>A "refund" or "KYC update" arrives with a link from a sender masquerading as an official service.</p>
+          <span class="tag tag-green">Looks normal</span>
+        </li>
+        <li class="step-card reveal">
+          <span class="step-no">2</span>
+          <h3>The pressure</h3>
+          <p>A caller claims authority. Urgency and secrecy build: <em>don't tell anyone, stay on the line</em>.</p>
+          <span class="tag tag-amber">Pressure rising</span>
+        </li>
+        <li class="step-card reveal">
+          <span class="step-no">3</span>
+          <h3>The transfer</h3>
+          <p>An outgoing QR or UPI intent routes money to an unfamiliar payee.</p>
+          <span class="tag tag-red">Money moves</span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section class="section section-dark" id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Read the order. Warn at the action.</h2>
+        <p>One local engine tracks evidence across channels and intervenes only when accumulated evidence meets a risky payment action.</p>
+      </div>
+      <ol class="pipeline">
+        <li class="pipe reveal">
+          <span class="stage-tag">Step 1</span>
+          <h3>Explicit user choice</h3>
+          <p>Paste, share, scan a QR, or flag a call. Nothing is analysed until you explicitly request an inspection.</p>
+        </li>
+        <li class="pipe reveal">
+          <span class="stage-tag">Step 2</span>
+          <h3>Coarse local extraction</h3>
+          <p>Detect authority claims, urgency cues, OTP requests, APK links, and payee changes as behavioral tactics rather than raw text.</p>
+        </li>
+        <li class="pipe reveal">
+          <span class="stage-tag">Step 3</span>
+          <h3>Temporal workflow tracking</h3>
+          <p>Track the multi-step trajectory: Pretext → Pressure → Credential solicitation → Outgoing transfer intent.</p>
+        </li>
+        <li class="pipe reveal">
+          <span class="stage-tag">Step 4</span>
+          <h3>Action-gated pause</h3>
+          <p>Deliver a clear, explained warning with an independent verification path. Repeated alerts are suppressed to prevent fatigue.</p>
+        </li>
+      </ol>
+      <div class="guard reveal">
+        <strong>Guarded hybrid decision policy:</strong> Deterministic workflow rules and temporal transitions decide. Lightweight local ML corroborates by at most three score points and can never trigger an alert independently.
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO -->
+  <section class="section" id="demo">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Replay a scam, one event at a time.</h2>
+        <p>Synthetic workflows run through the exact same engine as the production mobile app. Step through a scam to observe how warnings trigger before money moves, or test an ordinary transaction to confirm it remains quiet.</p>
+      </div>
+      <div class="lab reveal">
+        <aside class="lab-list-wrap" aria-label="Scenarios">
+          <div class="filter" role="group" aria-label="Filter scenarios">
+            <button class="filter-btn active" data-filter="all" aria-pressed="true">All <span id="count-all"></span></button>
+            <button class="filter-btn" data-filter="scam" aria-pressed="false">Scams <span id="count-scam"></span></button>
+            <button class="filter-btn" data-filter="ordinary" aria-pressed="false">Ordinary <span id="count-ordinary"></span></button>
+          </div>
+          <div id="scenario-list" class="scenario-list"></div>
+        </aside>
+        <section class="replay" aria-live="polite">
+          <div class="replay-head">
+            <div>
+              <span id="scenario-type" class="scenario-type-badge"></span>
+              <h3 id="scenario-name"></h3>
+            </div>
+            <span id="step-count" class="count-pill"></span>
+          </div>
+          <p id="scenario-description" class="muted"></p>
+          <div id="replay-preview" class="replay-preview"></div>
+          <div class="replay-controls">
+            <button class="btn btn-primary" id="next-event">Check next event →</button>
+            <button class="btn btn-ghost" id="run-all">Run full story</button>
+            <button class="btn btn-link" id="restart-demo">Restart ↺</button>
+          </div>
+          <div id="replay-output" class="replay-output"></div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section class="section section-tint" id="evidence">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Validation and benchmark evidence</h2>
+        <p id="evidence-intro">Results generated directly by <code>npm run evaluate</code> across all disclosed synthetic workflows.</p>
+      </div>
+      <div id="evaluation-content" class="reveal"></div>
+      <div class="note-box reveal">
+        <strong>Validation scope and boundaries.</strong> These tests measure performance on curated synthetic workflows rather than live carrier audio or production banking telemetry. Holdouts evaluate compositions of known tactics. Field trials with regional languages, device battery profiling, and vulnerable-user accessibility studies remain future work.
+      </div>
+    </div>
+  </section>
+
+  <!-- CAMPAIGNS -->
+  <section class="section" id="campaigns">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Signals first, then human analyst judgement.</h2>
+        <p>With explicit user consent, devices share coarse tactic fingerprints without raw text, account numbers, or values. Repeated similar fingerprints form unverified candidates for analyst review. Nothing is blocked automatically.</p>
+      </div>
+      <div class="campaign-bar reveal">
+        <button id="seed-campaigns" class="btn btn-primary">Generate 5 synthetic reports</button>
+        <button id="seed-emergence" class="btn btn-ghost">Replay a campaign shift</button>
+        <button id="refresh-campaigns" class="btn btn-link">Refresh ↻</button>
+        <span id="campaign-status" role="status" class="muted"></span>
+      </div>
+      <div id="campaign-list" class="campaign-list"></div>
+      <div class="review-box reveal">
+        <h3>Analyst review gate</h3>
+        <p class="muted">Analyst review updates the candidate status locally. It does not publish threat intelligence or block payees.</p>
+        <label for="review-token">Local analyst token</label>
+        <input id="review-token" type="password" autocomplete="off" placeholder="Token configured via SCAMGUARD_REVIEW_TOKEN">
+        <p class="muted small">Stored only in this memory field. Requires SCAMGUARD_REVIEW_TOKEN on the server.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANDROID & PRIVACY -->
+  <section class="section section-tint" id="android">
+    <div class="wrap two-up">
+      <article class="surface-card reveal">
+        <span class="card-category">Android Companion</span>
+        <h2>The same engine, packaged for mobile.</h2>
+        <p>The companion app bundles this exact detector in a hardened WebView with zero network permissions. Two distinct build flavours keep permissions minimal and honest:</p>
+        <ul class="ticks">
+          <li><strong>Play flavour:</strong> manual signals and shared text or QR codes, with zero microphone or accessibility service access.</li>
+          <li><strong>Hackathon flavour:</strong> optional consented speech recognition running strictly on-device, with zero cloud transmission.</li>
+        </ul>
+      </article>
+      <article class="surface-card reveal">
+        <span class="card-category">Privacy by Construction</span>
+        <h2>Less data, on purpose.</h2>
+        <p>Architecture decisions designed to prevent surveillance and protect confidential financial interactions:</p>
+        <ul class="ticks">
+          <li>Raw text and voice audio are never stored; only derived, coarse tactic labels survive.</li>
+          <li>Payee handles and exact currency amounts are discarded immediately after heuristic validation.</li>
+          <li>Suspicious links are analyzed strictly as text; destinations are never fetched or visited.</li>
+          <li>Pattern sharing and telemetry are strictly decoupled, opt-in actions.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- BOUNDARIES -->
+  <section class="section" id="boundaries">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Transparent product limits</h2>
+        <p>A working reference implementation for scam workflow detection, not a commercial banking product.</p>
+      </div>
+      <div class="limits reveal">
+        <div>
+          <h3>What it is</h3>
+          <p>A web and Android reference implementation of workflow-level scam detection with explainable, privacy-preserving evidence trails.</p>
+        </div>
+        <div>
+          <h3>What it is not</h3>
+          <p>It cannot intercept ordinary cellular-call audio or monitor other third-party banking apps, and it never moves money. Transfers here are purely simulated.</p>
+        </div>
+        <div>
+          <h3>Roadmap</h3>
+          <p>Real consented community datasets, device battery benchmarks, native OS share targets, partner payment gateway webhooks, and independent security audits.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap foot-inner">
+    <div class="logo">
+      <img src="/web/icon.svg" alt="" width="30" height="30">
+      <span>AI-Protect</span>
+    </div>
+    <p>Built for RAKSHAM 2026 · Problem Statement 02 · Prototype with synthetic workflow examples.</p>
+    <p><a href="https://github.com/1shu1iwari-crypto/AI-Protect" rel="noopener noreferrer" target="_blank">Source on GitHub ↗</a> · <a href="/app">Open user app</a></p>
+  </div>
+</footer>
+</body>
+</html>

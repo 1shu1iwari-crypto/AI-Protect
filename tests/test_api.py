@@ -43,7 +43,7 @@ class API(unittest.TestCase):
         for path in ['/backend/server.py','/backend/fingerprints.sqlite','/web/../backend/server.py','/.env']:
             self.assertEqual(self.request(path)[0],404,path)
     def test_static_root_and_modules_serve_directly_with_browser_mime_types(self):
-        for path,mime,marker in [('/',{'text/html'},b'<!doctype html>'),('/web/app.mjs',{'text/javascript','application/javascript'},b'/core/review.mjs'),('/core/engine.mjs',{'text/javascript','application/javascript'},b'./version.mjs')]:
+        for path,mime,marker in [('/',{'text/html'},b'<!doctype html>'),('/app',{'text/html'},b'<!doctype html>'),('/web/app.mjs',{'text/javascript','application/javascript'},b'/core/review.mjs'),('/core/engine.mjs',{'text/javascript','application/javascript'},b'./version.mjs')]:
             for method in ['GET','HEAD']:
                 with urllib.request.urlopen(urllib.request.Request(self.url+path,method=method)) as response:
                     self.assertEqual(response.status,200,path)

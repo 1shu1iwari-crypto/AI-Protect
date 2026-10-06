@@ -13,3 +13,6 @@ android/**/build/
 AI-Protect-live-review/
 
 android/.kotlin/
+
+# Impeccable local engine binaries
+.github/skills/impeccable/scripts/bin/

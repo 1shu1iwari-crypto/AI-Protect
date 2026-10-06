@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-04T18:29:44.038Z",
-  "version": "0.4.0",
+  "generated_at": "2026-10-06T10:01:39.389Z",
+  "version": "0.5.1",
   "environment": "Node v24.12.0, win32/x64; development machine CPU, not a phone",
   "dataset": "84 AI-authored synthetic workflows: original 20 smoke + 32 challenge + 32 additive adversarial; frozen 157-text logistic model plus 97 semantic seeds; not an independent population benchmark",
   "total": 84,
@@ -48,14 +48,14 @@
     ]
   },
   "latency_ms": {
-    "p50": 0.07560000000000855,
-    "p95": 0.19880000000000564,
-    "max": 21.166399999999996,
+    "p50": 0.10640000000012151,
+    "p95": 0.4068999999999505,
+    "max": 27.446399999999997,
     "events_measured": 18079
   },
   "model_bytes": 151351,
-  "semantic_model_bytes": 4085,
-  "total_model_bytes": 155436,
+  "semantic_model_bytes": 4087,
+  "total_model_bytes": 155438,
   "semantic_training_samples": 97,
   "suites": [
     {
