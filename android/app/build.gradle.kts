@@ -24,12 +24,19 @@ android {
         create("hackathon") {
             dimension = "distribution"
             applicationIdSuffix = ".mvp"
+            // Keep only the ABIs for which both Vosk and JNA supply libraries.
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64") }
             versionNameSuffix = "-hackathon"
             // External PCM input to the on-device recognizer requires API 33.
             minSdk = 33
         }
     }
+    // Extract compressed native libraries using the standard installer path.
+    packaging { jniLibs { useLegacyPackaging = true } }
     signingConfigs.getByName("debug") {
+        enableV1Signing = true
+        enableV2Signing = true
+        enableV3Signing = true
         System.getenv("AIPROTECT_DEBUG_KEYSTORE")?.let { storeFile = file(it) }
     }
     sourceSets.getByName("hackathon").assets.srcDir(layout.buildDirectory.dir("generated/speechAssets"))

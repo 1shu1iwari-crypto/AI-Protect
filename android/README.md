@@ -1,7 +1,7 @@
 # AI-Protect Android companion (real-device PoC)
 
 
-**Android MVP 0.5.0:** Record first, analyze afterward, or import a recording. English/Hindi models are bundled offline; microphone and floating shield remain available. See [post-call review](POST_CALL_REVIEW.md) for permissions, limitations, privacy and build instructions.
+**Android MVP 0.5.1:** Record first, analyze afterward, or import a recording. English/Hindi models are bundled offline; microphone and floating shield remain available. See [post-call review](POST_CALL_REVIEW.md) for permissions, limitations, privacy and build instructions.
 
 Kotlin native role / notification / share shell, with the existing offline `web/` review UI and `core/` risk engine packaged through AndroidX WebViewAssetLoader. No backend, keys or network permission required. The main Python/PWA run remains unchanged. Uses native Android widgets instead of adding a second Compose review implementation.
 

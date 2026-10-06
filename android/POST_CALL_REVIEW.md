@@ -1,4 +1,4 @@
-# Post-call review MVP (0.5.0)
+# Post-call review MVP (0.5.1)
 
 The hackathon APK now opens **Record or upload a call · review afterward**. The
 floating shield, manual reviews and optional experimental real-time mode remain.
@@ -78,9 +78,9 @@ gradle :app:assembleHackathonDebug :app:testHackathonDebugUnitTest :app:lintHack
 and Hindi Vosk archives into generated assets. No models/binaries are committed.
 Set `AIPROTECT_MODEL_CACHE` to reuse archives; `AIPROTECT_PYTHON` selects Python.
 Vosk Android 0.3.75 and JNA 5.18.1 ship native libraries for ARM64, ARMv7, x86 and
-x86_64. APK size is about 125 MiB including models and all ABIs.
+x86_64. APK size is about 100 MiB including models and four supported ABIs. Native libraries are compressed and extracted by Android during installation.
 
-The package is `in.aiprotect.companion.mvp`, version 0.5.0-hackathon, code 5000.
+The package is `in.aiprotect.companion.mvp`, version 0.5.1-hackathon, code 5001.
 It installs alongside the earlier `.hackathon` package because the original
 signing key was not available. Future builds can use the same private debug
 keystore via `AIPROTECT_DEBUG_KEYSTORE`. Never commit keys; debug signing is for
@@ -116,3 +116,24 @@ management, microphone hardware or actual ASR accuracy. Before a demo:
   SHA-256: `77f74b2c0a29d466a5a32f94f41556442b523997bf6587d63335f39898462dd0`.
 - Physical Vivo hardware, actual call routing and transcription accuracy were
   not tested in this build environment; run the acceptance checks above.
+
+## Installer compatibility rebuild (0.5.1)
+
+After a reported Vivo parsing error, the original file still passed host ZIP,
+manifest and v2 signature validation. Android 13+ was confirmed by the tester;
+the precise device-side failure code was unavailable. This rebuild is a
+compatibility mitigation, not proof of the original root cause.
+
+- Enable v1, v2 and v3 signing with the same private MVP debug keystore.
+- Compress/extract native libraries using legacy JNI packaging.
+- Include only the four ABIs for which both Vosk and JNA provide libraries;
+  exclude JNA-only obsolete armeabi/MIPS entries.
+- Preserve recording, import, English/Hindi models and floating Accessibility.
+- Bump version to 0.5.1 so an existing same-key MVP install can be updated.
+- Deliver a ZIP option so extraction checks transfer integrity before install.
+- Artifact: `AI-Protect-MVP-0.5.1-compatible.apk`, 105,113,429 bytes.
+  SHA-256: `6c40d101eee6f97c72792d337578cd762e6e8c27c52243d381d924939816126f`.
+- JavaScript tests (60), Python tests (13), APK build and lint passed. Native
+  application code is unchanged from the 24-test-validated 0.5.0 build.
+- Signature schemes verified independently with API-appropriate verifier ranges;
+  ZIP integrity and ZIP alignment passed.
