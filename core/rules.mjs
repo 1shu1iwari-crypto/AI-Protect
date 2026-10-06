@@ -10,7 +10,7 @@ export const RULES = {
  remote_access: /\b(anydesk|teamviewer|screen shar(?:e|ing)|remote access|remote control)\b/iu,
  investment: /\b(guaranteed (?:return|profit)|double your money|30% return|sure profit|guaranteed daily|institutional ipo|pakka profit|paisa double)\b|गारंटीड|पैसा दोगुना/iu,
  refund: /\b(refund|cashback|receive money|receive your|paisa milega|paise wapas)\b|रिफंड|पैसे वापस/iu,
- fee: /\b(unlock (?:withdrawal|earnings)|withdrawal fee|task deposit|release fee|processing fee before earnings|registration fee.{0,60}(?:earn|job|withdraw|task))\b/iu,
+ fee: /\b(unlock (?:withdrawal|earnings|release)|(?:withdrawal|release|clearance|processing) fee|task deposit|processing fee before earnings|registration fee.{0,60}(?:earn|job|withdraw|task))\b/iu,
  payment: /\b(transfer|deposit|pay|payment|send money|safe account|upi|bhejo|jama)\b|भुगतान|ट्रांसफर/iu,
  apk: /\.apk\b|\b(install our app|install this app|download the app)\b/iu,
  verification: /\b(?:update|verify|complete|confirm|renew)\b.{0,40}\b(?:kyc|account details|bank details|verification)\b|\bkyc\b.{0,30}\b(?:update|verify|expire|expired|renew)\b|केवाईसी.{0,25}(अपडेट|करो|पूरी)/iu

@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 *.sqlite*
+*.db
 .env
 node_modules/
 tmp/
@@ -16,3 +17,8 @@ android/.kotlin/
 
 # Impeccable local engine binaries
 .github/skills/impeccable/scripts/bin/
+
+# Local raw datasets
+data/
+*.csv
+*.zip

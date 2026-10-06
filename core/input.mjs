@@ -1,16 +1,9 @@
+import {classifyTextLinks} from './url-classifier.mjs';
 export function normalize(text) {return String(text ?? '').normalize('NFKC').toLowerCase().replace(/[\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').replace(/\s+/g,' ').trim();}
 export function tokens(text) {const t=normalize(text); const words=t.match(/[\p{L}\p{N}_]+/gu)||[];return [...new Set([...words,...words.slice(1).map((w,i)=>words[i]+' '+w)])];}
 export function inspectLink(text) {
- // Lexical evidence only. Never fetch a URL or claim domain reputation.
- const links=normalize(text).match(/https?:\/\/[^\s<>"']+/gi)||[];
- let unusualVerification=false;
- for(const raw of links){try{
-  const u=new URL(raw),host=u.hostname.toLowerCase();
-  const verification=/kyc|verify|verification|bank|secure|login/i.test(host+u.pathname);
-  const unusual=/\.(xyz|top|click|zip|invalid)$/.test(host)||Boolean(u.username||u.password)||host.split('.').length>4||/^\d+\.\d+\.\d+\.\d+$/.test(host);
-  unusualVerification ||= verification&&unusual;
- }catch{}}
- return {unusualVerification};
+ // PhiUSIIL-trained offline lexical classifier. Zero network lookups.
+ return classifyTextLinks(text);
 }
 export function parseUPI(input) {
  if(typeof input!=='string'||input.length>4096)throw Error('UPI payload is too long.');

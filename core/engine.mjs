@@ -5,14 +5,17 @@ export {RULES} from './rules.mjs';
 export {normalize,tokens,inspectLink,parseUPI,amountBucket,randomId} from './input.mjs';
 export {classify} from './legacy-model.mjs';
 export {extract} from './evidence.mjs';
+export {checkIntentConsistency,CONTRADICTION_TYPES} from './intent-contradiction.mjs';
 import {CHANNELS,LABELS} from './constants.mjs';
 import {parseUPI,randomId} from './input.mjs';
 import {evidenceEvent} from './evidence.mjs';
 import {defaultSemanticClassifier} from './semantic.mjs';
 import {workflowState,workflowTransition} from './workflow.mjs';
 import {riskAssessment,intervention} from './policy.mjs';
+import {checkIntentConsistency} from './intent-contradiction.mjs';
 import {explain} from './explanations.mjs';
 import {fingerprint} from './fingerprint.mjs';
+import {encodeTrajectory} from './trajectory.mjs';
 
 export class Session {
  constructor(model=null,options={}){this.model=model;this.semanticClassifier=Object.hasOwn(options,'semanticClassifier')?options.semanticClassifier:defaultSemanticClassifier;this.reset();}
@@ -33,9 +36,13 @@ export class Session {
  }
  assess(current){
   const workflow=workflowState(this.events,current),transition=workflowTransition(this.events,current,workflow);
-  const risk=riskAssessment(this.events,current,workflow),decision=intervention(risk,current,workflow,this.lastAlert,this.lastWarningAt);
-  if(decision.showWarning){this.lastWarningAt=current.timestamp;this.lastAlert={signature:workflow.family+':'+risk.severity,family:workflow.family,severity:risk.severity,tactics:risk.tactics,escalating:workflow.escalating};}
-  return {...risk,...decision,family:workflow.family,workflow,transition,...explain(workflow,transition,risk),labels:risk.tactics.map(k=>LABELS[k]),event:current};
+  const contradiction=checkIntentConsistency(this.events,current);
+  const risk=riskAssessment(this.events,current,workflow,contradiction),decision=intervention(risk,current,workflow,this.lastAlert,this.lastWarningAt);
+  if(decision.showWarning){this.lastWarningAt=current.timestamp;this.lastAlert={signature:workflow.family+':'+risk.severity,family:workflow.family,severity:risk.severity,tactics:risk.tactics,escalating:workflow.escalating,hasContradiction:contradiction.hasContradiction};}
+  return {...risk,...decision,contradiction,family:workflow.family,workflow,transition,...explain(workflow,transition,risk),labels:risk.tactics.map(k=>LABELS[k]),event:current};
  }
  fingerprint(){return fingerprint(this);}
+ trajectory(){return encodeTrajectory(this);}
+ radarFingerprint(){return {...this.fingerprint(),trajectory:encodeTrajectory(this)};}
 }
+export {encodeTrajectory,trajectoryCosineSimilarity,TRAJECTORY_DIM} from './trajectory.mjs';

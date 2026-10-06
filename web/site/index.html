@@ -23,7 +23,7 @@
       <a href="#how">How it works</a>
       <a href="#demo">Live demo</a>
       <a href="#evidence">Evidence</a>
-      <a href="#campaigns">Campaigns</a>
+      <a href="#campaigns">Scam Radar</a>
       <a href="#boundaries">Honest limits</a>
     </nav>
     <a class="btn btn-primary btn-sm" href="/app" id="open-app-nav">Open user app</a>
@@ -35,9 +35,11 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <span class="badge">RAKSHAM 2026 · Problem Statement 02 · Scam Pattern Recognition</span>
         <h1>Pause before<br>you pay.</h1>
         <p class="hero-lead">AI-Protect connects signals across calls, messages, links, and UPI requests entirely on-device, interrupting only when money is about to move.</p>
+        <div style="margin-bottom:20px;">
+          <span class="badge">RAKSHAM 2026 · Problem Statement 02 · Scam Pattern Recognition</span>
+        </div>
         <div class="cta-row">
           <a class="btn btn-primary" href="#demo" id="cta-demo">Try the live demo</a>
           <a class="btn btn-ghost" href="/app" id="cta-app">Open the user app</a>
@@ -73,14 +75,14 @@
     <div class="wrap">
       <div class="two-up reveal">
         <article class="surface-card">
-          <span class="card-category">The Mobile App</span>
-          <h2>Made for the person being targeted.</h2>
+          <h2>The Mobile App</h2>
+          <div style="margin-bottom:12px;"><span class="tag tag-blue">End-User Companion</span></div>
           <p>A calm, mobile-first companion: paste, share, scan, or review a call. It explains why it warned and what to do next. No dashboards, no jargon, no demo tooling.</p>
           <a class="btn btn-primary" href="/app" id="surface-app">Open the user app</a>
         </article>
         <article class="surface-card surface-dark">
-          <span class="card-category card-category-light">Presentation &amp; Benchmarks</span>
-          <h2>Made for judges and presenters.</h2>
+          <h2>Presentation &amp; Benchmarks</h2>
+          <div style="margin-bottom:12px;"><span class="tag tag-amber">Judges &amp; Evaluators</span></div>
           <p>The story, the architecture, a replayable scenario lab, campaign clustering, and every validation result, including documented limits. Nothing here asks for personal data.</p>
           <a class="btn btn-light" href="#demo" id="surface-demo">Jump to the lab</a>
         </article>
@@ -150,6 +152,32 @@
       <div class="guard reveal">
         <strong>Guarded hybrid decision policy:</strong> Deterministic workflow rules and temporal transitions decide. Lightweight local ML corroborates by at most three score points and can never trigger an alert independently.
       </div>
+      <div class="innovation-grid reveal">
+        <div class="innovation-card">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="tag tag-amber">Innovation 01</span>
+            <span style="font-size:12px;color:#93c5fd;font-weight:700;">Deterministic TICE</span>
+          </div>
+          <h3>Transaction Intent Consistency Engine</h3>
+          <p>Flags cross-channel protocol contradictions: verbal credit/refund pretexts against outgoing debit payloads, official authority claims paired with remote-access tools, or investment returns demanding advance unlocking fees.</p>
+        </div>
+        <div class="innovation-card">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="tag tag-green">Innovation 02</span>
+            <span style="font-size:12px;color:#93c5fd;font-weight:700;">Offline Lexical AI</span>
+          </div>
+          <h3>Zero-Network PhiUSIIL URL Analyzer</h3>
+          <p>Extracts 21 static lexical risk features (entropy, token suspiciousness, TLD risk) locally on-device. Trained on 60,000 PhiUSIIL URLs with 95.7% accuracy, requiring 0 DNS lookups and 0 network traffic.</p>
+        </div>
+        <div class="innovation-card">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="tag tag-blue">Innovation 03</span>
+            <span style="font-size:12px;color:#93c5fd;font-weight:700;">Unsupervised HDBSCAN</span>
+          </div>
+          <h3>64-d Trajectory Vectorizer &amp; Scam Radar</h3>
+          <p>Encodes multi-step journeys into 64-dimensional mathematical vectors. River ADWIN streaming drift and HDBSCAN density clustering discover emerging zero-day attack campaigns without receiving raw text or audio.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -204,15 +232,34 @@
     </div>
   </section>
 
-  <!-- CAMPAIGNS -->
+  <!-- CAMPAIGNS & SCAM RADAR -->
   <section class="section" id="campaigns">
     <div class="wrap">
       <div class="section-head reveal">
-        <h2>Signals first, then human analyst judgement.</h2>
-        <p>With explicit user consent, devices share coarse tactic fingerprints without raw text, account numbers, or values. Repeated similar fingerprints form unverified candidates for analyst review. Nothing is blocked automatically.</p>
+        <h2>Scam Radar: Zero-Day Campaign Intelligence</h2>
+        <p>Instead of matching predefined keywords, Scam Radar clusters privacy-safe 64-dimensional journey trajectory vectors using unsupervised HDBSCAN. Streaming drift detection (River ADWIN) discovers emerging zero-day attack campaigns without receiving a single message, audio snippet, or UPI ID.</p>
+      </div>
+      <div class="radar-telemetry reveal" id="radar-telemetry">
+        <div class="radar-metric">
+          <span class="radar-val" id="radar-raw-text">0</span>
+          <span class="radar-lbl">Raw Messages Received</span>
+        </div>
+        <div class="radar-metric">
+          <span class="radar-val" id="radar-raw-audio">0</span>
+          <span class="radar-lbl">Audio Bytes Received</span>
+        </div>
+        <div class="radar-metric">
+          <span class="radar-val" id="radar-raw-phones">0</span>
+          <span class="radar-lbl">Phone Numbers Leaked</span>
+        </div>
+        <div class="radar-metric">
+          <span class="radar-val" id="radar-active-clusters">0</span>
+          <span class="radar-lbl">Active Trajectory Clusters</span>
+        </div>
       </div>
       <div class="campaign-bar reveal">
         <button id="seed-campaigns" class="btn btn-primary">Generate 5 synthetic reports</button>
+        <button id="seed-zeroday" class="btn btn-primary">Simulate zero-day attack burst</button>
         <button id="seed-emergence" class="btn btn-ghost">Replay a campaign shift</button>
         <button id="refresh-campaigns" class="btn btn-link">Refresh ↻</button>
         <span id="campaign-status" role="status" class="muted"></span>
@@ -232,8 +279,8 @@
   <section class="section section-tint" id="android">
     <div class="wrap two-up">
       <article class="surface-card reveal">
-        <span class="card-category">Android Companion</span>
         <h2>The same engine, packaged for mobile.</h2>
+        <div style="margin-bottom:12px;"><span class="tag tag-blue">Android Companion</span></div>
         <p>The companion app bundles this exact detector in a hardened WebView with zero network permissions. Two distinct build flavours keep permissions minimal and honest:</p>
         <ul class="ticks">
           <li><strong>Play flavour:</strong> manual signals and shared text or QR codes, with zero microphone or accessibility service access.</li>
@@ -241,8 +288,8 @@
         </ul>
       </article>
       <article class="surface-card reveal">
-        <span class="card-category">Privacy by Construction</span>
         <h2>Less data, on purpose.</h2>
+        <div style="margin-bottom:12px;"><span class="tag tag-green">Privacy by Construction</span></div>
         <p>Architecture decisions designed to prevent surveillance and protect confidential financial interactions:</p>
         <ul class="ticks">
           <li>Raw text and voice audio are never stored; only derived, coarse tactic labels survive.</li>

@@ -368,6 +368,35 @@ p { margin: 0 0 14px; }
 .tag-green { background: var(--safe-tint); color: var(--safe-text); }
 .tag-amber { background: var(--caution-tint); color: var(--caution-text); }
 .tag-red { background: var(--critical-tint); color: var(--critical-text); }
+.tag-blue { background: var(--primary-tint); color: var(--primary-text); }
+
+/* Innovation Pillars */
+.innovation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+.innovation-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.innovation-card h3 {
+  color: #ffffff;
+  font-size: 17px;
+  margin: 0;
+}
+.innovation-card p {
+  color: var(--navy-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
 
 /* Sections */
 .section {
@@ -766,7 +795,50 @@ th {
   align-items: center;
   margin-bottom: 18px;
 }
+/* Scam Radar Telemetry */
+.radar-telemetry {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.radar-metric {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.radar-val {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.radar-lbl {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.radar-novelty-badge {
+  display: inline-block;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .campaign-list { display: grid; gap: 14px; }
+
 .campaign-card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -916,7 +988,7 @@ input[type=password]:focus {
 }
 @media (max-width: 760px) {
   .section { padding: 60px 0; }
-  .two-up, .steps-3, .limits, .pipeline { grid-template-columns: 1fr; }
+  .two-up, .steps-3, .limits, .pipeline, .innovation-grid { grid-template-columns: 1fr; }
   .hero-metrics { grid-template-columns: 1fr 1fr; }
   .campaign-card { grid-template-columns: 1fr; }
   .campaign-count { text-align: left; }
