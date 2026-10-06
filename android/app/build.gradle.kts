@@ -23,12 +23,16 @@ android {
         create("play") { dimension = "distribution" }
         create("hackathon") {
             dimension = "distribution"
-            applicationIdSuffix = ".hackathon"
+            applicationIdSuffix = ".mvp"
             versionNameSuffix = "-hackathon"
             // External PCM input to the on-device recognizer requires API 33.
             minSdk = 33
         }
     }
+    signingConfigs.getByName("debug") {
+        System.getenv("AIPROTECT_DEBUG_KEYSTORE")?.let { storeFile = file(it) }
+    }
+    sourceSets.getByName("hackathon").assets.srcDir(layout.buildDirectory.dir("generated/speechAssets"))
     testOptions {
         unitTests.isIncludeAndroidResources = true
         unitTests.all { it.systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2") }
@@ -52,7 +56,16 @@ val syncReviewAssets by tasks.registering(Sync::class) {
     }
 }
 tasks.named("preBuild").configure { dependsOn(syncReviewAssets) }
+val prepareOfflineSpeechModels by tasks.registering(Exec::class) {
+    inputs.file(rootProject.file("prepare_speech_models.py"))
+    outputs.dir(layout.buildDirectory.dir("generated/speechAssets"))
+    commandLine(System.getenv("AIPROTECT_PYTHON") ?: if (System.getProperty("os.name").startsWith("Windows")) "python" else "python3",
+        rootProject.file("prepare_speech_models.py"), layout.buildDirectory.dir("generated/speechAssets").get().asFile)
+}
+tasks.matching { it.name == "preHackathonDebugBuild" || it.name == "preHackathonReleaseBuild" }.configureEach { dependsOn(prepareOfflineSpeechModels) }
 dependencies {
+    "hackathonImplementation"("com.alphacephei:vosk-android:0.3.75@aar")
+    "hackathonImplementation"("net.java.dev.jna:jna:5.18.1@aar")
     implementation("androidx.webkit:webkit:1.12.1")
     "hackathonImplementation"("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     testImplementation("junit:junit:4.13.2")

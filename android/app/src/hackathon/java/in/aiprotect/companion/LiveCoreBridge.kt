@@ -11,7 +11,9 @@ import java.io.ByteArrayInputStream
 class LiveCoreBridge(
     context: Context, private val id: String, private val direction: String,
     private val onReady: () -> Unit, private val onResult: (JSONObject) -> Unit,
-    private val onFailure: () -> Unit
+    private val onFailure: () -> Unit,
+    private val persistResults: Boolean = true, private val updateLiveState: Boolean = true,
+    private val evidenceType: String = "live_call_audio"
 ) {
     private val web = WebView(context)
     private val store = ReviewStore(context)
@@ -50,7 +52,7 @@ class LiveCoreBridge(
                             val state = JSONObject(store.read());val reviews = state.optJSONArray("reviews") ?: JSONArray()
                             val saved = (0 until reviews.length()).map { reviews.getJSONObject(it) }.firstOrNull { it.getString("session_id") == id }
                             proxy.postMessage(JSONObject().put("kind", "start").put("id", id).put("direction", direction)
-                                .put("userTriggered", true).put("snapshot", saved ?: JSONObject.NULL).toString())
+                                .put("evidenceType", evidenceType).put("userTriggered", true).put("snapshot", saved ?: JSONObject.NULL).toString())
                         }
                         "started" -> {
                             check(!started && value.getString("reviewId") == id);started = true
@@ -72,9 +74,9 @@ class LiveCoreBridge(
                             }
                             val state = JSONObject(store.read());val old = state.optJSONArray("reviews") ?: JSONArray()
                             val kept = (0 until old.length()).map { old.getJSONObject(it) }.filter { it.getString("session_id") != id }.takeLast(9)
-                            store.write(JSONObject().put("active", id).put("reviews", JSONArray(kept).put(clean)).toString())
-                            LiveReviewCoordinator.markSaved()
-                            LiveReviewCoordinator.risk(latest.getString("severity"), evidence.toList())
+                            if (persistResults) store.write(JSONObject().put("active", id).put("reviews", JSONArray(kept).put(clean)).toString())
+                            if (updateLiveState) LiveReviewCoordinator.markSaved()
+                            if (updateLiveState) LiveReviewCoordinator.risk(latest.getString("severity"), evidence.toList())
                             awaiting = false;main.removeCallbacks(timeout);onResult(clean)
                         }
                         else -> onFailure()

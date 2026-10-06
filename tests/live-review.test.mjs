@@ -77,3 +77,15 @@ test('microphone and accessibility declarations are isolated from the Play manif
     assert.ok(!hackathon.includes(`android.permission.${forbidden}`));
   }
 });
+
+test('deferred and imported audio keep provenance without persisting sensitive speech', () => {
+  for (const evidenceType of ['recorded_call_audio', 'uploaded_call_audio']) {
+    const review = new LiveCallReview({id, direction: 'unknown', userTriggered: true, evidenceType});
+    const result = review.add({kind: 'liveCallChunk', reviewId: id, sequence: 1,
+      text: 'I am police. Transfer money now and tell me your OTP 765432.', timestamp: Date.now()});
+    assert.equal(result.snapshot.timeline[0].evidence_type, evidenceType);
+    assert.equal(ReviewSession.restore(result.snapshot).snapshot().timeline[0].evidence_type, evidenceType);
+    assert(!JSON.stringify(result.snapshot).includes('765432'));
+  }
+  assert.throws(() => new LiveCallReview({id, userTriggered: true, evidenceType: 'untrusted_audio'}));
+});

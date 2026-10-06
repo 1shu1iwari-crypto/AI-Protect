@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <queries><intent><action android:name="android.speech.RecognitionService" /></intent></queries>
-    <application>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <application android:label="AI-Protect MVP" tools:replace="android:label">
+        <activity android:name=".AudioReviewActivity" android:exported="false" />
+        <service android:name=".AudioReviewService" android:exported="false" android:foregroundServiceType="microphone|dataSync|mediaProcessing" />
         <activity android:name=".LiveReviewActivity" android:exported="false" />
         <service android:name=".LiveReviewService" android:exported="false" android:foregroundServiceType="microphone" />
         <service android:name=".ReviewAccessibilityService" android:exported="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

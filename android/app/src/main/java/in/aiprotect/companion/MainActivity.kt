@@ -116,7 +116,7 @@ class MainActivity : Activity() {
         else message("AI-Protect already holds the call screening role.")
     }
     private fun showSetup(){AlertDialog.Builder(this).setTitle("Call review setup")
-        .setMessage("Choose AI-Protect as the call screening app, then enable notifications. This replaces another screening app if selected. No recording, call blocking, contacts or call-log access. Eligible calls only; Demo call always works.")
+        .setMessage("Choose AI-Protect as the call screening app, then enable notifications. This replaces another screening app if selected. This call-screening role does not start recording, block calls, or read contacts or call logs. Eligible calls only; Demo call always works.")
         .setPositiveButton("Choose call role"){_,_->requestCallRole()}
         .setNeutralButton("Notifications"){_,_->if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS),102) else startActivity(Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,packageName))}
         .setNegativeButton("Close",null).show()}

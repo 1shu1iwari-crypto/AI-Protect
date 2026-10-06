@@ -1,3 +1,5 @@
+> This document describes the optional legacy real-time mode. For the new default recording/import workflow and its temporary audio storage, see [POST_CALL_REVIEW.md](POST_CALL_REVIEW.md).
+
 # Experimental live call review
 
 The `hackathon` flavor implements the requested opt-in microphone review. The
@@ -16,7 +18,7 @@ adb install -r app/build/outputs/apk/hackathon/debug/app-hackathon-debug.apk
 ```
 
 Windows: replace `./gradlew` with `gradlew.bat`. The application ID is
-`in.aiprotect.companion.hackathon`; it can coexist with the Play/manual flavor.
+`in.aiprotect.companion.mvp`; it can coexist with the Play/manual flavor.
 Only one installed app can hold the call-screening role at a time. Live review
 requires Android 13/API 33 or later, a current Android System WebView, and an
 installed on-device speech recognizer with the selected `en-IN` or `hi-IN` model.

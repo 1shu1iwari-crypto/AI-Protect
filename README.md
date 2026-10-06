@@ -1,5 +1,8 @@
 # ScamGuard India
 
+
+**Android MVP 0.5.0:** Record first, analyze afterward, or import a recording. English/Hindi models are bundled offline; microphone and floating shield remain available. See [post-call review](android/POST_CALL_REVIEW.md) for permissions, limitations, privacy and build instructions.
+
 A pause before you pay. Privacy-first recognition of scam workflows across messages, links, consented call text, UPI intents, and simulated payments. Built for RAKSHAM **problem statement 02**.
 
 ![ScamGuard protection desk](docs/screenshots/protection-desktop.png)

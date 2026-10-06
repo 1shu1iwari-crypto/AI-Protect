@@ -3,9 +3,11 @@ import {ReviewSession} from './review.mjs';
 // The native host owns consent and transport. This adapter owns one bounded review,
 // reusing the existing detector and returning derived data only.
 export class LiveCallReview {
-  constructor({id, direction, userTriggered, snapshot = null, model = null}) {
+  constructor({id, direction, userTriggered, snapshot = null, model = null, evidenceType = 'live_call_audio'}) {
     if (userTriggered !== true) throw Error('Explicit live review consent required.');
     if (typeof id !== 'string' || !/^[a-zA-Z0-9-]{8,64}$/.test(id)) throw Error('Invalid review ID.');
+    if (!['live_call_audio', 'recorded_call_audio', 'uploaded_call_audio'].includes(evidenceType)) throw Error('Invalid audio evidence type.');
+    this.evidenceType = evidenceType;
     this.session = snapshot ? ReviewSession.restore(snapshot, model) : new ReviewSession(model);
     if (snapshot && snapshot.session_id !== id) throw Error('Wrong review snapshot.');
     this.session.startCall({id, direction});
@@ -19,7 +21,7 @@ export class LiveCallReview {
         !Number.isFinite(payload.timestamp) || Math.abs(Date.now() - payload.timestamp) > 60000 ||
         payload.timestamp < (this.session.events.at(-1)?.timestamp || 0)) throw Error('Invalid live call fragment.');
     const result = this.session.add({channel: 'call', text: payload.text, timestamp: payload.timestamp,
-      evidence_type: 'live_call_audio', userTriggered: true});
+      evidence_type: this.evidenceType, userTriggered: true});
     this.lastSequence = payload.sequence;
     return {type: 'liveRisk', reviewId: this.session.id, sequence: this.lastSequence,
       severity: result.severity, stage: result.stage,

@@ -66,6 +66,7 @@ class LiveReviewActivity : Activity() {
         }
     }
     private fun begin() {
+        if (AudioReviewState.active) { android.widget.Toast.makeText(this, "Finish the audio review first.", android.widget.Toast.LENGTH_LONG).show(); return }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED ||
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED ||
             !getSystemService(NotificationManager::class.java).areNotificationsEnabled()) {

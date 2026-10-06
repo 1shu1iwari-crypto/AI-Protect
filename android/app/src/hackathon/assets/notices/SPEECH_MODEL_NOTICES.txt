@@ -1,0 +1,8 @@
+Offline speech recognition uses Vosk by Alpha Cephei (Apache License 2.0).
+Bundled models from https://alphacephei.com/vosk/models:
+- vosk-model-small-en-in-0.4 (Indian English), Apache 2.0
+- vosk-model-small-hi-0.22 (Hindi), Apache 2.0
+Vosk Android 0.3.75, Apache 2.0: https://github.com/alphacep/vosk-api
+Java Native Access 5.18.1, Apache 2.0 option: https://github.com/java-native-access/jna
+License text is provided in APACHE-2.0.txt.
+Recognition can be inaccurate; reports assess recognized speech, not the truth or identity of a caller.

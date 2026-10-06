@@ -11,3 +11,5 @@ android/local.properties
 android/**/build/
 *.apk
 AI-Protect-live-review/
+
+android/.kotlin/

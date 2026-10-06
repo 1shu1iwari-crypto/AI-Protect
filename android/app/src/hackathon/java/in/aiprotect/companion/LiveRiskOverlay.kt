@@ -30,7 +30,7 @@ class LiveRiskOverlay(private val context: Context) {
         controls.addView(Button(context).apply {
             text = if (state.phase == LiveReviewCoordinator.Phase.ELIGIBLE) "Review" else "Open review"
             setOnClickListener {
-                val target = if (state.phase == LiveReviewCoordinator.Phase.ELIGIBLE) LiveReviewActivity::class.java else MainActivity::class.java
+                val target = if (state.phase == LiveReviewCoordinator.Phase.ELIGIBLE) AudioReviewActivity::class.java else MainActivity::class.java
                 if (target == MainActivity::class.java) LiveReviewCoordinator.stop()
                 context.startActivity(Intent(context, target).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP))
             }
@@ -48,6 +48,30 @@ class LiveRiskOverlay(private val context: Context) {
                 PixelFormat.TRANSLUCENT).apply { gravity = Gravity.TOP or Gravity.END;y = (80 * dp).toInt() })
             root = panel
         } catch (_: RuntimeException) { /* Notification remains the fallback. */ }
+    }
+    fun renderAudio(state: AudioReviewState.State) {
+        close()
+        val panel = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPadding(12, 8, 12, 8); setBackgroundColor(Color.rgb(247,247,243)) }
+        panel.addView(TextView(context).apply { text = state.status; textSize = 15f; setTextColor(Color.BLACK) })
+        panel.addView(Button(context).apply {
+            text = if (state.phase == AudioReviewState.Phase.RECORDING) "Stop & analyze" else "Open progress"
+            setOnClickListener {
+                if (state.phase == AudioReviewState.Phase.RECORDING) context.startService(Intent(context, AudioReviewService::class.java).setAction(AudioReviewService.FINISH))
+                else context.startActivity(Intent(context, AudioReviewActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            }
+        })
+        panel.addView(Button(context).apply {
+            text = "Cancel & delete"
+            setOnClickListener { context.startService(Intent(context, AudioReviewService::class.java).setAction(AudioReviewService.CANCEL)) }
+        })
+        val dp = context.resources.displayMetrics.density
+        try {
+            manager.addView(panel, WindowManager.LayoutParams((270 * dp).toInt(), WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                PixelFormat.TRANSLUCENT).apply { gravity = Gravity.TOP or Gravity.END; y = (80 * dp).toInt() })
+            root = panel
+        } catch (_: RuntimeException) { /* Foreground notification also provides controls. */ }
     }
     fun close() { root?.let { try { manager.removeView(it) } catch (_: RuntimeException) {} };root = null }
 }
