@@ -165,11 +165,10 @@ async function evaluation() {
     const sb = m.scientific_benchmarks;
     const scientificSection = sb ? (
       '<div style="margin-bottom:24px;">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">' +
+        '<div style="margin-bottom:14px;">' +
           '<h3 style="font-size:18px;margin:0;">Reproducible External Evaluation Evidence</h3>' +
-          '<span class="tag tag-green">Reproducible External Evaluation</span>' +
         '</div>' +
-        '<div class="metrics-grid">' +
+        '<div class="metrics-grid-3">' +
           '<div class="metric-card"><span class="metric-label">SMS False Alert Rate</span><strong>' + (sb.real_sms_single_message_alert_burden !== undefined ? sb.real_sms_single_message_alert_burden : sb.alerts_per_100_legitimate_sessions !== undefined ? sb.alerts_per_100_legitimate_sessions : '0.02') + '%</strong><p>4,827 authentic UCI SMS ham messages (single-message test)</p></div>' +
           '<div class="metric-card"><span class="metric-label">Held-Out Family Novelty</span><strong>' + (sb.held_out_family_novelty_separation || sb.zero_day_holdout_family_recall || 100) + '%</strong><p>4/4 LOFO prototype separation (novelty &ge; 0.35)</p></div>' +
           '<div class="metric-card"><span class="metric-label">PhiUSIIL URL Accuracy</span><strong>' + (sb.phiusiil_url_accuracy ? sb.phiusiil_url_accuracy.toFixed(1) : '90.9') + '%</strong><p>Held-out URLs (0 registrable domain leakage)</p></div>' +
@@ -200,7 +199,7 @@ async function evaluation() {
       content.innerHTML =
         scientificSection +
         '<div style="margin-bottom:12px;"><h4 style="font-size:15px;margin:0 0 8px 0;color:var(--muted);">Regression Harness & Test Suite (42 Scam / 42 Benign Journeys)</h4></div>' +
-        '<div class="metrics-grid">' +
+        '<div class="metrics-grid-4">' +
           '<div class="metric-card"><span class="metric-label">Scam workflows warned</span><strong>' + m.true_positive + '/' + m.scam_sessions + '</strong><p>Synthetic workflow recall</p></div>' +
           '<div class="metric-card"><span class="metric-label">Legitimate interruptions</span><strong>' + m.false_positive + '/' + m.legitimate_sessions + '</strong><p>Synthetic benign workflows</p></div>' +
           '<div class="metric-card"><span class="metric-label">Pre-payment coverage</span><strong>' + Math.round(m.prepayment_rate * 100) + '%</strong><p>Only payment scam scenarios</p></div>' +
