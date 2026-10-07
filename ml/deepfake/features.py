@@ -1,0 +1,377 @@
+"""Acoustic feature extraction and audio quality screening for deepfake detection.
+
+Implements Linear Frequency Cepstral Coefficients (LFCC), spectral envelope
+statistics, and vocoder/TTS artifact indicators on 16kHz audio.
+Complies with ASVspoof / AASIST acoustic feature conventions.
+"""
+from __future__ import annotations
+
+import io
+import struct
+import wave
+from dataclasses import dataclass, field
+from typing import List, Tuple, Union
+
+import numpy as np
+from scipy.fft import dct
+from scipy.signal import get_window
+
+TARGET_SAMPLE_RATE = 16000
+MIN_DURATION_SECONDS = 0.5
+MAX_DURATION_SECONDS = 600.0
+
+
+@dataclass
+class AudioQualityResult:
+    status: str  # 'adequate', 'degraded', 'insufficient'
+    duration_s: float
+    snr_db: float
+    clipping_ratio: float
+    silence_ratio: float
+    sample_rate: int
+    limitations: List[str] = field(default_factory=list)
+
+
+def decode_audio_bytes(data: bytes, sample_rate: int = TARGET_SAMPLE_RATE) -> Tuple[np.ndarray, int]:
+    """Decodes raw 16-bit mono PCM or WAV byte streams into normalized float32 waveform [-1.0, 1.0]."""
+    if not data or len(data) < 16:
+        raise ValueError("Audio payload is empty or too short.")
+
+    # Check for RIFF/WAV header
+    if data.startswith(b"RIFF") and b"WAVE" in data[:16]:
+        try:
+            with wave.open(io.BytesIO(data), "rb") as wf:
+                sr = wf.getframerate()
+                n_channels = wf.getnchannels()
+                sampwidth = wf.getsampwidth()
+                n_frames = wf.getnframes()
+                raw_frames = wf.readframes(n_frames)
+
+                if sampwidth == 2:
+                    samples = np.frombuffer(raw_frames, dtype=np.int16).astype(np.float32) / 32768.0
+                elif sampwidth == 1:
+                    samples = (np.frombuffer(raw_frames, dtype=np.uint8).astype(np.float32) - 128.0) / 128.0
+                elif sampwidth == 4:
+                    samples = np.frombuffer(raw_frames, dtype=np.int32).astype(np.float32) / 2147483648.0
+                else:
+                    raise ValueError(f"Unsupported WAV sample width: {sampwidth}")
+
+                if n_channels > 1:
+                    samples = samples.reshape(-1, n_channels).mean(axis=1)
+
+                if sr != TARGET_SAMPLE_RATE:
+                    samples = resample_audio(samples, sr, TARGET_SAMPLE_RATE)
+                    sr = TARGET_SAMPLE_RATE
+                return samples, sr
+        except wave.Error as e:
+            raise ValueError(f"Corrupt WAV container: {e}")
+
+    # Fallback to raw 16-bit little-endian PCM
+    if len(data) % 2 != 0:
+        data = data[: len(data) - (len(data) % 2)]
+    samples = np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32768.0
+    return samples, sample_rate
+
+
+def resample_audio(audio: np.ndarray, orig_sr: int, target_sr: int) -> np.ndarray:
+    """Linear interpolation resampler for standardizing sample rates."""
+    if orig_sr == target_sr or len(audio) == 0:
+        return audio
+    num_target_samples = int(round(len(audio) * float(target_sr) / orig_sr))
+    orig_indices = np.linspace(0, len(audio) - 1, len(audio))
+    target_indices = np.linspace(0, len(audio) - 1, num_target_samples)
+    return np.interp(target_indices, orig_indices, audio).astype(np.float32)
+
+
+def check_audio_quality(audio: np.ndarray, sample_rate: int = TARGET_SAMPLE_RATE) -> AudioQualityResult:
+    """Evaluates recording duration, clipping, silence percentage, and estimated SNR."""
+    duration_s = float(len(audio)) / float(max(1, sample_rate))
+    limitations: List[str] = []
+
+    if duration_s < MIN_DURATION_SECONDS:
+        limitations.append(f"Recording shorter than minimum {MIN_DURATION_SECONDS}s.")
+        return AudioQualityResult(
+            status="insufficient",
+            duration_s=duration_s,
+            snr_db=0.0,
+            clipping_ratio=0.0,
+            silence_ratio=1.0,
+            sample_rate=sample_rate,
+            limitations=limitations,
+        )
+
+    if duration_s > MAX_DURATION_SECONDS:
+        limitations.append(f"Recording exceeds {MAX_DURATION_SECONDS}s maximum.")
+
+    abs_audio = np.abs(audio)
+    peak = float(np.max(abs_audio)) if len(audio) > 0 else 0.0
+
+    if peak < 1e-4:
+        limitations.append("Audio is virtually silent or muted.")
+        return AudioQualityResult(
+            status="insufficient",
+            duration_s=duration_s,
+            snr_db=0.0,
+            clipping_ratio=0.0,
+            silence_ratio=1.0,
+            sample_rate=sample_rate,
+            limitations=limitations,
+        )
+
+    # Clipping detection (|sample| >= 0.999)
+    clipping_count = np.sum(abs_audio >= 0.999)
+    clipping_ratio = float(clipping_count) / float(len(audio))
+    if clipping_ratio > 0.05:
+        limitations.append("Severe audio clipping detected (>5% saturated samples).")
+
+    # Frame-wise energy for silence & SNR calculation (25ms frames, 10ms hop)
+    frame_len = int(0.025 * sample_rate)
+    hop_len = int(0.010 * sample_rate)
+    n_frames = max(1, (len(audio) - frame_len) // hop_len + 1)
+
+    energies = []
+    for i in range(n_frames):
+        start = i * hop_len
+        frame = audio[start : start + frame_len]
+        energy = float(np.sum(frame**2)) / float(frame_len)
+        energies.append(energy)
+    energies_arr = np.array(energies)
+
+    max_energy = np.max(energies_arr) if len(energies_arr) > 0 else 1e-6
+    silence_threshold = max(1e-7, max_energy * 0.01)  # -20 dB from frame peak
+    silence_frames = np.sum(energies_arr < silence_threshold)
+    silence_ratio = float(silence_frames) / float(len(energies_arr))
+
+    if silence_ratio > 0.90:
+        limitations.append("Recording contains >90% silence or background pause.")
+
+    # Estimated SNR
+    speech_energy = np.mean(energies_arr[energies_arr >= silence_threshold]) if np.any(energies_arr >= silence_threshold) else 1e-6
+    noise_energy = np.mean(energies_arr[energies_arr < silence_threshold]) if np.any(energies_arr < silence_threshold) else 1e-7
+    snr_db = float(10.0 * np.log10(max(1.0, speech_energy / max(1e-9, noise_energy))))
+
+    if snr_db < 6.0:
+        limitations.append("Low signal-to-noise ratio (< 6 dB). Background noise may affect authenticity scores.")
+
+    if clipping_ratio > 0.10 or silence_ratio > 0.92:
+        status = "insufficient"
+    elif clipping_ratio > 0.03 or silence_ratio > 0.75 or snr_db < 8.0:
+        status = "degraded"
+    else:
+        status = "adequate"
+
+    return AudioQualityResult(
+        status=status,
+        duration_s=round(duration_s, 3),
+        snr_db=round(snr_db, 1),
+        clipping_ratio=round(clipping_ratio, 4),
+        silence_ratio=round(silence_ratio, 3),
+        sample_rate=sample_rate,
+        limitations=limitations,
+    )
+
+
+def extract_linear_filterbank(num_filters: int = 40, n_fft: int = 512, sample_rate: int = 16000) -> np.ndarray:
+    """Generates linear-frequency triangular filterbank matrix.
+
+    ASVspoof models (AASIST, LFCC) prioritize linear frequencies to capture
+    high-frequency vocoder artifacts and synthetic harmonic flattening.
+    """
+    f_min = 0.0
+    f_max = sample_rate / 2.0
+    filter_freqs = np.linspace(f_min, f_max, num_filters + 2)
+    fft_bin_freqs = np.linspace(0, sample_rate / 2.0, (n_fft // 2) + 1)
+
+    weights = np.zeros((num_filters, (n_fft // 2) + 1), dtype=np.float32)
+    for m in range(num_filters):
+        f_left = filter_freqs[m]
+        f_center = filter_freqs[m + 1]
+        f_right = filter_freqs[m + 2]
+
+        for k, f_k in enumerate(fft_bin_freqs):
+            if f_left <= f_k <= f_center and f_center > f_left:
+                weights[m, k] = (f_k - f_left) / (f_center - f_left)
+            elif f_center <= f_k <= f_right and f_right > f_center:
+                weights[m, k] = (f_right - f_k) / (f_right - f_center)
+
+    return weights
+
+
+def extract_lfcc(
+    audio: np.ndarray,
+    sample_rate: int = TARGET_SAMPLE_RATE,
+    num_cepstral: int = 20,
+    num_filters: int = 40,
+    n_fft: int = 512,
+    hop_length: int = 160,
+    win_length: int = 400,
+) -> np.ndarray:
+    """Computes Linear Frequency Cepstral Coefficients (LFCC) across audio frames."""
+    if len(audio) < win_length:
+        audio = np.pad(audio, (0, win_length - len(audio)), mode="reflect")
+
+    window = get_window("hann", win_length, fftbins=True).astype(np.float32)
+    n_frames = max(1, (len(audio) - win_length) // hop_length + 1)
+    filterbank = extract_linear_filterbank(num_filters, n_fft, sample_rate)
+
+    lfcc_frames = []
+    for i in range(n_frames):
+        start = i * hop_length
+        frame = audio[start : start + win_length] * window
+        spectrum = np.fft.rfft(frame, n=n_fft)
+        power_spectrum = np.abs(spectrum) ** 2
+
+        filtered_energy = np.dot(filterbank, power_spectrum)
+        log_energy = np.log(np.maximum(1e-12, filtered_energy))
+
+        # DCT-II for cepstral decorrelation
+        cepstral = dct(log_energy, type=2, norm="ortho")[:num_cepstral]
+        lfcc_frames.append(cepstral)
+
+    return np.array(lfcc_frames, dtype=np.float32)
+
+
+def compute_deltas(feat: np.ndarray, width: int = 5) -> np.ndarray:
+    """Computes first-order delta (velocity) features."""
+    if len(feat) < 2:
+        return np.zeros_like(feat)
+    half_width = width // 2
+    padded = np.pad(feat, ((half_width, half_width), (0, 0)), mode="edge")
+    deltas = np.zeros_like(feat)
+    denom = 2 * sum(i**2 for i in range(1, half_width + 1))
+    for i in range(len(feat)):
+        val = np.zeros(feat.shape[1], dtype=np.float32)
+        for d in range(1, half_width + 1):
+            val += d * (padded[i + half_width + d] - padded[i + half_width - d])
+        deltas[i] = val / denom
+    return deltas
+
+
+def extract_acoustic_indicators(
+    audio: np.ndarray, sample_rate: int = TARGET_SAMPLE_RATE
+) -> Tuple[np.ndarray, dict]:
+    """Extracts fixed-dimensional acoustic authenticity representation (84 features)
+    and granular heuristic diagnostic metrics.
+    """
+    lfcc = extract_lfcc(audio, sample_rate=sample_rate, num_cepstral=20, num_filters=40)
+    delta_lfcc = compute_deltas(lfcc)
+    delta2_lfcc = compute_deltas(delta_lfcc)
+
+    # 1. Aggregate LFCC statistics (20 * 3 * 2 = 120 reduced to mean and std = 60 dims)
+    lfcc_mean = np.mean(lfcc, axis=0)
+    lfcc_std = np.std(lfcc, axis=0)
+    d_lfcc_std = np.std(delta_lfcc, axis=0)
+
+    # 2. Spectral envelope features across frames
+    win_length = 400
+    hop_length = 160
+    n_fft = 512
+    n_frames = max(1, (len(audio) - win_length) // hop_length + 1)
+    window = get_window("hann", win_length, fftbins=True)
+    fft_bin_freqs = np.linspace(0, sample_rate / 2.0, (n_fft // 2) + 1)
+
+    centroids = []
+    flatnesses = []
+    fluxes = []
+    high_freq_energies = []
+    prev_mag = None
+
+    for i in range(n_frames):
+        start = i * hop_length
+        frame = audio[start : start + win_length]
+        if len(frame) < win_length:
+            frame = np.pad(frame, (0, win_length - len(frame)))
+        mag = np.abs(np.fft.rfft(frame * window, n=n_fft))
+        mag_sum = np.sum(mag)
+
+        # Centroid
+        centroid = (np.sum(mag * fft_bin_freqs) / max(1e-9, mag_sum)) if mag_sum > 0 else 0.0
+        centroids.append(centroid)
+
+        # Spectral Flatness (Geometric Mean / Arithmetic Mean)
+        pow_spec = mag**2
+        arith_mean = np.mean(pow_spec)
+        if arith_mean > 1e-12:
+            log_mean = np.mean(np.log(np.maximum(1e-12, pow_spec)))
+            geom_mean = np.exp(log_mean)
+            flatness = float(geom_mean / arith_mean)
+        else:
+            flatness = 0.0
+        flatnesses.append(flatness)
+
+        # Spectral Flux
+        if prev_mag is not None:
+            flux = float(np.sqrt(np.sum((mag - prev_mag) ** 2)))
+            fluxes.append(flux)
+        prev_mag = mag
+
+        # High frequency energy ratio (> 4kHz)
+        hf_mask = fft_bin_freqs >= 4000.0
+        hf_ratio = float(np.sum(mag[hf_mask]) / max(1e-9, mag_sum))
+        high_freq_energies.append(hf_ratio)
+
+    centroids_arr = np.array(centroids, dtype=np.float32)
+    flatnesses_arr = np.array(flatnesses, dtype=np.float32)
+    fluxes_arr = np.array(fluxes, dtype=np.float32) if fluxes else np.array([0.0], dtype=np.float32)
+    hf_arr = np.array(high_freq_energies, dtype=np.float32)
+
+    # 3. Autocorrelation-based pitch proxy & periodicity stiffness
+    # Neural TTS often exhibits overly rigid or synthetic pitch trajectories
+    autocorr_lags = []
+    for i in range(0, len(audio) - 800, 400):
+        segment = audio[i : i + 800]
+        if np.max(np.abs(segment)) > 0.05:
+            corr = np.correlate(segment, segment, mode="full")[800:]
+            # Search lag in range 32..320 (50Hz..500Hz at 16kHz)
+            peak_lag = np.argmax(corr[32:320]) + 32
+            autocorr_lags.append(float(peak_lag))
+    lags_arr = np.array(autocorr_lags) if autocorr_lags else np.array([100.0])
+
+    pitch_stiffness = float(1.0 / (1.0 + np.std(lags_arr))) if len(lags_arr) > 1 else 0.5
+    mean_flatness = float(np.mean(flatnesses_arr))
+    mean_hf_energy = float(np.mean(hf_arr))
+    mean_flux = float(np.mean(fluxes_arr))
+
+    # Assemble 84-dimensional feature vector
+    spectral_stats = np.array(
+        [
+            np.mean(centroids_arr),
+            np.std(centroids_arr),
+            np.percentile(centroids_arr, 10),
+            np.percentile(centroids_arr, 90),
+            mean_flatness,
+            np.std(flatnesses_arr),
+            np.percentile(flatnesses_arr, 90),
+            mean_flux,
+            np.std(fluxes_arr),
+            mean_hf_energy,
+            np.std(hf_arr),
+            pitch_stiffness,
+            float(np.mean(lags_arr)),
+            float(np.std(lags_arr)),
+            float(np.percentile(lags_arr, 90)),
+            float(np.percentile(lags_arr, 10)),
+            float(np.max(flatnesses_arr)),
+            float(np.min(centroids_arr)),
+            float(np.max(centroids_arr)),
+            float(len(autocorr_lags) / max(1, n_frames)),
+            float(np.sum(flatnesses_arr > 0.15) / max(1, len(flatnesses_arr))),
+            float(np.sum(hf_arr > 0.35) / max(1, len(hf_arr))),
+            float(np.median(centroids_arr)),
+            float(np.median(flatnesses_arr)),
+        ],
+        dtype=np.float32,
+    )
+
+    feature_vec = np.concatenate([lfcc_mean, lfcc_std, d_lfcc_std, spectral_stats]).astype(np.float32)
+
+    # Diagnostic indicators for explainability
+    indicators = {
+        "mean_spectral_flatness": round(mean_flatness, 4),
+        "synthetic_vocoder_periodicity": bool(pitch_stiffness > 0.65 or mean_flatness < 0.008),
+        "pitch_contour_stiffness": round(pitch_stiffness, 3),
+        "high_frequency_ratio": round(mean_hf_energy, 3),
+        "mean_spectral_centroid_hz": round(float(np.mean(centroids_arr)), 1),
+    }
+
+    return feature_vec, indicators

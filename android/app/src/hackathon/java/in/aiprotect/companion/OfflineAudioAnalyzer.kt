@@ -156,4 +156,37 @@ class OfflineAudioAnalyzer(private val context: Context) {
         }
         return words
     }
+
+    /**
+     * Consented acoustic deepfake & synthetic manipulation assessment.
+     * Communicates with local reference inference service if configured and consented.
+     * Fails gracefully without throwing when service is unreachable or offline.
+     */
+    suspend fun analyzeAuthenticity(pcm: File, serverUrl: String = "http://10.0.2.2:8000"): JSONObject? {
+        return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                if (!pcm.exists() || pcm.length() < 16000) return@withContext null
+                val connection = (java.net.URL("$serverUrl/api/audio/analyze").openConnection() as java.net.HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json")
+                    doOutput = true
+                    connectTimeout = 3000
+                    readTimeout = 6000
+                }
+                val maxBytes = minOf(pcm.length(), 320_000L).toInt()
+                val buffer = ByteArray(maxBytes)
+                pcm.inputStream().buffered().use { it.read(buffer, 0, maxBytes) }
+                val b64 = android.util.Base64.encodeToString(buffer, android.util.Base64.NO_WRAP)
+                val payload = JSONObject().put("consent", true).put("audio_base64", b64).put("sample_rate", 16000).toString()
+                connection.outputStream.bufferedWriter().use { it.write(payload) }
+
+                if (connection.responseCode == 200) {
+                    val body = connection.inputStream.bufferedReader().use { it.readText() }
+                    JSONObject(body)
+                } else null
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
 }

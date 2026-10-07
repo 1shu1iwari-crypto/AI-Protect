@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-06T18:30:47.103Z",
+  "generated_at": "2026-10-07T22:13:13.905Z",
   "version": "0.5.1",
   "environment": "Node v24.12.0, win32/x64; development machine CPU, not a phone",
   "dataset": "84 AI-authored synthetic workflows: original 20 smoke + 32 challenge + 32 additive adversarial; frozen 157-text logistic model plus 97 semantic seeds; verified against independent scientific benchmarks",
@@ -26,7 +26,7 @@
       "precision": 0.9881,
       "recall": 0.7686,
       "f1_score": 0.8647,
-      "per_url_latency_microseconds": 16.58,
+      "per_url_latency_microseconds": 65.01,
       "tp": 3651,
       "fp": 44,
       "tn": 5206,
@@ -237,9 +237,9 @@
     ]
   },
   "latency_ms": {
-    "p50": 0.11720000000013897,
-    "p95": 0.4059000000000026,
-    "max": 27.082000000000008,
+    "p50": 0.4338999999999942,
+    "p95": 1.2023999999996704,
+    "max": 87.9718,
     "events_measured": 18079
   },
   "model_bytes": 151351,

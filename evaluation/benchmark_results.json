@@ -1,7 +1,7 @@
 {
   "benchmark_version": "2.2.0",
-  "evaluation_date": "2026-10-06 18:30:43 UTC",
-  "total_execution_seconds": 2.71,
+  "evaluation_date": "2026-10-07 22:13:03 UTC",
+  "total_execution_seconds": 9.62,
   "summary": {
     "phiusiil_url_accuracy": 88.57,
     "phiusiil_url_precision": 98.81,
@@ -25,7 +25,7 @@
       "precision": 0.9881,
       "recall": 0.7686,
       "f1_score": 0.8647,
-      "per_url_latency_microseconds": 16.58,
+      "per_url_latency_microseconds": 65.01,
       "tp": 3651,
       "fp": 44,
       "tn": 5206,

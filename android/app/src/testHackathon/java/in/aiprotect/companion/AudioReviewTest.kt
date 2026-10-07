@@ -80,4 +80,13 @@ class AudioReviewTest {
         store.save(JSONObject().put("id", "expired-report").put("created", now - 86_400_001))
         assertFalse(store.list().any { it.getString("id") == "expired-report" })
     }
+    @Test fun authenticityGracefullyDegradesWhenUnreachable() = kotlinx.coroutines.runBlocking {
+        val analyzer = OfflineAudioAnalyzer(RuntimeEnvironment.getApplication())
+        val dummyPcm = File(RuntimeEnvironment.getApplication().cacheDir, "test.pcm").apply {
+            writeBytes(ByteArray(32000))
+        }
+        val result = analyzer.analyzeAuthenticity(dummyPcm, serverUrl = "http://127.0.0.1:59999")
+        assertNull(result)
+        dummyPcm.delete()
+    }
 }

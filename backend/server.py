@@ -1,5 +1,5 @@
 """Local-only reference server. Static app + strict consented fingerprint store."""
-import argparse, json, os, re, secrets, sqlite3, time, urllib.request
+import argparse, base64, json, os, re, secrets, sqlite3, time, urllib.request
 from collections import defaultdict, deque
 from contextlib import contextmanager
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -7,6 +7,12 @@ from pathlib import Path
 from threading import Lock, Thread
 from urllib.parse import urlsplit
 from campaigns import discover
+try:
+    from ml.deepfake import default_deepfake_detector
+    DEEPFAKE_AVAILABLE = True
+except ImportError:
+    default_deepfake_detector = None
+    DEEPFAKE_AVAILABLE = False
 try:
     from radar.cluster import cluster_trajectories
     from radar.drift import StreamingRadarDriftDetector
@@ -146,13 +152,29 @@ class Handler(SimpleHTTPRequestHandler):
         if self.headers.get('Content-Type','').split(';')[0]!='application/json':return self.respond(415,{'error':'JSON required'})
         try:
             length=int(self.headers.get('Content-Length','0'))
-            if not 0<length<=8192: return self.respond(413,{'error':'Payload too large or empty'})
+            max_len = 15*1024*1024 if self.path=='/api/audio/analyze' else 8192
+            if not 0<length<=max_len: return self.respond(413,{'error':'Payload too large or empty'})
             with LOCK:
                 now=time.time();q=LIMITS[self.client_address[0]]
                 while q and q[0]<now-60:q.popleft()
                 if len(q)>=60:return self.respond(429,{'error':'Rate limited'})
                 q.append(now)
             p=json.loads(self.rfile.read(length))
+            if self.path=='/api/audio/analyze':
+                if not isinstance(p,dict) or p.get('consent') is not True:
+                    raise ValueError('Explicit consent required for audio analysis')
+                if not DEEPFAKE_AVAILABLE or not default_deepfake_detector:
+                    return self.respond(503,{'error':'Acoustic deepfake detector is not available on this server'})
+                b64_data=p.get('audio_base64')
+                if not isinstance(b64_data,str) or not b64_data:
+                    raise ValueError('audio_base64 string is required')
+                try:
+                    raw_audio=base64.b64decode(b64_data)
+                except Exception:
+                    raise ValueError('Invalid base64 audio data')
+                sr=int(p.get('sample_rate',16000))
+                result=default_deepfake_detector.analyze(raw_audio,sample_rate=sr)
+                return self.respond(200,result)
             if self.path=='/api/analytics':
                 token=os.environ.get('POSTHOG_PROJECT_TOKEN')
                 if not token:return self.respond(503,{'error':'Analytics not configured'})

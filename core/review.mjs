@@ -1,6 +1,7 @@
 import {Session,TACTICS,CHANNELS,LABELS} from './engine.mjs';
 import {sanitiseEvidenceEvent} from './evidence.mjs';
 import {verifyCommunication,REGISTRY} from './verification.mjs';
+import {fuseMultimodalEvidence} from './evidence-fusion.mjs';
 export const QUICK_SIGNALS = [
  ['authority','Claims bank / institution','A bank officer contacted me.'],
  ['payment','Asks for money','They ask me to send money.'],
@@ -38,14 +39,15 @@ export class ReviewSession extends Session {
  add(input){if(input.userTriggered!==true)throw Error('Tap Check or Review before analysis.');
   // Existing engine owns expiry, warning decisions and fingerprint vocabulary.
   const expired=this.events.length&&(input.timestamp??Date.now())-this.events.at(-1).timestamp>1200000;
-  const verification=verifyCommunication(input.text,expired?null:this.claimed_org,input.sender_context);
+  const verification=verifyCommunication(input.text,expired?null:this.claimed_org,input.sender_context,undefined,{mediaAuthenticity:input.acousticEvidence,userConfirmedIdentity:input.userConfirmedIdentity});
   const result=super.add({...input,verification_status:verification.status});
   if(verification.claimed_org)this.claimed_org=verification.claimed_org;
   const evidence=explanations(result.event);
   this.workflow_state=result.stage;
   this.timeline.push(timelineEntry(result.event,result,this.timeline.at(-1),{evidence_type:input.evidence_type,history:this.timeline}));
   if(this.timeline.length>64)this.timeline.shift();
-  return {...result,verification,manipulation:evidence};
+  const fused=fuseMultimodalEvidence({session:this,riskAssessment:result,verification,acousticEvidence:input.acousticEvidence,currentEvent:result.event});
+  return {...result,verification,manipulation:evidence,fused};
  }
  choosePayment(paid){const plan=responsePlan(paid);this.payment_status=plan.payment_status;this.recordAction(paid==='yes'?'reported_paid':'reported_not_paid');return plan;}
  recordAction(action){if(!['reported_paid','reported_not_paid','verify_independently','block_ignore','report_route','export','cancel_simulation','continue_simulation'].includes(action))throw Error('Unsupported action');this.actions_taken.push({action,timestamp:Date.now()});this.actions_taken=this.actions_taken.slice(-32);}

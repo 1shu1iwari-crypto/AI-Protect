@@ -126,7 +126,16 @@ class AudioReviewActivity : Activity() {
         for (report in items) {
             val id = report.getString("id")
             reports.addView(TextView(this).apply {
-                text = report.getString("title") + "\n" + report.getString("source") + " · " + report.getInt("words") + " recognized words\n" +
+                val mediaAuth = report.optString("media_authenticity", "")
+                val authBadge = when (mediaAuth) {
+                    "synthetic_suspected" -> "⚠️ Acoustic Authenticity: Synthetic / voice clone signs suspected\n"
+                    "no_strong_synthetic_indication" -> "✓ Acoustic Authenticity: No synthetic manipulation signs found\n"
+                    "inconclusive" -> "ℹ Acoustic Authenticity: Inconclusive (audio quality degraded or borderline)\n"
+                    else -> ""
+                }
+                text = report.getString("title") + "\n" +
+                    authBadge +
+                    report.getString("source") + " · " + report.getInt("words") + " recognized words\n" +
                     report.getJSONArray("signals").let { signals -> (0 until signals.length()).joinToString(", ") { signals.getString(it).replace('_', ' ') } } + "\n" + report.getString("note")
                 textSize = 16f; setPadding(0, 24, 0, 8)
             })

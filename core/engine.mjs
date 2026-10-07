@@ -8,6 +8,7 @@ export {extract} from './evidence.mjs';
 export {checkIntentConsistency,CONTRADICTION_TYPES} from './intent-contradiction.mjs';
 export {parseAndAnalyzeUrl,extractRegisteredDomain} from './domain-parser.mjs';
 export {BaseSemanticProvider,ConceptSemanticProvider,MultilingualEncoderSemanticProvider,defaultSemanticProvider} from './semantic-provider.mjs';
+export {fuseMultimodalEvidence,EVIDENCE_TYPES,AUTHENTICITY_ASSESSMENTS,IDENTITY_STATUSES} from './evidence-fusion.mjs';
 import {CHANNELS,LABELS} from './constants.mjs';
 import {parseUPI,randomId} from './input.mjs';
 import {evidenceEvent} from './evidence.mjs';

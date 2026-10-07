@@ -61,6 +61,31 @@ class API(unittest.TestCase):
             r=urllib.request.Request(self.url+path,method='HEAD')
             with self.assertRaises(urllib.error.HTTPError) as response:urllib.request.urlopen(r)
             self.assertEqual(response.exception.code,404);response.exception.close()
+    def test_audio_deepfake_analysis_endpoint(self):
+        import base64
+        # 1. Reject without explicit consent
+        status, body = self.request('/api/audio/analyze', {'consent': False, 'audio_base64': 'AAAA'})
+        self.assertEqual(status, 400)
+        self.assertIn('error', body)
+
+        # 2. Reject empty audio
+        status, body = self.request('/api/audio/analyze', {'consent': True, 'audio_base64': ''})
+        self.assertEqual(status, 400)
+        self.assertIn('error', body)
+
+        # 3. Analyze valid 16-bit PCM buffer (1.5 seconds)
+        import numpy as np
+        t = np.linspace(0, 1.5, 24000, dtype=np.float32)
+        pcm = (0.3 * np.sin(2 * np.pi * 300 * t) * 32767).astype(np.int16).tobytes()
+        b64_audio = base64.b64encode(pcm).decode('ascii')
+
+        status, body = self.request('/api/audio/analyze', {'consent': True, 'audio_base64': b64_audio, 'sample_rate': 16000})
+        self.assertEqual(status, 200)
+        self.assertEqual(body['schema_version'], 1)
+        self.assertEqual(body['analysis_status'], 'completed')
+        self.assertEqual(body['media_type'], 'audio')
+        self.assertIn(body['authenticity_assessment'], ['synthetic_suspected', 'no_strong_synthetic_indication', 'inconclusive'])
+        self.assertIsInstance(body['raw_model_score'], float)
     def test_retention_expiry(self):
         with self.server.store.db() as c:c.execute('UPDATE fingerprints SET created=0')
         self.assertEqual(self.request('/api/campaigns')[1]['campaigns'],[])

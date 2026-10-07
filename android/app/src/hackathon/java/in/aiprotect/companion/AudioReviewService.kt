@@ -112,6 +112,7 @@ class AudioReviewService : Service() {
                     }
                 }
             }
+            val authenticity = analyzer.analyzeAuthenticity(pcm)
             currentCoroutineContext().ensureActive(); check(!engineFailed)
             withContext(Dispatchers.IO) { pcm.delete(); imported.delete() }
             val hasReview = words >= 5 && snapshot != null
@@ -120,11 +121,14 @@ class AudioReviewService : Service() {
                 val kept = (0 until old.length()).map { old.getJSONObject(it) }.filter { it.getString("session_id") != request.id }.takeLast(9)
                 store.write(JSONObject().put("active", request.id).put("reviews", JSONArray(kept).put(snapshot)).toString())
             }
+            val authAssessment = authenticity?.optString("authenticity_assessment", "inconclusive") ?: "not_performed"
             val title = AudioVerdict.title(words, severity)
             val report = JSONObject().put("id", request.id).put("created", System.currentTimeMillis()).put("title", title)
                 .put("severity", if (words < 5) "insufficient" else severity).put("words", words).put("signals", JSONArray(evidence.toList()))
                 .put("hasReview", hasReview).put("source", if (request.uri == null) "Microphone recording" else "Imported recording")
-                .put("note", "Automated assessment of recognized speech only. Speech recognition can miss or change words. No strong signs does not prove a call is safe. Temporary audio deleted; original imported file unchanged.")
+                .put("authenticity", authenticity)
+                .put("media_authenticity", authAssessment)
+                .put("note", "Automated assessment of speech and acoustic authenticity. Speech recognition can miss or change words. No strong signs does not prove a call is safe. Temporary audio deleted; original imported file unchanged.")
             AudioReportStore(this).save(report)
             completedTitle = title
             notifyResult(request.id, title, "Tap to open the report. Temporary audio deleted.")
