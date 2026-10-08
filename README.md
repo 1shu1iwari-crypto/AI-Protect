@@ -102,11 +102,11 @@ flowchart TD
 - **False-Positive Mitigation (No Automatic Blocking or False Accusations)**:
   - AI-Protect **never** automatically cancels a transaction, freezes accounts, or locks devices.
   - Domains and phone numbers are never accused without proof: matching official domains explicitly **never** authenticates callers (*"caller identity unverified"*).
-  - Synthetic audio detection yields calibrated assessments (`synthetic_suspected`, `no_strong_synthetic_indication`, `inconclusive`), never an absolute accusation.
+  - Voice authenticity is inconclusive for the bundled experimental model. Evaluated acoustic providers may emit `synthetic_suspected` or `no_strong_synthetic_indication`; neither verifies a caller or proves a call is safe.
   - Interventions take the form of an informative **"STOP & VERIFY"** pause banner explaining the specific detected contradiction (e.g. *"Sender claims a refund but asks you to scan an outgoing payment QR"*).
   - Users retain complete agency to dismiss, confirm continuation, or inspect the underlying signals.
   - **Empirical alert burden**: Tested against all **4,827 authentic messages** from the UCI SMS Spam Collection, the system generated only **1 false alert (0.02% false alert rate)**.
-  - **Bona-fide audio false alarms**: Tested against natural human speech, the ONNX acoustic detector produced a **0.00% false alarm rate**.
+  - **Audio validation**: No real human-speech or voice-clone false-alarm rate has been established. Procedural-waveform diagnostic scores are not real-speech accuracy.
   - **Causal relation resolution**: Legitimate multi-step sequences (e.g. employer reimbursing ₹12,000 followed by roommate requesting a ₹5,850 expense split) produce a weak relationship score ($\approx 0.05 < 0.50$), suppressing false credit-vs-debit contradictions entirely (**0.0% false TICE rate**).
 - **False-Negative Mitigation (Defense-in-Depth)**:
   - Scammers evading initial keyword filters via euphemisms ("move liquidity", "settlement handshake") are captured by **Financial Intent Frames (FIF)** and ordered workflow progression.
@@ -304,7 +304,7 @@ The Android companion app (`android/`) provides native integration without sacri
 
 1. **Working PoC, Not a Core Banking Authorization Hook**: Calls are reviewed using user-supplied audio snippets or transcripts with explicit consent; payments are simulated. It acts as an advisory pre-authorization pause, not an automated banking kill-switch.
 2. **Hardware Environment Boundaries**: Latency measurements (0.36 ms for rules/TICE, ~171 ms for ONNX acoustic inference) are recorded on CPU. Performance on low-end mobile ARM chipsets under aggressive thermal/battery throttling requires device-specific hardware profiling.
-3. **Synthetic Multi-Step Scenarios**: While isolated SMS ham is validated on 4,827 UCI messages, URLs on 10,000 PhiUSIIL holdouts, and acoustic spoofing on vocoder-synthesized speech, multi-stage victim trajectories use structured synthetic fixtures due to restricted real-world Indian cyber police case data.
+3. **Synthetic Multi-Step Scenarios**: Isolated SMS ham is evaluated on 4,827 UCI messages and URLs on 10,000 PhiUSIIL holdouts. Acoustic experiments use procedurally generated waveforms, with no real-speech authenticity benchmark. Multi-stage victim trajectories use structured synthetic fixtures due to restricted real-world Indian cyber police case data.
 4. **Evolving Voice Clones**: Voice synthesis models change rapidly; continuous acoustic retraining against newer diffusion vocoders is necessary in production.
 
 ---

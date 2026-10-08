@@ -45,7 +45,7 @@ def generate_speech_waveforms(n_samples: int = 400, random_state: int = 42):
         is_synthetic = (i % 2 == 1)
 
         if not is_synthetic:
-            # Bona-fide human speech simulation:
+            # Procedural natural-like waveform fixture, not human speech:
             # 1. Pitch with micro-tremor, natural drift, and prosodic contour
             f0 = rng.uniform(100.0, 260.0)
             prosody = 20.0 * np.sin(2 * np.pi * rng.uniform(1.0, 3.0) * t)
