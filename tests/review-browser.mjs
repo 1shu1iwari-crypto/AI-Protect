@@ -6,7 +6,7 @@ const server=spawn(pythonCommand(),['backend/server.py','--port','8766','--db','
 const browser=await pw.chromium.launch({executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox','--disable-gpu','--no-zygote','--single-process']});
 try{
  const page=await browser.newPage({viewport:{width:390,height:844}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8766/app');await page.click('.nav[data-view=protect]');
+ await page.goto('http://127.0.0.1:8766/app');await page.waitForSelector('#recent-list .empty-row');await page.click('.nav[data-view=protect]');
  await page.click('#review-call');assert.equal(await page.locator('#event-count').textContent(),'0 events');await page.click('#close-call');
  await page.click('[data-channel=link]');await page.fill('#content','Your SBI KYC is blocked. Visit https://sbi-verify.invalid immediately');await page.click('#check-form button[type=submit]');
  assert.match(await page.locator('#verification-evidence').textContent(),/MISMATCH|LOOKALIKE_IMPERSONATION/);assert.equal(await page.locator('#event-count').textContent(),'1 event');

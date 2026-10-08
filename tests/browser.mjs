@@ -27,7 +27,7 @@ try {
   const errors = [];
   page.on('pageerror',error => errors.push(error.message));
   await page.goto('http://127.0.0.1:8765/app');
-  await page.waitForSelector('#home-form');
+  await page.waitForSelector('#recent-list .empty-row');
   await page.screenshot({path:'test-results/protection-desktop.png',fullPage:true});
   await page.fill('#home-input','Receive your refund of 2500. Scan the QR to receive money.');
   await page.click('#home-form button[type=submit]');
@@ -77,7 +77,7 @@ try {
       navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));
   });
   await context.setOffline(true); await page.reload();
-  await page.waitForSelector('#home-form'); await page.click('.nav[data-view=protect]');
+  await page.waitForSelector('#recent-list .empty-row'); await page.click('.nav[data-view=protect]');
   await submit({channel:'message',text:'Receive your refund'});
   assert.equal(await page.locator('#event-count').textContent(),'1 event');
   await context.setOffline(false); await page.click('#clear-session');
