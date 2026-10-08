@@ -1,6 +1,6 @@
 """Training and ONNX export for Acoustic Anti-Spoofing Deepfake Classifier.
 
-Generates realistic bona-fide speech and synthetic voice waveforms (TTS, vocoders,
+Generates procedural natural-like and rigid waveforms (not real human speech or voice clones;
 rigid pitch, unnatural harmonic distributions), extracts 84-d acoustic features via
 the production feature extractor, trains a calibrated classifier, and exports
 to an optimized ONNX model graph for local inference.
@@ -29,7 +29,7 @@ WEIGHTS_DIR = Path(__file__).resolve().parent / "weights"
 
 
 def generate_speech_waveforms(n_samples: int = 400, random_state: int = 42):
-    """Generates acoustic waveforms simulating genuine human vs synthetic speech."""
+    """Generates two procedural waveform classes, neither of which is genuine speech."""
     rng = np.random.RandomState(random_state)
     sr = 16000
     X = []
@@ -107,14 +107,14 @@ def train_and_export_model():
     onnx_path = WEIGHTS_DIR / "acoustic_guard_v1.onnx"
     metadata_path = WEIGHTS_DIR / "metadata.json"
 
-    print("[1/3] Generating ASVspoof-aligned acoustic waveforms and extracting features...")
+    print("[1/3] Generating procedural demonstration waveforms (not ASVspoof data) and extracting features...")
     X, y = generate_speech_waveforms(n_samples=360, random_state=42)
 
     split_idx = int(0.8 * len(y))
     X_train, X_test = X[:split_idx], X[split_idx:]
     y_train, y_test = y[:split_idx], y[split_idx:]
 
-    print("[2/3] Training calibrated acoustic classifier pipeline...")
+    print("[2/3] Training experimental waveform classifier...")
     scaler = StandardScaler()
     mlp = MLPClassifier(
         hidden_layer_sizes=(64, 32),
@@ -146,15 +146,19 @@ def train_and_export_model():
         f.write(onnx_model.SerializeToString())
 
     metadata = {
-        "model_id": "aasist-acoustic-guard-v1",
+        "model_id": "procedural-acoustic-demo-v1",
         "model_version": "1.0.0",
-        "architecture": "LFCC-SpectroTemporal-MLP (AASIST baseline)",
+        "architecture": "84-feature LFCC/spectral MLP",
+        "training_domain": "procedural_waveforms",
+        "validation_status": "experimental",
+        "calibration_status": "uncalibrated",
+        "real_speech_evaluation": None,
         "input_dimensions": 84,
         "input_name": "float_input",
         "output_probabilities_name": "probabilities",
         "output_label_name": "label",
         "sample_rate_hz": 16000,
-        "auc_roc": round(float(auc), 4),
+        "experimental_metrics": {"procedural_auc_roc": round(float(auc), 4)},
         "license": "Apache-2.0",
         "thresholds": {
             "synthetic_suspected": 0.65,
@@ -166,7 +170,7 @@ def train_and_export_model():
     with open(metadata_path, "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
-    print(f"[OK] Pretrained ONNX model successfully saved ({onnx_path.stat().st_size} bytes).")
+    print(f"[OK] Experimental ONNX waveform classifier saved ({onnx_path.stat().st_size} bytes).")
 
 
 if __name__ == "__main__":

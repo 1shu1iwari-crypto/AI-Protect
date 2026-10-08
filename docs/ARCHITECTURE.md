@@ -99,3 +99,25 @@ Android Telecom → allow incoming call immediately → private notification →
 Web reviews are in memory. A service-worker memory slot preserves the current redacted review for a POST share handoff (up to 20 minutes); it is never put into Cache Storage. Android persists only redacted snapshots. Consent is never restored. Paid/not-paid response state and actions are local; the only optional server report remains the existing fingerprint. Analyst cards add per-tactic report frequency alongside existing ordered sequence, report count, shift cue and manual review status.
 
 Official response sources checked 2026-10-03: https://www.sancharsaathi.gov.in/ (Chakshu for suspected communications); https://cybercrime.gov.in/ and 1930 for financial cybercrime. Institution registry sources: https://www.hdfc.bank.in/ and https://www.icici.bank.in/. Routes and the deliberately small registry require periodic human maintenance.
+
+## Shared recorded-call pipeline
+
+```mermaid
+flowchart TD
+  A["Android audio share"] --> B["Explicit Analyze tap"]
+  B --> C["Bounded private copy and PCM decode"]
+  C --> D["Energy and clipping gate"]
+  D --> E["Vosk or multilingual Whisper"]
+  D --> F["Voice-authenticity assessment"]
+  E --> G["Original-language timestamped segments"]
+  G --> H["Existing financial intent and workflow engine"]
+  H --> I["Separate financial, voice and identity result"]
+  F --> I
+  I --> J["Payment-status actions and redacted report"]
+  G --> K["Temporary local speech preview"]
+  K --> H
+```
+
+The voice branch currently returns inconclusive because no validated native anti-spoofing model is installed. It has no upload transport. Financial risk does not depend on voice-model availability. Unknown speakers remain unknown, and Me segments are excluded. Raw words are omitted from persisted snapshots; only bounded offsets and derived financial frames survive. Android sharing is confined to the MVP flavor so the Play build retains its existing capabilities.
+
+See [implementation, build and device acceptance](../android/SHARED_RECORDING_REVIEW.md). Real-call ASR accuracy, actual speaker diarization and validated native voice-clone inference remain independent evaluation/integration work.

@@ -137,3 +137,7 @@ compatibility mitigation, not proof of the original root cause.
   application code is unchanged from the 24-test-validated 0.5.0 build.
 - Signature schemes verified independently with API-appropriate verifier ranges;
   ZIP integrity and ZIP alignment passed.
+
+## Shared recording entry point
+
+Recordings can now be shared directly from Recorder, WhatsApp or Files to AI-Protect MVP. The app waits for a separate Analyze tap and imports need no recording/accessibility permission. The pipeline uses timestamped local ASR, separate financial/voice/identity outcomes, transcript correction, offline spoken explanation, payment-status response and redacted exports. See [SHARED_RECORDING_REVIEW.md](SHARED_RECORDING_REVIEW.md) for optional Whisper builds and the physical-device matrix. Voice authenticity is inconclusive until a validated native detector is installed; the emulator-only automatic upload has been removed.

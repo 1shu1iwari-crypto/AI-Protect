@@ -10,10 +10,6 @@ import android.os.SystemClock
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import org.json.JSONObject
-import org.vosk.LibVosk
-import org.vosk.LogLevel
-import org.vosk.Model
-import org.vosk.Recognizer
 import java.io.File
 import java.nio.ByteOrder
 
@@ -120,73 +116,14 @@ class OfflineAudioAnalyzer(private val context: Context) {
             }
         } finally { runCatching { codec?.stop() }; codec?.release(); extractor.release() }
     }
-    suspend fun analyze(pcm: File, language: String, progress: (Int) -> Unit, phrase: suspend (String) -> Unit): Int {
-        val directory = installModel(language)
-        currentCoroutineContext().ensureActive()
-        LibVosk.setLogLevel(LogLevel.WARNINGS)
-        var words = 0
-        suspend fun result(json: String) {
-            val text = RecognizedText.normalize(JSONObject(json).optString("text")).trim()
-            if (text.isEmpty()) return
-            val tokens = text.split(Regex("\\s+")); words += tokens.size
-            var segment = ""
-            for (word in tokens) {
-                if (segment.length + word.length + 1 > 1800) { if (segment.isNotEmpty()) phrase(segment); segment = "" }
-                if (word.length <= 1800) segment = if (segment.isEmpty()) word else "$segment $word"
-            }
-            if (segment.isNotEmpty()) phrase(segment)
-        }
-        Model(directory.absolutePath).use { model ->
-            Recognizer(model, 16000f).use { recognizer ->
-                pcm.inputStream().use { input ->
-                    val buffer = ByteArray(8000); var total = 0L; var last = -1
-                    try {
-                        while (true) {
-                            currentCoroutineContext().ensureActive()
-                            val count = input.read(buffer); if (count < 0) break
-                            if (recognizer.acceptWaveForm(buffer, count)) result(recognizer.result)
-                            total += count
-                            val percent = (100 * total / maxOf(1, pcm.length())).toInt()
-                            if (percent != last) { progress(percent); last = percent }
-                        }
-                        result(recognizer.finalResult)
-                    } finally { buffer.fill(0) }
-                }
-            }
-        }
-        return words
-    }
-
-    /**
-     * Consented acoustic deepfake & synthetic manipulation assessment.
-     * Communicates with local reference inference service if configured and consented.
-     * Fails gracefully without throwing when service is unreachable or offline.
-     */
-    suspend fun analyzeAuthenticity(pcm: File, serverUrl: String = "http://10.0.2.2:8000"): JSONObject? {
-        return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            try {
-                if (!pcm.exists() || pcm.length() < 16000) return@withContext null
-                val connection = (java.net.URL("$serverUrl/api/audio/analyze").openConnection() as java.net.HttpURLConnection).apply {
-                    requestMethod = "POST"
-                    setRequestProperty("Content-Type", "application/json")
-                    doOutput = true
-                    connectTimeout = 3000
-                    readTimeout = 6000
-                }
-                val maxBytes = minOf(pcm.length(), 320_000L).toInt()
-                val buffer = ByteArray(maxBytes)
-                pcm.inputStream().buffered().use { it.read(buffer, 0, maxBytes) }
-                val b64 = android.util.Base64.encodeToString(buffer, android.util.Base64.NO_WRAP)
-                val payload = JSONObject().put("consent", true).put("audio_base64", b64).put("sample_rate", 16000).toString()
-                connection.outputStream.bufferedWriter().use { it.write(payload) }
-
-                if (connection.responseCode == 200) {
-                    val body = connection.inputStream.bufferedReader().use { it.readText() }
-                    JSONObject(body)
-                } else null
-            } catch (_: Exception) {
-                null
-            }
-        }
+    /** No network transport exists in the default audio path. */
+    suspend fun analyzeAuthenticity(pcm: File): JSONObject {
+        val quality = AudioQualityGate.inspect(pcm)
+        return JSONObject().put("schema_version", 1).put("media_type", "audio")
+            .put("analysis_status", "model_unavailable").put("validation_status", "not_evaluated")
+            .put("authenticity_assessment", "inconclusive").put("raw_model_score", JSONObject.NULL)
+            .put("calibration_status", "uncalibrated").put("audio_quality", quality.status)
+            .put("model_id", "none").put("model_version", "none")
+            .put("limitations", org.json.JSONArray(listOf("No validated on-device voice-authenticity model is installed.")))
     }
 }

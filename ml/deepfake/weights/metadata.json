@@ -1,18 +1,25 @@
 {
-  "model_id": "aasist-acoustic-guard-v1",
+  "model_id": "procedural-acoustic-demo-v1",
   "model_version": "1.0.0",
-  "architecture": "LFCC-SpectroTemporal-MLP (AASIST baseline)",
+  "architecture": "84-feature LFCC/spectral MLP",
   "input_dimensions": 84,
   "input_name": "float_input",
   "output_probabilities_name": "probabilities",
   "output_label_name": "label",
   "sample_rate_hz": 16000,
-  "auc_roc": 1.0,
   "license": "Apache-2.0",
   "thresholds": {
     "synthetic_suspected": 0.65,
     "no_strong_synthetic_indication": 0.4,
     "inconclusive_low": 0.4,
     "inconclusive_high": 0.65
+  },
+  "training_domain": "procedural_waveforms",
+  "validation_status": "experimental",
+  "calibration_status": "uncalibrated",
+  "real_speech_evaluation": null,
+  "experimental_metrics": {
+    "procedural_auc_roc": 1.0,
+    "limitations": "Generated waveforms are not real human speech or real voice clones."
   }
 }

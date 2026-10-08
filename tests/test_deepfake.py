@@ -20,7 +20,7 @@ class TestAudioDeepfakeDetector(unittest.TestCase):
 
     def test_detector_availability(self):
         self.assertTrue(self.detector.is_available)
-        self.assertEqual(self.detector.metadata.get("model_id"), "aasist-acoustic-guard-v1")
+        self.assertEqual(self.detector.metadata.get("model_id"), "procedural-acoustic-demo-v1")
 
     def test_decode_wav_bytes(self):
         # Generate 1 sec 16kHz sine WAV in memory
@@ -87,14 +87,16 @@ class TestAudioDeepfakeDetector(unittest.TestCase):
         res = self.detector.analyze(signal)
 
         self.assertEqual(res["schema_version"], 1)
-        self.assertEqual(res["analysis_status"], "completed")
+        self.assertEqual(res["analysis_status"], "experimental_only")
         self.assertEqual(res["media_type"], "audio")
         self.assertIn(
             res["authenticity_assessment"],
             ["synthetic_suspected", "no_strong_synthetic_indication", "inconclusive"],
         )
+        self.assertEqual(res["authenticity_assessment"], "inconclusive")
+        self.assertEqual(res["validation_status"], "experimental")
         self.assertIsInstance(res["raw_model_score"], float)
-        self.assertEqual(res["calibration_status"], "calibrated")
+        self.assertEqual(res["calibration_status"], "uncalibrated")
         self.assertIsInstance(res["processing_time_ms"], (int, float))
         self.assertIsInstance(res["limitations"], list)
         self.assertIsInstance(res["acoustic_indicators"], dict)

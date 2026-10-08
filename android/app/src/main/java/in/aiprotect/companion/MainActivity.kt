@@ -130,6 +130,7 @@ class MainActivity : Activity() {
                 .setNegativeButton("Dismiss",null).show()
         }.show()}
     internal fun acceptIntent(incoming: Intent){
+        if (AudioShareReceiver.isAudioShare(incoming)) { LiveReviewFeature.handleAudioShare(this, incoming); return }
         shareGeneration++
         val generation=shareGeneration
         if(incoming.action==Intent.ACTION_VIEW){val u=incoming.data

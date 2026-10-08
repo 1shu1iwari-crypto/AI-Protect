@@ -33,7 +33,7 @@ DEFAULT_WEIGHTS_DIR = Path(__file__).resolve().parent / "weights"
 
 
 class AudioDeepfakeDetector:
-    """Production-grade modular acoustic deepfake detector."""
+    """Experimental modular detector; real-speech validation is a separate requirement."""
 
     def __init__(self, weights_dir: Optional[Union[str, Path]] = None):
         self.weights_dir = Path(weights_dir or DEFAULT_WEIGHTS_DIR)
@@ -53,7 +53,7 @@ class AudioDeepfakeDetector:
             except Exception:
                 pass
         return {
-            "model_id": "aasist-acoustic-guard-v1",
+            "model_id": "procedural-acoustic-demo-v1",
             "model_version": "1.0.0",
             "thresholds": {
                 "synthetic_suspected": 0.65,
@@ -98,7 +98,7 @@ class AudioDeepfakeDetector:
         """
         start_time = time.perf_counter()
         schema_version = 1
-        model_id = self.metadata.get("model_id", "aasist-acoustic-guard-v1")
+        model_id = self.metadata.get("model_id", "procedural-acoustic-demo-v1")
         model_version = self.metadata.get("model_version", "1.0.0")
 
         # 1. Decode audio
@@ -233,17 +233,22 @@ class AudioDeepfakeDetector:
                 assessment = "inconclusive"
                 limitations.append("Acoustic indicators lie within the ambiguous borderline region [0.40 - 0.65].")
 
+        evaluated = self.metadata.get("validation_status") == "real_speech_evaluated"
+        if not evaluated:
+            assessment = "inconclusive"
+            limitations.append("This classifier was trained on procedural waveforms, not real human or cloned speech. Its score is experimental and cannot establish authenticity.")
         elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
         return {
             "schema_version": schema_version,
-            "analysis_status": "completed",
+            "analysis_status": "completed" if evaluated else "experimental_only",
+            "validation_status": "real_speech_evaluated" if evaluated else "experimental",
             "media_type": "audio",
             "model_id": model_id,
             "model_version": model_version,
             "authenticity_assessment": assessment,
             "raw_model_score": round(synthetic_prob, 4),
-            "calibration_status": "calibrated",
+            "calibration_status": "calibrated" if evaluated and self.metadata.get("calibration_status") == "calibrated" else "uncalibrated",
             "audio_quality": quality.status,
             "duration_seconds": quality.duration_s,
             "snr_db": quality.snr_db,
@@ -264,7 +269,7 @@ class AudioDeepfakeDetector:
             "schema_version": 1,
             "analysis_status": status,
             "media_type": "audio",
-            "model_id": self.metadata.get("model_id", "aasist-acoustic-guard-v1"),
+            "model_id": self.metadata.get("model_id", "procedural-acoustic-demo-v1"),
             "model_version": self.metadata.get("model_version", "1.0.0"),
             "authenticity_assessment": "inconclusive",
             "raw_model_score": None,

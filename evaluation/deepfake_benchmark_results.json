@@ -1,12 +1,20 @@
 {
-  "model_id": "aasist-acoustic-guard-v1",
+  "model_id": "procedural-acoustic-demo-v1",
   "model_version": "1.0.0",
-  "architecture": "LFCC-SpectroTemporal-MLP (AASIST baseline)",
+  "architecture": "84-feature LFCC/spectral MLP",
   "bona_fide_samples": 50,
   "false_alarm_rate_percent": 0.0,
   "synthetic_samples": 50,
   "synthetic_recall_percent": 100.0,
   "telephony_retention_percent": 100.0,
   "latency_p50_ms": 171.36,
-  "latency_p95_ms": 288.2
+  "latency_p95_ms": 288.2,
+  "evaluation_domain": "procedural_waveforms",
+  "validation_status": "experimental",
+  "real_speech_accuracy": null,
+  "limitations": [
+    "Historical diagnostic used generated waveforms, not real human or cloned speech.",
+    "Reported latency was server CPU, not measured Android inference.",
+    "Bandpass/noise simulation is not a G.711 codec benchmark."
+  ]
 }

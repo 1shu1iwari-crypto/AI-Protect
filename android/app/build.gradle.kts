@@ -5,6 +5,9 @@ val releaseVersion = groovy.json.JsonSlurper().parse(packageVersionFile)
     .let { (it as Map<*, *>)["version"] as String }
 require(Regex("\\d+\\.\\d+\\.\\d+").matches(releaseVersion)) { "Expected a semantic package version" }
 val versionParts = releaseVersion.split('.').map(String::toInt)
+// Optional real native provider. The standard MVP still includes Vosk Hindi/English.
+val whisperCppDir = providers.gradleProperty("whisperCppDir").orNull
+val whisperModelFile = providers.gradleProperty("whisperModelFile").orNull
 android {
     namespace = "in.aiprotect.companion"
     compileSdk = 35
@@ -15,6 +18,7 @@ android {
         versionCode = versionParts[0] * 1000000 + versionParts[1] * 1000 + versionParts[2]
         versionName = releaseVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        if (whisperCppDir != null) externalNativeBuild.cmake.arguments += "-DWHISPER_CPP_DIR=${file(whisperCppDir).absolutePath}"
     }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
@@ -40,6 +44,11 @@ android {
         System.getenv("AIPROTECT_DEBUG_KEYSTORE")?.let { storeFile = file(it) }
     }
     sourceSets.getByName("hackathon").assets.srcDir(layout.buildDirectory.dir("generated/speechAssets"))
+    if (whisperCppDir != null) {
+        ndkVersion = "27.0.12077973"
+        externalNativeBuild.cmake { path = file("src/hackathon/cpp/CMakeLists.txt"); version = "3.22.1" }
+        sourceSets.getByName("hackathon").assets.srcDir(layout.buildDirectory.dir("generated/whisperNotices"))
+    }
     testOptions {
         unitTests.isIncludeAndroidResources = true
         unitTests.all { it.systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2") }
@@ -51,7 +60,7 @@ val syncReviewAssets by tasks.registering(Sync::class) {
     inputs.file(packageVersionFile)
     inputs.property("releaseVersion", releaseVersion)
     from(rootProject.projectDir.parentFile) {
-        include("core/*.mjs", "core/model.json", "web/*.mjs", "web/*.css", "web/*.html", "web/*.svg", "web/*.png", "web/manifest.json", "web/vendor/**", "simulator/*.mjs", "evaluation/results.json")
+        include("core/*.mjs", "core/*.json", "web/*.mjs", "web/*.css", "web/*.html", "web/*.svg", "web/*.png", "web/manifest.json", "web/vendor/**", "simulator/*.mjs", "evaluation/results.json")
         exclude("core/version.mjs")
     }
     into(layout.buildDirectory.dir("generated/reviewAssets"))
@@ -70,6 +79,24 @@ val prepareOfflineSpeechModels by tasks.registering(Exec::class) {
         rootProject.file("prepare_speech_models.py"), layout.buildDirectory.dir("generated/speechAssets").get().asFile)
 }
 tasks.matching { it.name == "preHackathonDebugBuild" || it.name == "preHackathonReleaseBuild" }.configureEach { dependsOn(prepareOfflineSpeechModels) }
+if (whisperModelFile != null) {
+    require(whisperCppDir != null) { "whisperModelFile needs whisperCppDir" }
+    val bundleWhisperModel by tasks.registering(Copy::class) {
+        from(file(whisperModelFile)) { rename { "whisper.bin" } }
+        into(layout.buildDirectory.dir("generated/speechAssets/models"))
+        doFirst { require(file(whisperModelFile).isFile) { "Missing multilingual Whisper model" } }
+    }
+    tasks.matching { it.name == "preHackathonDebugBuild" || it.name == "preHackathonReleaseBuild" }.configureEach { dependsOn(bundleWhisperModel) }
+}
+if (whisperCppDir != null) {
+    val bundleWhisperNotices by tasks.registering(Copy::class) {
+        from(file("$whisperCppDir/LICENSE")) { rename { "WHISPER_CPP_LICENSE.txt" } }
+        from(file("$whisperCppDir/ggml/LICENSE")) { rename { "GGML_LICENSE.txt" } }
+        into(layout.buildDirectory.dir("generated/whisperNotices/notices"))
+        doFirst { require(file("$whisperCppDir/LICENSE").isFile) { "Keep the upstream Whisper license with the native source" } }
+    }
+    tasks.matching { it.name == "preHackathonDebugBuild" || it.name == "preHackathonReleaseBuild" }.configureEach { dependsOn(bundleWhisperNotices) }
+}
 dependencies {
     "hackathonImplementation"("com.alphacephei:vosk-android:0.3.75@aar")
     "hackathonImplementation"("net.java.dev.jna:jna:5.18.1@aar")

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "default_processing": "offline",
+  "included_vosk_languages": ["en", "hi"],
+  "optional_whisper_language_selection": ["auto", "en", "hi"],
+  "financial_engine_languages": ["en", "hi", "hi-en", "en-hi"],
+  "unsupported_financial_language_result": "inconclusive",
+  "speaker_default": "unknown",
+  "maximum_duration_ms": 600000,
+  "maximum_input_bytes": 62914560,
+  "maximum_transcript_segments": 512,
+  "whisper_cpp_commit": "2eeeba56e9edd762b4b38467bab96c2517163158",
+  "real_call_benchmark_status": "not_run"
+}

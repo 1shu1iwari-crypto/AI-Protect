@@ -28,6 +28,24 @@ export const IDENTITY_STATUSES = [
   'impersonation_suspected'
 ];
 
+/** Experimental waveform classifiers cannot authenticate real human speech. */
+export function normalizeAcousticEvidence(raw = null) {
+  const completed = raw?.analysis_status === 'completed';
+  const evaluated = raw?.validation_status === 'real_speech_evaluated';
+  const usable = completed && evaluated && ['adequate', 'degraded'].includes(raw?.audio_quality) &&
+    Number.isFinite(raw?.raw_model_score) && raw.raw_model_score >= 0 && raw.raw_model_score <= 1;
+  const assessment = usable && AUTHENTICITY_ASSESSMENTS.includes(raw?.authenticity_assessment)
+    ? raw.authenticity_assessment : 'inconclusive';
+  const limitations = (Array.isArray(raw?.limitations) ? raw.limitations : []).filter(x => typeof x === 'string').slice(0, 12);
+  if (!raw) limitations.push('No validated on-device voice-authenticity model is installed.');
+  else if (!evaluated) limitations.push('This model has not been evaluated on real human and synthetic speech.');
+  return {schema_version: 1, media_type: 'audio', authenticity_assessment: assessment,
+    analysis_status: raw?.analysis_status || 'model_unavailable', validation_status: raw?.validation_status || 'not_evaluated',
+    raw_model_score: usable && Number.isFinite(raw?.raw_model_score) && raw.raw_model_score >= 0 && raw.raw_model_score <= 1 ? raw.raw_model_score : null,
+    calibration_status: raw?.calibration_status === 'calibrated' && usable ? 'calibrated' : 'uncalibrated',
+    audio_quality: raw?.audio_quality || 'not_available', model_id: raw?.model_id || 'none', model_version: raw?.model_version || 'none', limitations};
+}
+
 /**
  * Normalizes an evidence item into a typed, versioned record.
  */
@@ -84,6 +102,7 @@ export function fuseMultimodalEvidence({
   };
 
   if (acousticEvidence) {
+    acousticEvidence = normalizeAcousticEvidence(acousticEvidence);
     const assessment = AUTHENTICITY_ASSESSMENTS.includes(acousticEvidence.authenticity_assessment)
       ? acousticEvidence.authenticity_assessment
       : 'inconclusive';
@@ -93,7 +112,7 @@ export function fuseMultimodalEvidence({
       assessment,
       raw_score: acousticEvidence.raw_model_score ?? null,
       audio_quality: acousticEvidence.audio_quality || 'adequate',
-      model_id: acousticEvidence.model_id || 'aasist-acoustic-guard-v1',
+      model_id: acousticEvidence.model_id || 'none',
       limitations: acousticEvidence.limitations || [],
       synthetic_detected: isSynthetic
     };
@@ -109,7 +128,7 @@ export function fuseMultimodalEvidence({
       modelVersion: acousticEvidence.model_version || '1.0.0',
       status: acousticEvidence.analysis_status || 'completed',
       score: acousticEvidence.raw_model_score,
-      reasonCodes: isSynthetic ? ['synthetic_speech_suspected'] : ['natural_speech_profile'],
+      reasonCodes: isSynthetic ? ['synthetic_speech_suspected'] : assessment === 'no_strong_synthetic_indication' ? ['no_strong_synthetic_indication'] : ['audio_authenticity_inconclusive'],
       limitations: acousticEvidence.limitations || [],
       metadata: acousticEvidence.acoustic_indicators || {}
     }));
@@ -165,7 +184,7 @@ export function fuseMultimodalEvidence({
 
   // 4. Multimodal Fusion Synthesis: Composite Threat & Actionable Guidance
   let threatLevel = 'low';
-  let guidance = 'Proceed with normal verification habits. Review requests before paying.';
+  let guidance = 'No strong scam evidence was found. This does not establish safety. Verify independently before paying.';
 
   const isSynthetic = mediaAuthenticity.synthetic_detected;
   const isImpersonation = identityVerification.impersonation_risk === 'high' || identityVerification.domain_consistency === 'mismatch';
@@ -174,7 +193,7 @@ export function fuseMultimodalEvidence({
 
   if (isSynthetic && (isHighBehavioral || hasContradiction || isImpersonation)) {
     threatLevel = 'critical';
-    guidance = 'CRITICAL: Synthetic audio manipulation detected in combination with high-risk financial coercion. Stop immediately and do not transfer money or share credentials.';
+    guidance = 'CRITICAL: Synthetic speech is suspected alongside high-risk financial coercion. Stop and verify independently before transferring money or sharing credentials.';
   } else if (hasContradiction || (isImpersonation && behavioral.requested_action_risk >= 45)) {
     threatLevel = 'critical';
     guidance = 'CRITICAL: Structural contradiction between what is claimed and what payment protocol executes. Do not authorize payment or scan QR codes.';
@@ -200,7 +219,7 @@ export function fuseMultimodalEvidence({
     behavioral_risk: behavioral,
     evidence_items: evidenceItems,
     explainable_summary: {
-      headline: threatLevel === 'critical' ? 'Stop & Verify Before Paying' : threatLevel === 'elevated' ? 'Suspicious Indicators Found' : 'Routine Verification',
+      headline: threatLevel === 'critical' ? 'Stop & Verify Before Paying' : threatLevel === 'elevated' ? 'Suspicious Indicators Found' : 'Verify independently before acting',
       key_factors: Array.from(reasonCodes),
       suggested_actions: threatLevel === 'critical'
         ? ['End the call immediately', 'Open your banking app independently', 'Dial 1930 if money was sent']

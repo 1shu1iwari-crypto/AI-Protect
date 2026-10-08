@@ -8,7 +8,14 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <application android:label="AI-Protect MVP" tools:replace="android:label">
-        <activity android:name=".AudioReviewActivity" android:exported="false" />
+        <activity android:name=".AudioReviewActivity" android:exported="true" android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="audio/*" />
+                <data android:mimeType="application/ogg" />
+            </intent-filter>
+        </activity>
         <service android:name=".AudioReviewService" android:exported="false" android:foregroundServiceType="microphone|dataSync|mediaProcessing" />
         <activity android:name=".LiveReviewActivity" android:exported="false" />
         <service android:name=".LiveReviewService" android:exported="false" android:foregroundServiceType="microphone" />

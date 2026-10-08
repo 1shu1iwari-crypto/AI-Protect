@@ -80,13 +80,31 @@ class AudioReviewTest {
         store.save(JSONObject().put("id", "expired-report").put("created", now - 86_400_001))
         assertFalse(store.list().any { it.getString("id") == "expired-report" })
     }
-    @Test fun authenticityGracefullyDegradesWhenUnreachable() = kotlinx.coroutines.runBlocking {
+    @Test fun unavailableAcousticModelIsInconclusiveWithoutAnyNetworkTransport() = kotlinx.coroutines.runBlocking {
         val analyzer = OfflineAudioAnalyzer(RuntimeEnvironment.getApplication())
         val dummyPcm = File(RuntimeEnvironment.getApplication().cacheDir, "test.pcm").apply {
             writeBytes(ByteArray(32000))
         }
-        val result = analyzer.analyzeAuthenticity(dummyPcm, serverUrl = "http://127.0.0.1:59999")
-        assertNull(result)
+        val result = analyzer.analyzeAuthenticity(dummyPcm)
+        assertEquals("inconclusive",result.getString("authenticity_assessment"))
+        assertEquals("model_unavailable",result.getString("analysis_status"))
+        assertTrue(result.isNull("raw_model_score"))
         dummyPcm.delete()
+    }
+    @Test fun energyQualityGateDoesNotInventSpeechFromSilenceAndFlagsClipping() = kotlinx.coroutines.runBlocking {
+        val pcm = File(RuntimeEnvironment.getApplication().cacheDir,"quality.pcm")
+        try {
+            pcm.writeBytes(ByteArray(64000)); assertEquals("insufficient",AudioQualityGate.inspect(pcm).status)
+            pcm.writeBytes(ByteArray(64000) { if (it % 2 == 0) 0xf8.toByte() else 0x7f.toByte() })
+            val clipped = AudioQualityGate.inspect(pcm)
+            assertEquals("degraded",clipped.status); assertEquals(2000L,clipped.durationMs)
+        } finally { pcm.delete() }
+    }
+    @Test fun transcriptPreviewIsTransientExpiresAndDoesNotEnterStoredReports() {
+        val source = RecordedTranscript("shared_recording","hi","test",5000,"adequate",listOf(TranscriptSegment(0,5000,"निजी बातें", "hi")))
+        AudioTranscriptPreview.put("preview-test-1",source,Uri.parse("content://recordings/1"))
+        assertNotNull(AudioTranscriptPreview.get("preview-test-1"))
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMinutes(16))
+        assertNull(AudioTranscriptPreview.get("preview-test-1"))
     }
 }

@@ -46,6 +46,7 @@ test('Phase 3: Multimodal evidence fusion connects acoustic authenticity with fi
   const syntheticEvidence = {
     schema_version: 1,
     analysis_status: 'completed',
+    validation_status: 'real_speech_evaluated',
     media_type: 'audio',
     model_id: 'aasist-acoustic-guard-v1',
     model_version: '1.0.0',
@@ -86,6 +87,7 @@ test('Phase 3: Negative test — Harmless synthetic speech without financial sca
   const syntheticEvidence = {
     schema_version: 1,
     analysis_status: 'completed',
+    validation_status: 'real_speech_evaluated',
     media_type: 'audio',
     authenticity_assessment: 'synthetic_suspected',
     raw_model_score: 0.88,
@@ -122,6 +124,8 @@ test('Phase 3: ReviewSession end-to-end integration accepts acoustic authenticit
   const session = new ReviewSession();
 
   const acousticData = {
+    analysis_status: 'completed',
+    validation_status: 'real_speech_evaluated',
     authenticity_assessment: 'synthetic_suspected',
     raw_model_score: 0.91,
     audio_quality: 'adequate',

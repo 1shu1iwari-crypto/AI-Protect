@@ -51,3 +51,7 @@ The deep link opens the named review and quick signals. Opening alone does not r
 - No hardware phone or carrier was connected in the build environment. Robolectric and browser-bridge tests do not substitute for the physical-phone steps above.
 
 Platform references: [CallScreeningService](https://developer.android.com/reference/android/telecom/CallScreeningService), [screen calls](https://developer.android.com/develop/connectivity/telecom/dialer-app/screen-calls), [local web content](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content).
+
+### Review a shared call recording
+
+The MVP flavor is now an Android audio Share target. Share one recording, confirm analysis, and get a local financial-request verdict with separate voice/identity status and response actions. Hindi/English Vosk remains included; a real optional whisper.cpp JNI provider adds multilingual ASR when built and supplied with multilingual weights. [Setup, privacy, limitations and device checks](SHARED_RECORDING_REVIEW.md).

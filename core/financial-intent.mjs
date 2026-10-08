@@ -239,7 +239,7 @@ export function extractFinancialIntentFrame(event, text = '') {
     claimDirection = 'inbound';
   }
 
-  if (outboundCues.test(t) || financialRedirection || payment || channel === 'payment' || channel === 'qr') {
+  if (clauses.some(clause => outboundCues.test(clause) && !negationPattern.test(clause)) || financialRedirection || payment || channel === 'payment' || channel === 'qr') {
     requestedOutboundMoney = true;
     if (claimDirection === 'unknown') claimDirection = 'outbound';
   }
@@ -254,11 +254,11 @@ export function extractFinancialIntentFrame(event, text = '') {
     requestedAction = 'add_beneficiary';
   } else if (channel === 'link' || /\b(?:click|open)\s+(?:link|url|website)\b/iu.test(t)) {
     requestedAction = 'open_link';
-  } else if (/\.apk\b|\b(?:install|download)\s+(?:our|this|the)?\s*app\b/iu.test(t)) {
+  } else if (clauses.some(clause => /\.apk\b|\b(?:install|download)\s+(?:our|this|the)?\s*app\b/iu.test(clause) && !negationPattern.test(clause))) {
     requestedAction = 'install_app';
-  } else if (/\b(?:otp|pin|password|cvv)\b/iu.test(t) && /\b(?:share|tell|send|enter|batao|bhejo)\b/iu.test(t)) {
+  } else if (clauses.some(clause => /\b(?:otp|pin|password|cvv)\b|ओटीपी|पासवर्ड/iu.test(clause) && /\b(?:share|tell|send|enter|batao|bhejo)\b|बताओ|भेजो/iu.test(clause) && !negationPattern.test(clause))) {
     requestedAction = 'share_credentials';
-  } else if (/\b(?:anydesk|teamviewer|screen\s*shar(?:e|ing)|remote\s*access)\b/iu.test(t)) {
+  } else if (clauses.some(clause => /\b(?:anydesk|teamviewer|screen\s*shar(?:e|ing)|remote\s*access)\b/iu.test(clause) && !negationPattern.test(clause))) {
     requestedAction = 'enable_remote_access';
   }
 

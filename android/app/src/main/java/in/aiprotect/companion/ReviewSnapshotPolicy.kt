@@ -7,7 +7,7 @@ import org.json.JSONObject
 object ReviewSnapshotPolicy {
     private val ids = Regex("[a-zA-Z0-9-]{8,64}")
     private val tactics = setOf("authority","urgency","threat","isolation","credentials","remote_access","investment","refund","fee","payment","apk","verification","link_risk")
-    private val persuasion = setOf("urgency","threat","isolation","trust","reward","redirection","recovery","coercion")
+    private val persuasion = setOf("urgency","threat","isolation","trust","reward","redirection","recovery","coercion","verification_suppression","financial_redirection")
     private val channels = setOf("message","call","link","qr","payment")
     private val actions = setOf("none","transfer","credentials","remote_access","install_app","open_link")
     private val identities = setOf("none","institution","authority","support","investment_desk")
@@ -53,8 +53,8 @@ object ReviewSnapshotPolicy {
             "link_risk" in foundSet -> "open_link"
             else -> "none"
         }
-        val historyEvidence = enums(history,"evidence",tactics+persuasion,21)
-        val signals = if(raw.isNull("persuasion_signals"))JSONArray((foundSet+(0 until historyEvidence.length()).map { historyEvidence.getString(it) }).filter { it in persuasion }) else enums(raw,"persuasion_signals",persuasion,8)
+        val historyEvidence = enums(history,"evidence",tactics+persuasion,23)
+        val signals = if(raw.isNull("persuasion_signals"))JSONArray((foundSet+(0 until historyEvidence.length()).map { historyEvidence.getString(it) }).filter { it in persuasion }) else enums(raw,"persuasion_signals",persuasion,10)
         return JSONObject().put("channel",enumValue(raw,"channel",channels,"message")).put("timestamp",ts).put("tactics",found)
             .put("requested_action",enumValue(raw,"requested_action",actions,fallbackAction))
             .put("claimed_identity",identity).put("claimed_identity_category",identity).put("persuasion_signals",signals)
@@ -65,17 +65,43 @@ object ReviewSnapshotPolicy {
             .put("model_corroboration",bool(raw,"model_corroboration"))
             .put("modelScores",JSONObject.NULL)
             .put("payment",payment?.let { JSONObject().put("amountBucket",bucket).put("newPayee",novelty=="new").put("direction","outgoing") } ?: JSONObject.NULL)
+            .also { safe -> if (!raw.isNull("frame")) safe.put("frame",financialFrame(raw.getJSONObject("frame"))) }
+    }
+    private fun financialFrame(raw: JSONObject): JSONObject {
+        val safe = JSONObject()
+            .put("claim_direction",enumValue(raw,"claim_direction",setOf("inbound","outbound","neutral","unknown"),"unknown"))
+            .put("requested_action",enumValue(raw,"requested_action",setOf("none","transfer","scan_qr","add_beneficiary","open_link","install_app","share_credentials","enable_remote_access"),"none"))
+            .put("purpose",enumValue(raw,"purpose",setOf("refund","reimbursement","verification","migration","settlement","investment","withdrawal","unlock","compliance","purchase","personal_payment","unknown"),"unknown"))
+            .put("counterparty_role",enumValue(raw,"counterparty_role",setOf("bank","government","employer","merchant","friend","support","investment_platform","unknown"),"unknown"))
+            .put("semantic_confidence",number(raw,"semantic_confidence",0.0,0.0,1.0))
+            .put("amount_relation",enumValue(raw,"amount_relation",setOf("same","different","unknown"),"unknown"))
+        for (key in listOf("temporary_custody","verification_suppression","financial_redirection","beneficiary_creation","claimed_inbound_money","requested_outbound_money","has_deictic_reference")) safe.put(key,bool(raw,key))
+        return safe
     }
     private fun timeline(raw: JSONObject, derived: JSONObject): JSONObject = JSONObject()
         .put("timestamp",derived.get("timestamp")).put("channel",derived.getString("channel"))
         .put("evidence_type",enumValue(raw,"evidence_type",channels+setOf("screenshot","user_call_signals","live_call_audio","recorded_call_audio","uploaded_call_audio"),derived.getString("channel")))
         .put("verification",enumValue(raw,"verification",verification,derived.getString("verification_status")))
-        .put("evidence",enums(raw,"evidence",tactics+persuasion,21)).put("new_evidence",enums(raw,"new_evidence",tactics+persuasion,21))
+        .put("evidence",enums(raw,"evidence",tactics+persuasion,23)).put("new_evidence",enums(raw,"new_evidence",tactics+persuasion,23))
         .put("requested_action",derived.getString("requested_action"))
         .put("stage",enumValue(raw,"stage",stages,"Not checked")).put("severity",enumValue(raw,"severity",setOf("quiet","watch","warning","high"),"quiet"))
         .put("evidence_strength",number(raw,"evidence_strength",0.0,0.0,99.0))
         .put("workflow_confidence",number(raw,"workflow_confidence",0.0,0.0,99.0)).put("action_risk",number(raw,"action_risk",0.0,0.0,99.0))
         .put("escalating",bool(raw,"escalating"))
+        .also { safe ->
+            if (!raw.isNull("audio_segment")) {
+                val segment = raw.getJSONObject("audio_segment")
+                val start = number(segment,"start_ms",0.0,0.0,599999.0)
+                val end = number(segment,"end_ms",0.0,start+1,600000.0)
+                val index = number(segment,"index",0.0,0.0,511.0)
+                require(start % 1 == 0.0 && end % 1 == 0.0 && index % 1 == 0.0)
+                safe.put("audio_segment",JSONObject().put("index",index.toInt()).put("start_ms",start.toLong()).put("end_ms",end.toLong())
+                    .put("language",enumValue(segment,"language",setOf("en","hi","hi-en","en-hi"),"en"))
+                    .put("speaker",enumValue(segment,"speaker",setOf("unknown","me","other"),"unknown"))
+                    .put("quality",enumValue(segment,"quality",setOf("adequate","degraded","insufficient"),"insufficient"))
+                    .put("user_reviewed",bool(segment,"user_reviewed")))
+            }
+        }
 
     fun sanitize(raw: String): JSONObject {
         require(raw.length <= 512_000)

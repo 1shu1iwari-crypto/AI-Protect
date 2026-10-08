@@ -9,7 +9,6 @@ import android.os.Build
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import kotlinx.coroutines.*
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 
@@ -20,8 +19,7 @@ class AudioReviewService : Service() {
     private var finishRecording = CompletableDeferred<String?>()
     private var phone: TelephonyManager? = null
     private var callback: TelephonyCallback? = null
-    private var core: LiveCoreBridge? = null
-    private var reply: CompletableDeferred<JSONObject>? = null
+    @Volatile private var asr: MultilingualAsrProvider? = null
     private val manager get() = getSystemService(NotificationManager::class.java)
     override fun onCreate() {
         super.onCreate()
@@ -32,7 +30,7 @@ class AudioReviewService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             FINISH -> { finishRecording.complete(null); if (job == null) stopSelf(); return START_NOT_STICKY }
-            CANCEL -> { job?.cancel(); if (job == null) stopSelf(); return START_NOT_STICKY }
+            CANCEL -> { cancelReview(); if (job == null) stopSelf(); return START_NOT_STICKY }
         }
         if (job?.isActive == true) return START_NOT_STICKY
         val request = AudioReviewState.claim(intent?.getStringExtra("consent")) ?: run { stopSelf(); return START_NOT_STICKY }
@@ -54,7 +52,7 @@ class AudioReviewService : Service() {
         var completedTitle: String? = null
         var failureText = "Review cancelled. Temporary audio deleted."
         try {
-            check(manager.areNotificationsEnabled() && listOf(CHANNEL, REPORTS).all { manager.getNotificationChannel(it).importance != NotificationManager.IMPORTANCE_NONE }) { "Enable recording and report notifications in app settings." }
+            AudioTranscriptPreview.clear()
             foreground(request.uri == null, "Preparing review…")
             withContext(Dispatchers.IO) { work.listFiles().orEmpty().forEach { it.delete() }; marker.writeText(JSONObject().put("id", request.id).toString()) }
             val analyzer = OfflineAudioAnalyzer(this)
@@ -73,73 +71,54 @@ class AudioReviewService : Service() {
             }
             AudioReviewState.update(AudioReviewState.Phase.ANALYZING, "Preparing offline analysis… Microphone off.")
             foreground(false, "Preparing offline analysis…")
-            if (request.uri != null) withContext(Dispatchers.IO) { analyzer.copyImport(request.uri, imported); analyzer.decode(imported, pcm); imported.delete() }
-            val ready = CompletableDeferred<Unit>()
-            var snapshot: JSONObject? = null; var engineFailed = false
-            var severity = "quiet"; val evidence = linkedSetOf<String>()
-            val rank = listOf("quiet", "watch", "warning", "high")
-            core = LiveCoreBridge(this, request.id, "unknown", onReady = { ready.complete(Unit) },
-                onResult = { reply?.complete(it) }, onFailure = {
-                    engineFailed = true
-                    val error = IllegalStateException("Offline review engine could not complete. No verdict was saved.")
-                    ready.completeExceptionally(error); reply?.completeExceptionally(error)
-                }, persistResults = false, updateLiveState = false,
-                evidenceType = if (request.uri == null) "recorded_call_audio" else "uploaded_call_audio")
-            withTimeout(20_000) { ready.await() }
-            val words = withContext(Dispatchers.IO) {
-                analyzer.analyze(pcm, request.language, progress = { percent ->
+            if (request.uri != null) withContext(Dispatchers.IO) { AudioImportCoordinator(this@AudioReviewService).prepare(request.uri, imported, pcm, analyzer) }
+            val quality = withContext(Dispatchers.IO) { AudioQualityGate.inspect(pcm) }
+            val transcript = if (quality.status == "insufficient") {
+                RecordedTranscript(request.source, request.language, "none", quality.durationMs, quality.status, emptyList())
+            } else withContext(Dispatchers.IO) {
+                val progress: (Int) -> Unit = { percent ->
                     if (percent % 5 == 0) scope.launch {
                         if (AudioReviewState.state.value.phase == AudioReviewState.Phase.ANALYZING) {
-                            val message = "Analyzing recording: $percent% · microphone off"
+                            val message = "Transcribing recording: $percent% · microphone off"
                             AudioReviewState.update(AudioReviewState.Phase.ANALYZING, message)
                             manager.notify(FOREGROUND_ID, progressNotification(false, message))
                         }
                     }
-                }) { phrase ->
-                    withContext(Dispatchers.Main.immediate) {
-                        check(!engineFailed)
-                        val response = CompletableDeferred<JSONObject>(); reply = response
-                        core!!.chunk(phrase)
-                        val clean = withTimeout(10_000) { response.await() }; snapshot = clean
-                        val timeline = clean.getJSONArray("timeline")
-                        for (i in 0 until timeline.length()) {
-                            val entry = timeline.getJSONObject(i); val level = entry.getString("severity")
-                            if (rank.indexOf(level) > rank.indexOf(severity)) severity = level
-                            val signals = entry.getJSONArray("evidence")
-                            for (j in 0 until signals.length()) evidence.add(signals.getString(j))
-                        }
-                        reply = null
-                    }
                 }
+                val provider: MultilingualAsrProvider = if (WhisperModels.ready(this@AudioReviewService)) WhisperAsrProvider(this@AudioReviewService)
+                    else VoskAsrProvider(this@AudioReviewService)
+                require(request.language != "auto" || provider is WhisperAsrProvider) { "Choose Hindi or English, or set up the multilingual speech model first." }
+                asr = provider
+                try { provider.transcribe(pcm, request.language, request.source, quality, progress) }
+                catch (error: IllegalStateException) {
+                    currentCoroutineContext().ensureActive()
+                    if (provider !is WhisperAsrProvider || request.language == "auto") throw error
+                    val fallback = VoskAsrProvider(this@AudioReviewService); asr = fallback
+                    fallback.transcribe(pcm, request.language, request.source, quality, progress).let {
+                        it.copy(limitations = it.limitations + "Whisper could not finish; the included selected-language model was used.")
+                    }
+                } finally { asr = null }
             }
-            val authenticity = analyzer.analyzeAuthenticity(pcm)
-            currentCoroutineContext().ensureActive(); check(!engineFailed)
-            withContext(Dispatchers.IO) { pcm.delete(); imported.delete() }
-            val hasReview = words >= 5 && snapshot != null
-            if (hasReview) {
-                val store = ReviewStore(this); val old = JSONObject(store.read()).optJSONArray("reviews") ?: JSONArray()
-                val kept = (0 until old.length()).map { old.getJSONObject(it) }.filter { it.getString("session_id") != request.id }.takeLast(9)
-                store.write(JSONObject().put("active", request.id).put("reviews", JSONArray(kept).put(snapshot)).toString())
-            }
-            val authAssessment = authenticity?.optString("authenticity_assessment", "inconclusive") ?: "not_performed"
-            val title = AudioVerdict.title(words, severity)
-            val report = JSONObject().put("id", request.id).put("created", System.currentTimeMillis()).put("title", title)
-                .put("severity", if (words < 5) "insufficient" else severity).put("words", words).put("signals", JSONArray(evidence.toList()))
-                .put("hasReview", hasReview).put("source", if (request.uri == null) "Microphone recording" else "Imported recording")
-                .put("authenticity", authenticity)
-                .put("media_authenticity", authAssessment)
-                .put("note", "Automated assessment of speech and acoustic authenticity. Speech recognition can miss or change words. No strong signs does not prove a call is safe. Temporary audio deleted; original imported file unchanged.")
-            AudioReportStore(this).save(report)
-            completedTitle = title
-            notifyResult(request.id, title, "Tap to open the report. Temporary audio deleted.")
+            val authenticity = withContext(Dispatchers.IO) { analyzer.analyzeAuthenticity(pcm) }
+            AudioReviewState.update(AudioReviewState.Phase.ANALYZING, "Checking financial requests and preparing next steps…")
+            manager.notify(FOREGROUND_ID, progressNotification(false, "Checking financial requests…"))
+            val response = AudioEvidenceBridge.analyze(this, request.id, transcript, authenticity)
+            currentCoroutineContext().ensureActive()
+            withContext(Dispatchers.IO) { check(pcm.delete()); imported.delete() }
+            val report = AudioReviewResult.save(this, request.id, request.source, response)
+            AudioTranscriptPreview.put(request.id, transcript, request.uri)
+            completedTitle = report.getString("title")
+            notifyResult(request.id, completedTitle, "Tap for the result and next steps. Temporary audio deleted.")
         } catch (_: CancellationException) {
             // User cancellation intentionally produces no scam verdict.
         } catch (error: Throwable) {
-            failureText = if (error is IllegalArgumentException || error is IllegalStateException) error.message ?: "Audio review failed. Try another recording."
+            failureText = if (error is SecurityException) "The recording is no longer readable. Share it again from your recorder or Files app."
+                else if (error is IllegalArgumentException || error is IllegalStateException) error.message ?: "Audio review failed. Try another recording."
                 else "Audio review could not finish. Try another recording or manual review."
             runCatching { notifyResult(request.id, "Audio review could not finish", failureText) }
         } finally {
-            unwatchCallEnd(); runCatching { core?.close() }; core = null; reply = null
+            unwatchCallEnd(); asr?.cancel(); asr = null
+            if (completedTitle == null) AudioTranscriptPreview.delete(request.id)
             withContext(NonCancellable + Dispatchers.IO) {
                 try { recorder?.close() } finally { pcm.delete(); imported.delete(); marker.delete() }
             }
@@ -177,9 +156,10 @@ class AudioReviewService : Service() {
             .setContentTitle(title).setContentText(text).setContentIntent(openIntent(id)).setAutoCancel(true)
             .setVisibility(Notification.VISIBILITY_PRIVATE).build())
     }
-    override fun onTaskRemoved(rootIntent: Intent?) { if (AudioReviewState.state.value.phase == AudioReviewState.Phase.RECORDING) job?.cancel(); super.onTaskRemoved(rootIntent) }
-    override fun onTimeout(startId: Int, fgsType: Int) { job?.cancel(); stopSelf() }
-    override fun onDestroy() { job?.cancel(); scope.cancel(); unwatchCallEnd(); super.onDestroy() }
+    private fun cancelReview() { asr?.cancel(); job?.cancel() }
+    override fun onTaskRemoved(rootIntent: Intent?) { if (AudioReviewState.state.value.phase == AudioReviewState.Phase.RECORDING) cancelReview(); super.onTaskRemoved(rootIntent) }
+    override fun onTimeout(startId: Int, fgsType: Int) { cancelReview(); stopForeground(STOP_FOREGROUND_REMOVE); stopSelf() }
+    override fun onDestroy() { cancelReview(); scope.cancel(); unwatchCallEnd(); super.onDestroy() }
     companion object {
         const val FINISH = "finish-recording"; const val CANCEL = "cancel-audio-review"
         const val CHANNEL = "deferred_audio_progress"; const val REPORTS = "deferred_audio_reports"; const val FOREGROUND_ID = 44

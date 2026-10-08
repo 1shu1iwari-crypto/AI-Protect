@@ -27,12 +27,14 @@ jobs:
       - run: pip install -r requirements.txt
       - run: npm install --no-save playwright@1.62.1
       - run: npx playwright install --with-deps chromium
+      - run: npm run qa:live
+      - run: npm run qa:audio
       - run: npm run qa
       - run: npm run qa:reviews
-      - run: npm run qa:live
   android:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         flavor: [Play, Hackathon]
     steps:
@@ -42,6 +44,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+          log-accepted-android-sdk-licenses: 'false'
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew :app:assemble${{ matrix.flavor }}Debug :app:test${{ matrix.flavor }}DebugUnitTest :app:lint${{ matrix.flavor }}Debug
         working-directory: android
@@ -49,3 +54,27 @@ jobs:
         with:
           name: AI-Protect-${{ matrix.flavor }}-debug
           path: android/app/build/outputs/apk/*/debug/*.apk
+  android-whisper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ggml-org/whisper.cpp
+          ref: 2eeeba56e9edd762b4b38467bab96c2517163158
+          path: native-deps/whisper.cpp
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+          log-accepted-android-sdk-licenses: 'false'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew :app:assembleHackathonDebug :app:testHackathonDebugUnitTest :app:lintHackathonDebug -PwhisperCppDir=${{ github.workspace }}/native-deps/whisper.cpp
+        working-directory: android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AI-Protect-Hackathon-Whisper-debug
+          path: android/app/build/outputs/apk/hackathon/debug/*.apk

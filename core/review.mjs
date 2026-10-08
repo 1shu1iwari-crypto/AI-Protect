@@ -1,7 +1,7 @@
 import {Session,TACTICS,CHANNELS,LABELS} from './engine.mjs';
 import {sanitiseEvidenceEvent} from './evidence.mjs';
 import {verifyCommunication,REGISTRY} from './verification.mjs';
-import {fuseMultimodalEvidence} from './evidence-fusion.mjs';
+import {fuseMultimodalEvidence, normalizeAcousticEvidence} from './evidence-fusion.mjs';
 export const QUICK_SIGNALS = [
  ['authority','Claims bank / institution','A bank officer contacted me.'],
  ['payment','Asks for money','They ask me to send money.'],
@@ -13,7 +13,7 @@ export const QUICK_SIGNALS = [
 ];
 export function signalText(signals){if(!Array.isArray(signals)||signals.some(s=>!QUICK_SIGNALS.some(q=>q[0]===s)))throw Error('Choose supported review signals.');return QUICK_SIGNALS.filter(q=>signals.includes(q[0])).map(q=>q[2]).join(' ');}
 export function responsePlan(paid){if(!['yes','no'].includes(paid))throw Error('Choose whether money was sent.');return {payment_status:paid==='yes'?'sent':'not_sent',title:paid==='yes'?'Act now to limit further loss':'Keep the request paused',steps:paid==='yes'?['Contact your bank or payment provider using its app or the number on your bank card. Ask about securing the account and disputing the transaction.','Preserve the original transaction reference, receipt and messages in a place you control. This redacted summary does not replace original evidence.','Call 1930 promptly and report financial cybercrime through the National Cyber Crime Reporting Portal.','Do not pay a recovery agent, release fee or further deposit to recover lost money.']:['End the conversation. Open the institution’s app yourself or use the number printed on your bank card.','Ignore the request or block the sender in your phone or messaging app after preserving needed evidence.','Report suspicious calls, SMS or WhatsApp through Chakshu on Sanchar Saathi.'],routes:paid==='yes'?[{id:'cybercrime',label:'Financial cybercrime portal',url:'https://cybercrime.gov.in/'},{id:'helpline',label:'Dial 1930',url:'tel:1930'}]:[{id:'chakshu',label:'Sanchar Saathi / Chakshu',url:'https://www.sancharsaathi.gov.in/'}]};}
-const EXPLANATION_LABELS={...LABELS,trust:'Trust-building before a request',reward:'Reward or incentive',redirection:'Payment redirected to another destination',recovery:'Recovery payment / sunk-cost pressure',coercion:'Indirect pressure to comply'};
+const EXPLANATION_LABELS={...LABELS,trust:'Trust-building before a request',reward:'Reward or incentive',redirection:'Payment redirected to another destination',recovery:'Recovery payment / sunk-cost pressure',coercion:'Indirect pressure to comply',verification_suppression:'Discourages independent verification',financial_redirection:'Asks to move money to a different or temporary account'};
 export const REVIEW_LABELS=Object.freeze(EXPLANATION_LABELS);
 const ACTION_LABELS={transfer:'Outgoing transfer request',credentials:'Secret credential request',remote_access:'Remote access request',install_app:'App installation request',open_link:'Link opening request'};
 const VERIFICATION=['verified','unverified','mismatch','unknown'];
@@ -39,12 +39,15 @@ export class ReviewSession extends Session {
  add(input){if(input.userTriggered!==true)throw Error('Tap Check or Review before analysis.');
   // Existing engine owns expiry, warning decisions and fingerprint vocabulary.
   const expired=this.events.length&&(input.timestamp??Date.now())-this.events.at(-1).timestamp>1200000;
-  const verification=verifyCommunication(input.text,expired?null:this.claimed_org,input.sender_context,undefined,{mediaAuthenticity:input.acousticEvidence,userConfirmedIdentity:input.userConfirmedIdentity});
+  const verification=verifyCommunication(input.text,expired?null:this.claimed_org,input.sender_context,undefined,{mediaAuthenticity:input.acousticEvidence ? normalizeAcousticEvidence(input.acousticEvidence) : null,userConfirmedIdentity:input.userConfirmedIdentity});
   const result=super.add({...input,verification_status:verification.status});
   if(verification.claimed_org)this.claimed_org=verification.claimed_org;
   const evidence=explanations(result.event);
   this.workflow_state=result.stage;
-  this.timeline.push(timelineEntry(result.event,result,this.timeline.at(-1),{evidence_type:input.evidence_type,history:this.timeline}));
+  const entry=timelineEntry(result.event,result,this.timeline.at(-1),{evidence_type:input.evidence_type,history:this.timeline});
+  const segment=sanitiseAudioSegment(input.audio_segment);
+  if(segment)entry.audio_segment=segment;
+  this.timeline.push(entry);
   if(this.timeline.length>64)this.timeline.shift();
   const fused=fuseMultimodalEvidence({session:this,riskAssessment:result,verification,acousticEvidence:input.acousticEvidence,currentEvent:result.event});
   return {...result,verification,manipulation:evidence,fused};
@@ -52,17 +55,23 @@ export class ReviewSession extends Session {
  choosePayment(paid){const plan=responsePlan(paid);this.payment_status=plan.payment_status;this.recordAction(paid==='yes'?'reported_paid':'reported_not_paid');return plan;}
  recordAction(action){if(!['reported_paid','reported_not_paid','verify_independently','block_ignore','report_route','export','cancel_simulation','continue_simulation'].includes(action))throw Error('Unsupported action');this.actions_taken.push({action,timestamp:Date.now()});this.actions_taken=this.actions_taken.slice(-32);}
  report(){if(!this.consent)throw Error('Choose to share this pattern first.');if(!this.events.length)throw Error('Check at least one event first.');return {consent:true,fingerprint:this.fingerprint()};}
- snapshot(){return {schema:1,session_id:this.id,started:this.started,updated:this.timeline.at(-1)?.timestamp||this.started,direction:this.direction,user_flagged:this.user_flagged,claimed_org:this.claimed_org,events:this.events.map(e=>({...sanitiseEvidenceEvent(e),modelScores:null})),timeline:this.timeline.map(e=>({timestamp:e.timestamp,channel:e.channel,evidence_type:e.evidence_type,verification:e.verification,evidence:[...e.evidence],new_evidence:[...e.new_evidence],requested_action:e.requested_action,stage:e.stage,severity:e.severity,evidence_strength:e.evidence_strength,workflow_confidence:e.workflow_confidence,action_risk:e.action_risk,escalating:e.escalating,reason:e.reason,change:e.change})),workflow_state:this.workflow_state,payment_status:this.payment_status,actions_taken:this.actions_taken.map(a=>({action:a.action,timestamp:a.timestamp}))};}
+ snapshot(){return {schema:1,session_id:this.id,started:this.started,updated:this.timeline.at(-1)?.timestamp||this.started,direction:this.direction,user_flagged:this.user_flagged,claimed_org:this.claimed_org,events:this.events.map(e=>({...sanitiseEvidenceEvent(e),modelScores:null})),timeline:this.timeline.map(e=>({timestamp:e.timestamp,channel:e.channel,evidence_type:e.evidence_type,verification:e.verification,evidence:[...e.evidence],new_evidence:[...e.new_evidence],requested_action:e.requested_action,stage:e.stage,severity:e.severity,evidence_strength:e.evidence_strength,workflow_confidence:e.workflow_confidence,action_risk:e.action_risk,escalating:e.escalating,reason:e.reason,change:e.change,...(e.audio_segment ? {audio_segment:sanitiseAudioSegment(e.audio_segment)} : {})})),workflow_state:this.workflow_state,payment_status:this.payment_status,actions_taken:this.actions_taken.map(a=>({action:a.action,timestamp:a.timestamp}))};}
  static restore(raw,model=null){
   if(!raw||raw.schema!==1||typeof raw.session_id!=='string'||!IDS.test(raw.session_id)||!Number.isFinite(raw.started)||Date.now()-raw.started>86400000||raw.started>Date.now()+60000||!Array.isArray(raw.events)||raw.events.length>64||!Array.isArray(raw.timeline)||raw.timeline.length!==raw.events.length)throw Error('Review expired or invalid.');
   const s=new ReviewSession(model);s.id=raw.session_id;s.started=raw.started;s.direction=['incoming','outgoing','unknown'].includes(raw.direction)?raw.direction:'unknown';s.user_flagged=raw.user_flagged===true;s.claimed_org=REGISTRY.some(o=>o.id===raw.claimed_org)?raw.claimed_org:null;
-  for(const [index,e] of raw.events.entries()){if(!e||!CHANNELS.includes(e.channel)||!Number.isFinite(e.timestamp)||e.timestamp<(s.events.at(-1)?.timestamp||0)||!Array.isArray(e.tactics)||e.tactics.some(t=>!TACTICS.includes(t)))throw Error('Invalid derived event');const t=raw.timeline[index];s.events.push({...sanitiseEvidenceEvent({...e,verification_status:VERIFICATION.includes(e.verification_status)?e.verification_status:VERIFICATION.includes(t?.verification)?t.verification:'unknown',persuasion_signals:e.persuasion_signals??(Array.isArray(t?.evidence)?t.evidence.filter(type=>['urgency','threat','isolation','trust','reward','redirection','recovery','coercion'].includes(type)):undefined)}),modelScores:null});}
+  for(const [index,e] of raw.events.entries()){if(!e||!CHANNELS.includes(e.channel)||!Number.isFinite(e.timestamp)||e.timestamp<(s.events.at(-1)?.timestamp||0)||!Array.isArray(e.tactics)||e.tactics.some(t=>!TACTICS.includes(t)))throw Error('Invalid derived event');const t=raw.timeline[index];s.events.push({...sanitiseEvidenceEvent({...e,verification_status:VERIFICATION.includes(e.verification_status)?e.verification_status:VERIFICATION.includes(t?.verification)?t.verification:'unknown',persuasion_signals:e.persuasion_signals??(Array.isArray(t?.evidence)?t.evidence.filter(type=>['urgency','threat','isolation','trust','reward','redirection','recovery','coercion','verification_suppression','financial_redirection'].includes(type)):undefined)}),modelScores:null});}
   // Regenerate explanations from enum-only data; never trust persisted prose.
   const all=s.events;s.events=[];
-  for(const e of all){s.events.push(e);const r=s.assess(e);const t=raw.timeline[s.timeline.length];s.timeline.push(timelineEntry(e,r,s.timeline.at(-1),{evidence_type:t?.evidence_type,history:s.timeline}));}
+  for(const e of all){s.events.push(e);const r=s.assess(e);const t=raw.timeline[s.timeline.length];const entry=timelineEntry(e,r,s.timeline.at(-1),{evidence_type:t?.evidence_type,history:s.timeline});const segment=sanitiseAudioSegment(t?.audio_segment);if(segment)entry.audio_segment=segment;s.timeline.push(entry);}
   s.workflow_state=s.timeline.at(-1)?.stage||'Not checked';s.payment_status=['sent','not_sent','unknown'].includes(raw.payment_status)?raw.payment_status:'unknown';
   for(const a of (Array.isArray(raw.actions_taken)?raw.actions_taken:[]).slice(-32)){try{s.recordAction(a.action);}catch{}}
   // Consent is intentionally never restored.
   return s;
  }
+}
+
+// Persist only bounded offsets and attribution enums, never recognized words.
+export function sanitiseAudioSegment(raw){
+ if(!raw||!Number.isSafeInteger(raw.index)||raw.index<0||raw.index>=512||!Number.isSafeInteger(raw.start_ms)||!Number.isSafeInteger(raw.end_ms)||raw.start_ms<0||raw.end_ms<=raw.start_ms||raw.end_ms>600000||!['unknown','me','other'].includes(raw.speaker)||!['en','hi','hi-en','en-hi'].includes(raw.language)||!['adequate','degraded','insufficient'].includes(raw.quality))return null;
+ return {index:raw.index,start_ms:raw.start_ms,end_ms:raw.end_ms,speaker:raw.speaker,language:raw.language,quality:raw.quality,user_reviewed:raw.user_reviewed===true};
 }

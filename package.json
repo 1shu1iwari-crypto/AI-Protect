@@ -15,7 +15,8 @@
     "train:semantic": "node ml/train-semantic.mjs",
     "qa": "node tests/browser.mjs",
     "qa:reviews": "node tests/review-browser.mjs",
-    "qa:live": "node tests/live-review-browser.mjs"
+    "qa:live": "node tests/live-review-browser.mjs",
+    "qa:audio": "node tests/audio-review-browser.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -58,12 +58,21 @@ class LiveCoreBridge(
                             check(!started && value.getString("reviewId") == id);started = true
                             main.removeCallbacks(timeout);onReady()
                         }
-                        "liveRisk" -> {
+                        "audioPlan" -> {
+                            check(started && awaiting && value.getString("reviewId") == id && value.getInt("sequence") == sequence)
+                            awaiting = false; main.removeCallbacks(timeout); onResult(value.getJSONObject("action_plan"))
+                        }
+                        "liveRisk", "recordedRisk" -> {
                             check(started && awaiting && value.getString("reviewId") == id && value.getInt("sequence") == sequence)
                             val clean = ReviewSnapshotPolicy.sanitize(JSONObject().put("active", id)
                                 .put("reviews", JSONArray().put(value.getJSONObject("snapshot"))).toString()).getJSONArray("reviews").getJSONObject(0)
                             check(clean.getString("session_id") == id)
                             val timeline = clean.getJSONArray("timeline")
+                            if (value.getString("type") == "recordedRisk") {
+                                awaiting = false; main.removeCallbacks(timeout)
+                                onResult(JSONObject().put("snapshot",clean).put("verdict",value.getJSONObject("verdict")))
+                                return@addWebMessageListener
+                            }
                             check(timeline.length() > 0)
                             // Severity and signal labels come from independently sanitized enums only.
                             val latest = timeline.getJSONObject(timeline.length() - 1)
@@ -93,6 +102,19 @@ class LiveCoreBridge(
         reply!!.postMessage(JSONObject().put("kind", "liveCallChunk").put("reviewId", id).put("sequence", sequence)
             .put("text", text).put("timestamp", System.currentTimeMillis()).toString())
         main.postDelayed(timeout, 5_000)
+    }
+    fun recording(transcript: RecordedTranscript, authenticity: JSONObject, paymentStatus: String = "unknown") {
+        check(started && !closed && !awaiting)
+        awaiting = true; sequence++
+        reply!!.postMessage(JSONObject().put("kind", "recordedCallReview").put("reviewId",id).put("sequence",sequence)
+            .put("transcript",transcript.json()).put("acousticEvidence",authenticity).put("paymentStatus",paymentStatus).toString())
+        main.postDelayed(timeout, 20_000)
+    }
+    fun paymentPlan(status: String) {
+        check(started && !closed && !awaiting && status in setOf("sent", "not_sent", "unknown"))
+        awaiting = true; sequence++
+        reply!!.postMessage(JSONObject().put("kind","recordedActionPlan").put("reviewId",id).put("sequence",sequence).put("paymentStatus",status).toString())
+        main.postDelayed(timeout, 5000)
     }
     fun close() {
         if (closed) return

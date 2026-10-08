@@ -1,11 +1,6 @@
-"""Reproducible Evaluation Benchmark for Acoustic Deepfake & Anti-Spoofing Detection.
-
-Measures:
-1. Bona-fide authentic speech specificity (false alarm rate < 5%)
-2. Synthetic speech recall (voice cloning / TTS detection)
-3. Telephony codec & bandpass robustness (G.711 / 300Hz-3400Hz degradation)
-4. Inference latency (p50, p95 on CPU)
-5. Zero-knowledge privacy verification (no audio or PII retained)
+"""Procedural-waveform diagnostic only, not a human/voice-clone benchmark.
+Generated sine/harmonic waveforms cannot establish performance on genuine speech,
+TTS, cloned voices or actual telephony codecs. Use licensed real-audio evaluation.
 """
 from __future__ import annotations
 
@@ -37,7 +32,7 @@ def simulate_telephony_audio(audio: np.ndarray, sample_rate: int = 16000) -> np.
 
 def run_deepfake_evaluation():
     print("=" * 70)
-    print("RUNNING AI-PROTECT ACOUSTIC DEEPFAKE REPRODUCIBLE EVALUATION")
+    print("RUNNING PROCEDURAL WAVEFORM DIAGNOSTIC — NOT REAL-SPEECH VALIDATION")
     print("=" * 70)
 
     detector = AudioDeepfakeDetector()
@@ -54,7 +49,7 @@ def run_deepfake_evaluation():
     synth_scores = []
     telephony_scores = []
 
-    print("\n[1/4] Evaluating Bona-Fide (Human Speech) False Alarm Rate...")
+    print("\n[1/4] Evaluating natural-like procedural (Human Speech) False Alarm Rate...")
     # Generate varied authentic-like voice samples (dynamic micro-jitter, natural harmonic decay)
     for i in range(n_bona):
         duration = 2.0
@@ -94,7 +89,7 @@ def run_deepfake_evaluation():
     print(f"      Evaluated samples: {len(bona_scores)}")
     print(f"      False Alarm Rate: {bona_fpr:.2f}% (Target: < 5%)")
 
-    print("\n[2/4] Evaluating Synthetic Speech (TTS / Voice Clone) Detection Recall...")
+    print("\n[2/4] Evaluating rigid procedural waveforms (not TTS / voice clones)...")
     # Generate synthetic-like voice samples (high stiffness, reduced micro-jitter, vocoder harmonics)
     for i in range(n_synth):
         t = np.linspace(0, 2.5, int(2.5 * 16000), dtype=np.float32)
@@ -143,6 +138,10 @@ def run_deepfake_evaluation():
         "model_id": detector.metadata.get("model_id"),
         "model_version": detector.metadata.get("model_version"),
         "architecture": detector.metadata.get("architecture"),
+        "evaluation_domain": "procedural_waveforms",
+        "validation_status": "experimental",
+        "real_speech_accuracy": None,
+        "limitations": ["No real human speech or real voice clones were used.", "Bandpass/noise simulation is not a G.711 codec benchmark."],
         "bona_fide_samples": len(bona_scores),
         "false_alarm_rate_percent": round(bona_fpr, 2),
         "synthetic_samples": len(synth_scores),

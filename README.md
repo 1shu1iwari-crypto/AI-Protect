@@ -1,11 +1,11 @@
 # AI-Protect — Financial Communication Trust & Response Platform
 
-> **A pause before you pay.** Privacy-first multimodal system to verify financial communications, detect synthetic audio manipulation (voice cloning / deepfakes), expose deceptive institutional impersonation, and prevent financial loss across calls, messages, links, and UPI payments. Built for **RAKSHAM 2026 Problem Statement 02** (IIT Delhi AI Cybersecurity Hackathon).
+> **A pause before you pay.** Privacy-first multimodal system to verify financial communications, review user-shared call recordings and assess voice authenticity when a validated model is available, expose deceptive institutional impersonation, and prevent financial loss across calls, messages, links, and UPI payments. Built for **RAKSHAM 2026 Problem Statement 02** (IIT Delhi AI Cybersecurity Hackathon).
 
 ![AI-Protect Platform](docs/screenshots/site-desktop.png)
 
 [![Test Suite](https://img.shields.io/badge/tests-81%20JS%20%2B%2028%20Python%20passing-brightgreen)](#reproducible-evaluation-benchmarks)
-[![Deepfake Detection](https://img.shields.io/badge/Acoustic%20Deepfake-100%25%20recall%20%7C%200.0%25%20FAR-blueviolet)](#acoustic-deepfake--voice-authenticity-benchmark)
+[![Voice Authenticity](https://img.shields.io/badge/Voice%20Authenticity-experimental%20%2F%20inconclusive-blueviolet)](#acoustic-deepfake--voice-authenticity-engine)
 [![Accuracy](https://img.shields.io/badge/PhiUSIIL%20URL-88.57%25%20acc%20%7C%2098.81%25%20prec-blue)](#reproducible-evaluation-benchmarks)
 [![Alert Burden](https://img.shields.io/badge/UCI%20SMS%20False%20Alerts-0.02%25%20(<1%20per%201k)-success)](#reproducible-evaluation-benchmarks)
 [![Zero-Day Radar](https://img.shields.io/badge/HDBSCAN%20Radar%20Purity-100%25-blueviolet)](#reproducible-evaluation-benchmarks)
@@ -159,7 +159,7 @@ flowchart TD
 
 | Component | Technology / File | Role & Functionality | Storage & State |
 |---|---|---|---|
-| **Acoustic Deepfake Detector** | [`ml/deepfake/detector.py`](file:///c:/Users/MSI-1/iitd/AI-Protect/ml/deepfake/detector.py) | 84-D acoustic feature extraction (LFCC, delta, spectral envelope, pitch micro-jitter) + ONNX neural classifier. | Zero raw audio saved; features discarded. |
+| **Acoustic Deepfake Detector** | [`ml/deepfake/detector.py`](file:///c:/Users/MSI-1/iitd/AI-Protect/ml/deepfake/detector.py) | 84-D acoustic feature extraction (LFCC, delta, spectral envelope, pitch micro-jitter) + ONNX neural classifier. | Experimental only; no real-speech authenticity claim. |
 | **Multimodal Evidence Fusion** | [`core/evidence-fusion.mjs`](file:///c:/Users/MSI-1/iitd/AI-Protect/core/evidence-fusion.mjs) | Triangulates acoustic authenticity, institutional identity status, and behavioral contradiction into unified risk. | Session lifecycle (in-memory). |
 | **Lookalike Domain & PSL Analyzer** | [`core/verification.mjs`](file:///c:/Users/MSI-1/iitd/AI-Protect/core/verification.mjs) | Public Suffix List multi-level domain extractor, brand mismatch detector, and lookalike impersonation classifier. | In-memory registry. |
 | **Institution Registry** | [`core/institution-registry.mjs`](file:///c:/Users/MSI-1/iitd/AI-Protect/core/institution-registry.mjs) | Ground-truth repository of Indian financial & regulatory institutions (SBI, HDFC, RBI, Cybercrime 1930, Chakshu). | Static verified registry. |
@@ -194,16 +194,12 @@ flowchart TD
 
 ## Acoustic Deepfake & Voice Authenticity Engine
 
-AI-Protect includes a dedicated acoustic deepfake detection engine (`ml/deepfake/`):
-- **Feature Pipeline**:
-  - Validates audio quality (duration $\ge 1.0$s, clipping ratio $< 10\%$, silence $< 80\%$, SNR $\ge 6$ dB).
-  - Extracts 84-dimensional acoustic features: Linear Frequency Cepstral Coefficients (LFCC 0–19), Delta LFCCs, Spectral Centroid, Bandwidth, Roll-off, Skewness, Kurtosis, and F0 pitch contour micro-jitter and coefficient of variation.
-- **Model Graph**:
-  - Calibrated ONNX neural classifier (`ml/deepfake/weights/acoustic_guard_v1.onnx`, 32.5 KB).
-  - Trained to distinguish natural vocal tract micro-jitter and harmonic decay from vocoded TTS artifacts and pitch stiffness.
-- **Failure-Safe Handling**:
-  - Transparently reports failure modes (`model_unavailable`, `insufficient_data`, `decode_failure`, `inference_failure`).
-  - Strict privacy: audio buffers are wiped immediately after inference; zero audio files are stored or uploaded.
+AI-Protect keeps financial manipulation, voice authenticity and caller identity separate. A natural voice cannot establish a legitimate financial request; a synthetic voice alone cannot establish a scam.
+
+- **Android recording review:** share an audio attachment to AI-Protect MVP, confirm analysis, transcribe offline, and receive a plain-language financial verdict plus next steps. Included Vosk models cover Hindi and English. An optional real `whisper.cpp` JNI provider supports multilingual transcription, including auto language selection when multilingual weights are installed. See [recording review setup and acceptance matrix](android/SHARED_RECORDING_REVIEW.md).
+- **Voice authenticity:** the bundled 84-feature LFCC/spectral ONNX classifier was trained on **procedurally generated waveforms**, not real human speech versus genuine voice clones. It is **not AASIST**. Its diagnostic scores do not establish real-world deepfake accuracy. Python returns `experimental_only`, `inconclusive` and `uncalibrated`; evidence fusion refuses to treat these scores as authentic/synthetic proof.
+- **Physical phones:** the default Android pipeline has no media-upload transport and no emulator backend address. No validated native acoustic model is installed, so voice authenticity is explicitly **inconclusive**. Scam reasoning still runs on the recognized speech.
+- **Validation still needed:** licensed human/TTS/cloned recordings, speaker/generator-disjoint held-out evaluation, Hindi/Hinglish and regional-language coverage, genuine codec degradation and real-device memory/latency. Use the official [AASIST implementation](https://github.com/clovaai/aasist) and [ASVspoof datasets](https://www.asvspoof.org/index2021.html) as independent research resources; their published results are not AI-Protect results.
 
 ---
 
@@ -229,16 +225,11 @@ AI-Protect includes a dedicated acoustic deepfake detection engine (`ml/deepfake
 
 All figures below are generated directly by running `npm run evaluate:all` and `python evaluation/evaluate_deepfake.py`:
 
-### 1. Acoustic Deepfake & Voice Authenticity Benchmark
+### 1. Acoustic validation status
 
-| Metric | Target | Measured Result | Evaluation Condition |
-|---|---|---|---|
-| **Synthetic Speech Recall** | > 90.0% | **100.00%** | 50 TTS / vocoded voice clone audio samples |
-| **Bona-Fide Human False Alarm Rate** | < 5.0% | **0.00%** | 50 authentic human speech samples |
-| **Telephony G.711 Retention** | > 85.0% | **100.0%** | 300Hz–3400Hz bandpass filter + line noise degradation |
-| **On-Device CPU Latency (p50)** | < 500 ms | **171.36 ms** | Single-thread CPU ONNX execution |
-| **On-Device CPU Latency (p95)** | < 1000 ms | **288.20 ms** | Single-thread CPU ONNX execution |
-| **Audio Exfiltration / Retention** | 0 bytes | **0 bytes** | Zero raw audio persisted or transmitted |
+`evaluation/evaluate_deepfake.py` is a **procedural-waveform diagnostic only**. Earlier labels describing its generated waveforms as authentic human/TTS/voice-clone samples were incorrect. The historical 100%/0% values do not establish voice-authenticity accuracy. Bandpass filtering plus noise is not a G.711 codec test, and server CPU timing is not Android timing. The stored diagnostic JSON now records these limitations.
+
+No real-call ASR or real-speech deepfake benchmark has been completed in this feature increment. `ml/asr/evaluate_asr.py` scores independently transcribed Hindi/English/Hinglish references against actual model hypotheses, reporting WER/CER and critical-term retention without copying private speech into results.
 
 ### 2. 4-Way Architectural Ablation Benchmark
 

@@ -34,3 +34,11 @@ Verify eligibility, registration, actual team identity, dependency licences, org
 ## v0.3 additions
 
 Review state, registry matching, UI, Kotlin companion, tests and docs are AI-generated under user instruction. Hero KYC/call/QR inputs are synthetic `.invalid`/`@demo` fixtures. No new model or real conversation dataset was added. Android uses Kotlin 2.0.21, Android Gradle Plugin 8.9.1, Gradle 8.11.1 and AndroidX WebKit 1.12.1 (Apache-2.0); JVM tests use JUnit 4.13.2 (EPL-1.0), Robolectric 4.14.1 (MIT) and Mockito 5.15.2 (MIT). Official SDK/JDK tooling is build-only. No borrowed product branding or UI was copied. The existing submission PDF describes v0.2 and has not been regenerated for this Android increment.
+
+## Shared recording review and acoustic-model correction
+
+The new Android share receiver accepts one content URI and waits for a separate Analyze tap. It uses no broad storage, microphone or accessibility permissions for imports. Native sharing, decoding, Hindi/English Vosk ASR, optional multilingual Whisper JNI, energy/clip quality screening, timestamped financial evidence, local transcript corrections, offline text-to-speech and derived reporting are implemented. Automatic speaker diarization and representative real-call benchmarks are not implemented. Energy gating is not a learned VAD.
+
+The included acoustic ONNX model is a procedural-waveform MLP, not AASIST. Its historical perfect diagnostic scores are not human/voice-clone accuracy. Python model metadata and outputs now mark it experimental and uncalibrated; fusion requires real-speech evaluation provenance before accepting an acoustic authenticity claim. Android has no validated native acoustic model and returns inconclusive without uploading audio.
+
+No real private recordings, new pretrained anti-spoofing weights, or benchmark results were manufactured for this feature. Optional whisper.cpp source is pinned to v1.8.3 commit 2eeeba56e9edd762b4b38467bab96c2517163158; multilingual ggml model weights must be bundled at build time or explicitly imported. See android/SHARED_RECORDING_REVIEW.md for build instructions, licences and physical-device acceptance checks.

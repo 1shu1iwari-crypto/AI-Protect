@@ -11,7 +11,7 @@ import java.util.UUID
 object AudioReviewState {
     enum class Phase { IDLE, STARTING, RECORDING, ANALYZING, DONE, ERROR }
     data class State(val phase: Phase = Phase.IDLE, val status: String = "Ready", val id: String = "")
-    data class Request(val id: String, val language: String, val uri: Uri?, val autoFinish: Boolean)
+    data class Request(val id: String, val language: String, val uri: Uri?, val autoFinish: Boolean, val source: String)
     private val mutable = MutableStateFlow(State())
     val state = mutable.asStateFlow()
     val active get() = mutable.value.phase in setOf(Phase.STARTING, Phase.RECORDING, Phase.ANALYZING)
@@ -19,11 +19,13 @@ object AudioReviewState {
     private var grantedAt = 0L
     var unread = false
         private set
-    fun authorize(language: String, uri: Uri?, autoFinish: Boolean): String {
+    fun authorize(language: String, uri: Uri?, autoFinish: Boolean, source: String = if (uri == null) "microphone_recording" else "imported_recording"): String {
         check(!active && !LiveReviewCoordinator.active) { "Finish the current review first." }
-        require(language in setOf("en", "hi"))
+        require(language in setOf("en", "hi", "auto"))
         require(uri == null || uri.scheme == "content")
-        val request = Request(UUID.randomUUID().toString(), language, uri, autoFinish)
+        require(source in setOf("microphone_recording", "imported_recording", "shared_recording"))
+        require((uri == null) == (source == "microphone_recording"))
+        val request = Request(UUID.randomUUID().toString(), language, uri, autoFinish, source)
         val token = UUID.randomUUID().toString()
         pending = token to request; grantedAt = SystemClock.elapsedRealtime()
         mutable.value = State(Phase.STARTING, "Preparing review…", request.id)
@@ -37,6 +39,11 @@ object AudioReviewState {
         return grant.second
     }
     fun update(phase: Phase, status: String) { mutable.value = mutable.value.copy(phase = phase, status = status) }
+    fun beginCorrection(id: String) {
+        check(!active && !LiveReviewCoordinator.active) { "Finish the current review first." }
+        require(CallReviewPolicy.safeId(id) != null)
+        pending = null; mutable.value = State(Phase.ANALYZING, "Updating the review from your corrections…", id)
+    }
     fun complete(title: String) { pending = null; unread = true; update(Phase.DONE, title) }
     fun fail(message: String) { pending = null; update(Phase.ERROR, message) }
     fun consumeUnread(): Boolean { val result = unread; unread = false; return result }

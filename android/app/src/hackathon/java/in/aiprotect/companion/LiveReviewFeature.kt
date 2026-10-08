@@ -11,9 +11,13 @@ import java.util.UUID
 object LiveReviewFeature {
     fun offer(id: String, direction: String) = LiveReviewCoordinator.eligible(id, direction)
     fun reviewIntent(context: Context) = Intent(context, AudioReviewActivity::class.java)
+    fun handleAudioShare(activity: Activity, incoming: Intent) {
+        activity.startActivity(Intent(incoming).setClass(activity, AudioReviewActivity::class.java)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+    }
     fun installControls(activity: Activity, root: LinearLayout) {
         root.addView(Button(activity).apply {
-            text = "Record or upload a call · review afterward"
+            text = "Review a call recording"
             setOnClickListener { activity.startActivity(reviewIntent(activity)) }
         })
         root.addView(Button(activity).apply {

@@ -1,0 +1,8 @@
+Optional multilingual speech provider: whisper.cpp v1.8.3
+Source: https://github.com/ggml-org/whisper.cpp
+Pinned revision: 2eeeba56e9edd762b4b38467bab96c2517163158
+whisper.cpp and Whisper model weights are licensed under MIT.
+Native source/model files are external build inputs, not included in this repository.
+When distributing a Whisper-enabled APK, include the exact upstream LICENSE files
+for the checked-out whisper.cpp/ggml source and any bundled model weights.
+No speech model or audio is downloaded automatically by the running app.
