@@ -80,7 +80,7 @@ class AudioReviewTest {
         store.save(JSONObject().put("id", "expired-report").put("created", now - 86_400_001))
         assertFalse(store.list().any { it.getString("id") == "expired-report" })
     }
-    @Test fun unavailableAcousticModelIsInconclusiveWithoutAnyNetworkTransport() = kotlinx.coroutines.runBlocking {
+    @Test fun unavailableAcousticModelIsInconclusiveWithoutAnyNetworkTransport() = kotlinx.coroutines.runBlocking<Unit> {
         val analyzer = OfflineAudioAnalyzer(RuntimeEnvironment.getApplication())
         val dummyPcm = File(RuntimeEnvironment.getApplication().cacheDir, "test.pcm").apply {
             writeBytes(ByteArray(32000))
@@ -91,7 +91,7 @@ class AudioReviewTest {
         assertTrue(result.isNull("raw_model_score"))
         dummyPcm.delete()
     }
-    @Test fun energyQualityGateDoesNotInventSpeechFromSilenceAndFlagsClipping() = kotlinx.coroutines.runBlocking {
+    @Test fun energyQualityGateDoesNotInventSpeechFromSilenceAndFlagsClipping() = kotlinx.coroutines.runBlocking<Unit> {
         val pcm = File(RuntimeEnvironment.getApplication().cacheDir,"quality.pcm")
         try {
             pcm.writeBytes(ByteArray(64000)); assertEquals("insufficient",AudioQualityGate.inspect(pcm).status)
