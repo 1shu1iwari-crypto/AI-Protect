@@ -43,6 +43,7 @@ class AudioReviewActivity : Activity() {
     private var player: MediaPlayer? = null
     private var tts: TextToSpeech? = null
     private var export: String? = null
+    private var installingModel = false
     private val languageCodes get() = if (WhisperModels.ready(this)) listOf("auto", "en", "hi") else listOf("en", "hi")
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
     private fun label(root: LinearLayout, value: String, size: Float = 18f): TextView = TextView(this).apply {
@@ -101,15 +102,14 @@ class AudioReviewActivity : Activity() {
         }
         label(options, "Recording needs participant awareness, microphone access and the floating shield. Use speakerphone. Android may exclude the other caller. For WhatsApp or unsupported SIMs, tap Stop yourself. Importing a recording needs none of these permissions.", 16f)
         if (WhisperNative.available) button(options, "Add a multilingual offline speech model") {
-            if (!AudioReviewState.active) startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/octet-stream").addCategory(Intent.CATEGORY_OPENABLE), PICK_MODEL)
+            if (!installingModel && !AudioReviewState.active && !LiveReviewCoordinator.active) startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/octet-stream").addCategory(Intent.CATEGORY_OPENABLE), PICK_MODEL)
         }
         button(root, "Open other reviews") { startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)) }
         label(root, "Recent results · deleted after 24 hours", 22f)
         reports = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; root.addView(this) }
         scope.launch { AudioReviewState.state.collect { state ->
             status.text = state.status
-            val busy = AudioReviewState.active || LiveReviewCoordinator.active
-            record.isEnabled = !busy; upload.isEnabled = !busy; language.isEnabled = !busy; automatic.isEnabled = !busy
+            refreshControls()
             stop.visibility = if (state.phase == AudioReviewState.Phase.RECORDING) View.VISIBLE else View.GONE
             cancel.visibility = if (AudioReviewState.active) View.VISIBLE else View.GONE
             renderReports()
@@ -123,7 +123,7 @@ class AudioReviewActivity : Activity() {
         offerImport(uri, "shared_recording")
     }
     private fun offerImport(uri: Uri, source: String) {
-        if (AudioReviewState.active || LiveReviewCoordinator.active) { showError("Finish or cancel the current review, then share this recording again."); return }
+        if (installingModel || AudioReviewState.active || LiveReviewCoordinator.active) { showError("Finish the current setup or review, then share this recording again."); return }
         selected = uri; selectedSource = source; generation++
         val current = generation; consentDialog?.dismiss()
         scope.launch {
@@ -155,6 +155,7 @@ class AudioReviewActivity : Activity() {
     }
     private fun startReview(uri: Uri?, source: String) {
         try {
+            check(!installingModel) { "Wait for speech model setup to finish." }
             val code = languageCodes[language.selectedItemPosition]
             val consent = AudioReviewState.authorize(code, uri, automatic.isChecked, source)
             val request = Intent(this, AudioReviewService::class.java).putExtra("consent", consent)
@@ -168,6 +169,10 @@ class AudioReviewActivity : Activity() {
         }
     }
     private fun serviceAction(action: String) { if (AudioReviewState.active && correction == null) startService(Intent(this, AudioReviewService::class.java).setAction(action)) }
+    private fun refreshControls() {
+        val busy = installingModel || AudioReviewState.active || LiveReviewCoordinator.active
+        record.isEnabled = !busy; upload.isEnabled = !busy; language.isEnabled = !busy; automatic.isEnabled = !busy
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) { if (requestCode == EXPORT) export = null; return }
@@ -175,13 +180,15 @@ class AudioReviewActivity : Activity() {
         when (requestCode) {
             PICK_AUDIO -> offerImport(uri, "imported_recording")
             PICK_MODEL -> scope.launch {
+                val selectedLanguage = languageCodes.getOrNull(language.selectedItemPosition) ?: "en"
                 try {
-                    check(!AudioReviewState.active); status.text = "Adding offline languages…"
+                    check(!installingModel && !AudioReviewState.active && !LiveReviewCoordinator.active)
+                    installingModel = true; refreshControls(); status.text = "Adding offline languages…"
                     withContext(Dispatchers.IO) { WhisperModels.install(this@AudioReviewActivity, uri) }
-                    val position = language.selectedItemPosition
                     language.adapter = languagePicker(LinearLayout(this@AudioReviewActivity)).adapter
-                    language.setSelection(position.coerceAtMost(languageCodes.lastIndex)); status.text = "Multilingual offline speech is ready."
+                    language.setSelection(languageCodes.indexOf(selectedLanguage).coerceAtLeast(0)); status.text = "Multilingual offline speech is ready."
                 } catch (error: Exception) { if (error is CancellationException) throw error; showError(error.message ?: "Could not add the speech model.") }
+                finally { installingModel = false; refreshControls() }
             }
             EXPORT -> { val value = export; export = null; if (value != null) scope.launch {
                 try { withContext(Dispatchers.IO) { contentResolver.openOutputStream(uri)?.use { it.write(value.toByteArray()) } ?: error("Choose a writable location.") } }
